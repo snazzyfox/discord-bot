@@ -1,0 +1,8 @@
+build/
+.idea/
+.vscode/
+.DS_STORE
+__pycache__
+*.pyc
+*.pyo
+*.pyx

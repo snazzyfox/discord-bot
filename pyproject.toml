@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "discord-party-dingomata"
+version = "0.1.0"
+description = "Distribute game codes on Discord at random to people."
+authors = ["SnazzyFox <12706268+snazzyfox@users.noreply.github.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"  # Required for random.sample with weights
+"discord.py" = "^1.7.3"
+listener = "^2.0.0-alpha.1"
+
+[tool.poetry.dev-dependencies]
+pyinstaller = "^4.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
