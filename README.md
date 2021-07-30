@@ -12,23 +12,37 @@ Before you run the bot, you'll need
 - A channel where admins control the bot (this should be hidden from public view, otherwise everyone will be able to 
   see the messages you're DMing winners via the bot)
 
+This bot is intended to be run locally instead of hosted. (Well, you can host it, but it works on one Discord server 
+at a time.)
+
+You will need 
+- Python 3.9+ 
+- [Poetry](https://python-poetry.org/docs/#installation) is the build system of choice.
+
+To run the app
+- `git clone` this repository
+- `poetry install`
+- `poetry run python app.py`
+
 ## How it works
 
 The typical way this bot should be used is like this:
 
-- A moderator opens a queue with `+open My Awesome Game`
-- The bot posts a message in a channel, such as "The Dingomata is now accepting players for My Awesome Game. 
-  React to this message for a chance to join the game!"
-- Members join the pool by reacting (any emote) to the message
-- Member receives a join successful message via DM. **If their DM is not open, 
-- Mod closes the pool with `+close`. Members will no longer be able to join after this
+- A moderator opens the pool with `+open My Awesome Game`
+- The bot posts a message in a channel
+- Members join the pool by clicking on the provided reaction. They can leave the pool by un-reacting.
+- Member receives a join successful message via DM. **Users whose DM is not open cannot join, because there will be no way to privately send them the game code.** 
+- Mod closes the pool with `+close`.
 - Mod issues a command like `+pick 8 Game code is ABCD`
-- The bot DM's the message to each selected user, like "You've been selected! Game code is ABCD"
-- The bot posts a public message in the channel announcing the selected users: "Congrats to @person @person @person. 
-  Watch out for DMs!"
+- The bot DM's the secret message (game code) to selected users, and a public announcement listing the users selected
 
-The bot also keeps track of which users have been selected in each round, and can be configured so that a user cannot 
-join consecutive games.
+After that, mods can continue issuing `+pick` commands to select more and more users from the same pool, or they can
+clear the pool and start over.
+
+Optionally, the bot keeps track of which users selected in each round, and denies these users from joining after they've
+been selected once.
+
+Everything this bot does is stored in memory. If you close the app, all data will be lost. 
 
 ## Command List
 

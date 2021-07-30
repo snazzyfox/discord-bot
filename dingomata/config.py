@@ -22,7 +22,6 @@ class ConfigurationKey(Enum):
     MESSAGE_JOINED = ('message', 'joined')
     MESSAGE_LEFT = ('message', 'left')
     MESSAGE_CLOSED = ('message', 'closed')
-    MESSAGE_PICKED_DM_PREFIX = ('message', 'picked_dm_prefix')
     MESSAGE_PICKED_ANNOUNCE = ('message', 'picked_announce')
 
 

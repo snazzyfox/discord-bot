@@ -1,7 +1,16 @@
-build/
+# Editors
 .idea/
 .vscode/
+
+# Pyinstaller
+build/
+dist/
+app.spec
+
+# OS
 .DS_STORE
+
+# Python
 __pycache__
 *.pyc
 *.pyo
