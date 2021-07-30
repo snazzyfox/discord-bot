@@ -12,6 +12,10 @@ Before you run the bot, you'll need
 - A channel where admins control the bot (this should be hidden from public view, otherwise everyone will be able to 
   see the messages you're DMing winners via the bot)
 
+When creating a bot user on the [Discord developer portal](https://discord.com/developers), you will need to enable
+- Bot permissions: Send Messages, View Channels, Read Message History, and Add Reactions (68672)
+- Enable server members intent. This is required for the bot to detect removal of reactions.
+
 This bot is intended to be run locally instead of hosted. (Well, you can host it, but it works on one Discord server 
 at a time.)
 

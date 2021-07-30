@@ -18,7 +18,7 @@ MOD_CHANNEL_IDS = {int(item) for item in get_config_value(ConfigurationKey.SECUR
 
 bot = commands.Bot(
     command_prefix=get_config_value(ConfigurationKey.BOT_COMMAND_PREFIX),
-    intents=Intents(guilds=True, messages=True, dm_messages=True, typing=True, guild_reactions=True)
+    intents=Intents(guilds=True, messages=True, dm_messages=True, typing=True, guild_reactions=True, members=True)
 )
 bot.add_cog(DingomataCommands(bot))
 
