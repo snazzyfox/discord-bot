@@ -70,7 +70,7 @@ class DingomataCommands(Cog, name='Dingomata'):
             if self._pool.is_open:
                 try:
                     self._pool.remove_member(member)
-                    await member.send(get_config_value(ConfigurationKey.MESSAGE_JOINED).format(title=self._title))
+                    await member.send(get_config_value(ConfigurationKey.MESSAGE_LEFT).format(title=self._title))
                 except Forbidden:
                     # We don't care for removals
                     pass
@@ -120,7 +120,7 @@ class DingomataCommands(Cog, name='Dingomata'):
                                   + '\n'.join(user.display_name for user in self._picked_users),
                       color=Color.blue())
         await self._channel.send(embed=embed)
-        await self.resend(ctx, message)
+        await self.resend(ctx, message=message)
 
     @Command
     async def resend(self, ctx: Context, *, message: str) -> None:
@@ -147,7 +147,7 @@ class DingomataCommands(Cog, name='Dingomata'):
         """
         await ctx.reply('\n'.join(member.display_name for member in self._pool.members))
 
-    @group(invoke_without_command=False)
+    @group(invoke_without_command=True)
     async def clear(self, ctx: Context) -> None:
         """Clear state about the pool."""
         await ctx.send_help('clear')
