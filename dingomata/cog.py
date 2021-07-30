@@ -80,10 +80,11 @@ class DingomataCommands(Cog, name='Dingomata'):
                 log.info(f"Member not added to pool because it is closed: {member}")
 
     @Command
-    async def open(self, ctx: Context, title: str = '') -> None:
+    async def open(self, ctx: Context, *, title: str = '') -> None:
         """Opens the pool for entry."""
         self._pool.open()
-        self._title = title
+        if title:
+            self._title = title
         embed = Embed(title=get_config_value(ConfigurationKey.MESSAGE_OPENED).format(title=title),
                       description=get_config_value(ConfigurationKey.MESSAGE_OPENED_SUB).format(title=title),
                       color=Color.gold(),
@@ -99,10 +100,11 @@ class DingomataCommands(Cog, name='Dingomata'):
         Members can no longer enter the pool once it's closed.
         """
         self._pool.close()
-        embed = Embed(description=get_config_value(ConfigurationKey.MESSAGE_CLOSED).format(title=self._title),
-                      color=Color.dark_red())
+        embed = Embed(
+            title=get_config_value(ConfigurationKey.MESSAGE_CLOSED).format(title=self._title),
+            description=f'Total Entries: {self._pool.size}',
+            color=Color.dark_red())
         await self._current_message.edit(embed=embed)
-        await ctx.message.reply(f'Submission closed. Received {self._pool.size} entries.')
         await ctx.message.add_reaction(_CHECKMARK)
 
     @Command

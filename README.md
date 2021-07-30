@@ -2,9 +2,6 @@
 A bot that randomly selects users and DM's them a message on Discord. This is intended for more fairly selecting 
 players on stream. 
 
-This bot is intended to be run on the host's machine. It can be hosted or ran by someone else, but it's probably not
-necessary. It only works with one discord server at a time.
-
 ## Getting Started
 
 Before you run the bot, you'll need 
@@ -12,21 +9,21 @@ Before you run the bot, you'll need
 - A channel where admins control the bot (this should be hidden from public view, otherwise everyone will be able to 
   see the messages you're DMing winners via the bot)
 
-When creating a bot user on the [Discord developer portal](https://discord.com/developers), you will need to enable
+When creating a bot user on the Discord developer portal, you will need to enable
 - Bot permissions: Send Messages, View Channels, Read Message History, and Add Reactions (68672)
-- Enable server members intent. This is required for the bot to detect removal of reactions.
+- Server Members intent. This is required for the bot to detect removal of reactions.
 
-This bot is intended to be run locally instead of hosted. (Well, you can host it, but it works on one Discord server 
+This bot is intended to be run locally instead of hosted. (Well, you *could* host it, but it works on one Discord server 
 at a time.)
 
 You will need 
-- Python 3.9+ 
-- [Poetry](https://python-poetry.org/docs/#installation) is the build system of choice.
+- Python 3.9+
+- [Poetry](https://python-poetry.org/docs/#installation)
 
 To run the app
 - `git clone` this repository
 - `poetry install`
-- `poetry run python app.py`
+- `poetry run python -m dingomata`
 
 ## How it works
 
@@ -55,7 +52,7 @@ accepted from moderator channels (controlled by `manage_channel` config).
 
 | Command | Description |
 | --- | --- |
-| `+open <title>` | Opens the pool for entry. The title parameter is text that can be included in the bot's message. |
+| `+open <title>` | Opens the pool for entry. The title parameter is text that can be included in the bot's message. If there's no title, the previous title is reused. |
 | `+close` | Closes the currently open pool. |
 | `+pick <count> <message>` | Pick <count> users at random from the pool. These users will be removed from the pool after picking. The pool must be closed first. |
 | `+resend <message>` | Send a message to everyone who was last picked. |
@@ -64,7 +61,7 @@ accepted from moderator channels (controlled by `manage_channel` config).
 | `+list` | Lists all members who in the current pool. This will not actually mention the users to avoid being bonked by moderation bots.
 | `+help` | Displays this list. |
 
-## Configuration File Reference
+## Configuration File
 
 Options in the `disqueue.cfg` configuration file control how the bot runs. If you change these settings, the bot must 
 be restarted for them to take effect. See comments in the file for the meaning of each configuration option.
