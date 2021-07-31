@@ -111,6 +111,8 @@ class DingomataCommands(Cog, name='Dingomata'):
     async def pick(self, ctx: Context, count: int, *, message: str) -> None:
         """Randomly pick users from the pool and send them a DM.
 
+        If the pool is open, it will be closed automatically.
+
         If the bot is configured to exclude selected users from future pools, they will be added to the exclusion
         list after they're picked.
         """

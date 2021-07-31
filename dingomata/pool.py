@@ -53,7 +53,7 @@ class MemberPool:
         self._picked_users = set()
 
     def pick(self, count: int) -> List[Member]:
-        self._require_pool_status(False)
+        self._is_open = False
         if count > len(self._members):
             raise MemberPoolStateError(f'Cannot pick more member than there are in the pool. The pool has {self.size} '
                                        f'members in it.')

@@ -53,8 +53,8 @@ accepted from moderator channels (controlled by `manage_channel` config).
 | Command | Description |
 | --- | --- |
 | `+open <title>` | Opens the pool for entry. The title parameter is text that can be included in the bot's message. If there's no title, the previous title is reused. |
-| `+close` | Closes the currently open pool. |
-| `+pick <count> <message>` | Pick <count> users at random from the pool. These users will be removed from the pool after picking. The pool must be closed first. |
+| `+close` | Closes the pool, so no more people can enter. |
+| `+pick <count> <message>` | Pick <count> users at random from the pool. These users will be removed from the pool after picking. The pool will be closed. |
 | `+resend <message>` | Send a message to everyone who was last picked. |
 | `+clear pool` | Clears the current pool |
 | `+clear selected` | Clears the history of selected users, making everyone eligible for the next pool. |
