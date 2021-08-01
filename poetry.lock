@@ -87,14 +87,6 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
-name = "listener"
-version = "2.0.0a1"
-description = "DeepSpeech as a (Docker) Service for IBus"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "macholib"
 version = "1.14"
 description = "Mach-O header analysis and editing"
@@ -182,7 +174,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"  # Required for random.sample with weights
-content-hash = "c7453cb7cdf68583e9716525e437044d6cc133356c8b9ce13760c6f91b17eff4"
+content-hash = "710dff42f4e0dc60f1c03c416f71c578ae1bdbaaa26033b5d6d73bd4b6fb96c4"
 
 [metadata.files]
 aiohttp = [
@@ -250,9 +242,6 @@ future = [
 idna = [
     {file = "idna-3.2-py3-none-any.whl", hash = "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a"},
     {file = "idna-3.2.tar.gz", hash = "sha256:467fbad99067910785144ce333826c71fb0e63a425657295239737f7ecd125f3"},
-]
-listener = [
-    {file = "listener-2.0.0a1.tar.gz", hash = "sha256:3206e1b096b6439c322c1340098391fc2e40e15a46f6016c987b8d42e4a99d98"},
 ]
 macholib = [
     {file = "macholib-1.14-py2.py3-none-any.whl", hash = "sha256:c500f02867515e6c60a27875b408920d18332ddf96b4035ef03beddd782d4281"},
