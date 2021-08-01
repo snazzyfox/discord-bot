@@ -33,6 +33,8 @@ class DingomataCommands(Cog, name='Dingomata'):
         try:
             self._guild = next(guild for guild in self._bot.guilds if guild.id == GUILD_ID)
             self._channel = await self._bot.fetch_channel(PLAYER_CHANNEL_ID)
+            log.info(f'Listening for messages in server {self._guild}')
+            log.info(f'Announcement channel: {self._channel}')
         except StopIteration:
             log.error(
                 f'Failed to start. Bot is configured to run for server ID "{GUILD_ID}" but the bot has not joined '
@@ -46,6 +48,7 @@ class DingomataCommands(Cog, name='Dingomata'):
         if reaction.message == self._current_message and member != self._bot.user and reaction.emoji == _CHECKMARK:
             if self._pool.is_open:
                 if member in self._previously_selected_users:
+                    log.info(f'Rejected join request from {member}: recently selected')
                     await member.send('You cannot join this pool because you were recently selected.')
                     return
                 try:
@@ -56,13 +59,13 @@ class DingomataCommands(Cog, name='Dingomata'):
                     return
                 try:
                     self._pool.add_member(member)
-                    log.info(f"Member added to pool: {member}")
+                    log.info(f"Joined successfully: {member}")
                 except MemberRoleError as e:
                     await member.send(str(e))
-                    log.warning(f"Member {member} attempted to join but was rejected because they're missing roles.")
+                    log.warning(f"Rejected join request from {member}: missing roles.")
             else:
                 await member.send(f'The pool is currently closed. You have not been added.')
-                log.info(f"Member not added to pool because it is closed: {member}")
+                log.info(f"Rejected join request from {member}: pool closed")
 
     @Cog.listener()
     async def on_reaction_remove(self, reaction: Reaction, member: Member) -> None:
@@ -77,7 +80,7 @@ class DingomataCommands(Cog, name='Dingomata'):
                 log.info(f"Member removed from pool: {member}")
             else:
                 await member.send(f'The pool is currently closed. You have not been added.')
-                log.info(f"Member not added to pool because it is closed: {member}")
+                log.info(f"Rejected unjoin request from {member}: pool closed")
 
     @Command
     async def open(self, ctx: Context, *, title: str = '') -> None:
@@ -90,6 +93,7 @@ class DingomataCommands(Cog, name='Dingomata'):
                       color=Color.gold(),
                       )
         self._current_message = await self._channel.send(embed=embed)
+        log.info(f'Pool opened with title: {self._title}')
         await self._current_message.add_reaction(_CHECKMARK)
         await ctx.message.add_reaction(_CHECKMARK)
 
@@ -105,6 +109,7 @@ class DingomataCommands(Cog, name='Dingomata'):
             description=f'Total Entries: {self._pool.size}',
             color=Color.dark_red())
         await self._current_message.edit(embed=embed)
+        log.info(f'Pool closed')
         await ctx.message.add_reaction(_CHECKMARK)
 
     @Command
@@ -117,6 +122,7 @@ class DingomataCommands(Cog, name='Dingomata'):
         list after they're picked.
         """
         self._picked_users = self._pool.pick(count)
+        log.info(f'Picked users: {self._picked_users}')
         if EXCLUDE_SELECTED:
             self._previously_selected_users.update(self._picked_users)
         embed = Embed(title=get_config_value(ConfigurationKey.MESSAGE_PICKED_ANNOUNCE).format(title=self._title),
@@ -136,11 +142,14 @@ class DingomataCommands(Cog, name='Dingomata'):
         for user in self._picked_users:
             try:
                 await user.send(message)
+                log.info(f'Sent a DM to {user}.')
             except Forbidden:
                 await ctx.message.reply(f'Failed to DM {user}. Their DM is probably not open. Use the resend command '
                                         f'to try sending again, or issue another pick command to pick more members.')
+                log.warning(f'Failed to DM {user}. DM not open?')
             except HTTPException as e:
                 await ctx.message.reply(f'Failed to DM {user}. You may want to resend the message. {e}')
+                log.exception(e)
         await ctx.message.add_reaction(_CHECKMARK)
 
     @Command

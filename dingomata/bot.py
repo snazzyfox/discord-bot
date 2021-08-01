@@ -25,7 +25,7 @@ bot.add_cog(DingomataCommands(bot))
 
 @bot.listen()
 async def on_ready():
-    log.info(f'Bot is ready.')
+    log.info(f'Bot is now up and running.')
 
 
 @bot.listen()

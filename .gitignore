@@ -7,7 +7,7 @@ dingomata.cfg
 # Pyinstaller
 build/
 dist/
-app.spec
+*.spec
 
 # OS
 .DS_STORE
