@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, BigInteger, Time, String, DateTime
 from sqlalchemy.orm import declarative_base
 
-Base = declarative_base()
+BedtimeModel = declarative_base()
 
 
-class Bedtime(Base):
+class Bedtime(BedtimeModel):
     __tablename__ = "bedtime"
 
     user = Column(BigInteger, primary_key=True)

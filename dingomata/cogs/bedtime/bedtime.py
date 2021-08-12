@@ -12,7 +12,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from dingomata.cogs.bedtime.models import Base, Bedtime
+from dingomata.cogs.bedtime.models import BedtimeModel, Bedtime
 from dingomata.config import get_guilds, get_guild_config
 from dingomata.exceptions import DingomataUserError
 
@@ -35,7 +35,7 @@ class BedtimeCog(Cog, name='Bedtime'):
     @Cog.listener()
     async def on_ready(self):
         async with self._engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.run_sync(BedtimeModel.metadata.create_all)
 
     @cog_slash(
         name='bedtime',

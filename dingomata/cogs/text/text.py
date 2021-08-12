@@ -56,6 +56,15 @@ class TextCommandsCog(Cog, name='Text Commands'):
         await ctx.send(f'{ctx.author.mention} rolls up a magazine and baps {user.mention} on the snoot.')
 
     @cog_slash(
+        name='boop',
+        description='Give someone a boop!',
+        guild_ids=get_guilds(),
+        options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+    )
+    async def bap(self, ctx: SlashContext, user: User) -> None:
+        await ctx.send(f"{ctx.author.mention} gently boops {user.mention}'s snoot. Aaaaaa!")
+
+    @cog_slash(
         name='smooch',
         description='Give someone a big smooch!',
         guild_ids=get_guilds(),
