@@ -43,7 +43,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
-    async def pat(self, ctx: SlashContext, user: User) -> None:
+    async def bonk(self, ctx: SlashContext, user: User) -> None:
         await ctx.send(f'{ctx.author.mention} bonks {user.mention}. Bad!')
 
     @cog_slash(
