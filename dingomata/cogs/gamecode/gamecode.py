@@ -177,7 +177,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             except HTTPException as e:
                 await ctx.reply(f'Failed to DM {user}. You may want to resend the message. {e}', hidden=True)
                 log.exception(e)
-        await ctx.reply('All done', hidden=True)
+        await ctx.send('All done', hidden=True)
 
     @cog_subcommand(
         base=_GROUP_NAME,

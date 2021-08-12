@@ -84,6 +84,8 @@ class BedtimeCog(Cog, name='Bedtime'):
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
+        if not message.guild or message.guild.id not in get_guilds():
+            return
         async with self._session() as session:
             async with session.begin():
                 # Grab the user's bedtime
@@ -92,7 +94,7 @@ class BedtimeCog(Cog, name='Bedtime'):
 
                 # Do nothing if the user dont have a bedtime set or if they're in cooldown
                 if not result or (result.last_notified and
-                                  datetime.now() < result.last_notified
+                                  datetime.utcnow() < result.last_notified
                                   + timedelta(minutes=get_guild_config(message.guild.id).bedtime.cooldown)):
                     return
 
@@ -110,6 +112,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                         await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your bedtime "
                                                    f"now. ")
                         result.last_notified = datetime.utcnow()
+                        await session.commit()
                         _log.info(f'Notified {message.author} about bedtime.')
                     except Forbidden:
                         _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
