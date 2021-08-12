@@ -125,7 +125,6 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             color=Color.dark_red())
         await ctx.send(embed=embed)
         log.info(f'Pool closed')
-        await ctx.reply(f'Done, pool is closed.')
 
     @cog_subcommand(
         base=_GROUP_NAME,
@@ -199,8 +198,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
     )
     async def list(self, ctx: SlashContext) -> None:
         members = await self._pool_for_guild(ctx.guild.id).members()
-        await ctx.reply('\n'.join(self._bot.get_user(user_id).display_name for user_id in members),
-                        hidden=True)
+        await ctx.reply(' '.join(f'<@{user_id}>' for user_id in members), hidden=True)
 
     @cog_subcommand(
         base=_GROUP_NAME,

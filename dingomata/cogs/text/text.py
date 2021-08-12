@@ -72,3 +72,13 @@ class TextCommandsCog(Cog, name='Text Commands'):
     )
     async def smooch(self, ctx: SlashContext, user: User) -> None:
         await ctx.send(f'{ctx.author.mention} gives {user.mention} a lovely smooch on the cheek.')
+
+    @cog_slash(
+        name='tuck',
+        description='Tuck someone into bed!',
+        guild_ids=get_guilds(),
+        options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+    )
+    async def smooch(self, ctx: SlashContext, user: User) -> None:
+        await ctx.send(f'{ctx.author.mention} takes a blanket and rolls {user.mention} into a burrito before tucking '
+                       f'them into bed. Sweet dreams!')

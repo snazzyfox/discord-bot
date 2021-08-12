@@ -98,7 +98,7 @@ class MemberPool:
     async def size(self) -> int:
         async with self._session() as session:
             stmt = select(func.count()).filter(GamePoolEntry.guild_id == self._guild_id)
-            return session.scalar(stmt)
+            return await session.scalar(stmt)
 
     async def is_open(self) -> bool:
         statement = select(GamePool.is_open).filter(GamePool.guild_id == self._guild_id)
@@ -109,8 +109,8 @@ class MemberPool:
     async def members(self) -> List[int]:
         statement = select(GamePoolEntry.user_id).filter(GamePoolEntry.guild_id == self._guild_id)
         async with self._session() as session:
-            result = (await session.execute(statement)).scalars()
-            return [entry.user_id for entry in result]
+            result = (await session.execute(statement)).scalars().all()
+            return result
 
     async def title(self) -> str:
         statement = select(GamePool.title).filter(GamePool.guild_id == self._guild_id)
