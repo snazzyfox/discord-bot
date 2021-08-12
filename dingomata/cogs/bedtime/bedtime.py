@@ -3,20 +3,18 @@ from datetime import datetime, timedelta
 
 import pytz
 from dateutil.parser import parse as parse_datetime, ParserError
-from dateutil.rrule import rrule, DAILY
 from discord import Message, Forbidden
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_slash
 from discord_slash.utils.manage_commands import create_option
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy import select, delete
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from dingomata.cogs.bedtime.models import Base, Bedtime
 from dingomata.config import get_guilds, get_guild_config
 from dingomata.exceptions import DingomataUserError
-
 
 _log = logging.getLogger(__name__)
 
@@ -101,13 +99,14 @@ class BedtimeCog(Cog, name='Bedtime'):
                 # Check if it's time to go to bed. Bedtime may be either yesterday or earlier today
                 tz = pytz.timezone(result.timezone)
                 now_tz = datetime.now(tz)
-                yesterday_bedtime = datetime.combine(now_tz.date(), result.bedtime, tz) - timedelta(days=1)
-                rule = rrule(dtstart=yesterday_bedtime, freq=DAILY)
 
                 # Find the nearest bedtime before current time
-                last_bedtime = rule.before(now_tz)
+                bedtime = datetime.combine(now_tz.date(), result.bedtime, tz)
+                if now_tz.time() < result.bedtime:
+                    bedtime -= timedelta(days=1)
+
                 sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
-                if last_bedtime > now_tz - timedelta(hours=sleep_hours):
+                if bedtime > now_tz - timedelta(hours=sleep_hours):
                     try:
                         await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your bedtime "
                                                    f"now. ")
