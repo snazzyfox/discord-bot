@@ -3,7 +3,7 @@ from typing import Set, Dict, List
 
 from discord import Member
 
-from dingomata.config import get_config_value, ConfigurationKey
+from dingomata.config import get_guild_config
 from dingomata.exceptions import DingomataUserError
 
 
@@ -18,26 +18,11 @@ class MemberRoleError(DingomataUserError):
 
 
 class MemberPool:
-    def __init__(self) -> None:
+    def __init__(self, guild_id: int) -> None:
         self._members: Dict[Member] = {}
         self._picked_users: Set[Member] = set()
         self._is_open = False
-
-        # Turn the id:weight,id:weight etc string into a dictionary
-        self._disallowed_roles = set()
-        self._player_roles = {}
-        for role_weight in (get_config_value(ConfigurationKey.SECURITY_PLAYER_ROLES) or '').split(','):
-            if ':' in role_weight:
-                split = role_weight.split(':')
-                role = -1 if split[0] == '*' else int(split[0])
-                weight = int(split[1])
-            else:
-                role = -1 if role_weight == '*' else int(role_weight)
-                weight = 1
-            if weight == 0:
-                self._disallowed_roles.add(role)
-            else:
-                self._player_roles[role] = weight
+        self._player_roles = get_guild_config(guild_id).game_code.player_roles
 
     def open(self) -> None:
         self._require_pool_status(False)
@@ -62,22 +47,20 @@ class MemberPool:
         return self._picked_users
 
     def _get_member_weight(self, member: Member) -> int:
-        roles = [role.id for role in member.roles] + [-1]
-        if any(role in self._disallowed_roles for role in roles):
-            return 0
-        elif not self._player_roles:
+        if not self._player_roles:
             return 1
         else:
+            roles = [role.id for role in member.roles] + [None]
             return max(self._player_roles.get(role, 0) for role in roles)
 
     def add_member(self, member: Member) -> None:
         weight = self._get_member_weight(member)
         if weight == 0:
-            raise MemberRoleError(f'You cannot join this pool because you do not have the right roles.')
+            raise MemberRoleError(f'You cannot join this pool because you do not have the necessary roles.')
         self._members[member] = weight
 
     def remove_member(self, member: Member) -> None:
-        del self._members[member]
+        self._members.pop(member, None)
 
     @property
     def size(self) -> int:

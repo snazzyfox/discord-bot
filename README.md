@@ -63,8 +63,14 @@ accepted from moderator channels (controlled by `manage_channel` config).
 
 ## Configuration File
 
-Options in the `disqueue.cfg` configuration file control how the bot runs. If you change these settings, the bot must 
-be restarted for them to take effect. See comments in the file for the meaning of each configuration option.
+Options in the configuration file control how the bot runs. The config file is by default `dingomata.cfg` in the 
+working directory, but a different name can be specified using the `DINGOMATA_CONFIG` environment variable.
+ 
+See comments in the file for the meaning of each configuration option.
 
-If necessary, you can also set these configurations using environment variables with the format 
-`DINGOMATA_{SECTION}_{KEY}`, for example `DINGOMATA_BOT_TOKEN`. Note that environment variables must be all uppercase.
+Global configs in the `[bot]` section can be set using environment variables with the format 
+`DINGOMATA_{UPPERCASE_KEY}`, for example `DINGOMATA_TOKEN`. Values in environment variables take precedence over those
+in the file. Any bot-level config changes only take effect when the bot is completely restarted.
+
+Configurations at the server level (including those set in the `[DEFAULT]` section) can be reloaded by running the 
+`reload_config` command on any server.

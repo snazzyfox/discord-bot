@@ -1,47 +1,102 @@
-import os
 import logging.config
-from configparser import ConfigParser
-from enum import Enum
-from typing import Optional
+from collections import ChainMap
+from functools import cache
+from pathlib import Path
+from typing import Optional, Dict, Set, List
 
-_CONFIG_FILE = 'dingomata.cfg'
-_CONFIG: Optional[ConfigParser] = None
+import yaml
+from discord_slash.model import SlashCommandPermissionType
+from discord_slash.utils.manage_commands import create_permission
+from pydantic import BaseSettings, SecretStr, BaseModel, constr, Field, AnyUrl
 
+_CONFIG_DIR = Path('config')
+_LOGGING_CONFIG = _CONFIG_DIR / 'logging.cfg'
+_DEFAULT_CONFIG = _CONFIG_DIR / 'server_defaults.yaml'
+_SERVER_CONFIG_DIR = _CONFIG_DIR / 'servers'
 
-class ConfigurationKey(Enum):
-    BOT_TOKEN = ('bot', 'token')
-    BOT_COMMAND_PREFIX = ('bot', 'command_prefix')
-    SECURITY_SERVER_ID = ('security', 'server_id')
-    SECURITY_MOD_ROLE_IDS = ('security', 'mod_roles')
-    SECURITY_MOD_CHANNEL_IDS = ('security', 'mod_channels')
-    SECURITY_PLAYER_ROLES = ('security', 'player_roles')
-    SECURITY_EXCLUDE_SELECTED = ('security', 'exclude_selected_players')
-    MESSAGE_PLAYER_CHANNEL = ('message', 'player_channel')
-    MESSAGE_OPENED = ('message', 'opened')
-    MESSAGE_OPENED_SUB = ('message', 'opened_subtext')
-    MESSAGE_JOINED = ('message', 'joined')
-    MESSAGE_LEFT = ('message', 'left')
-    MESSAGE_CLOSED = ('message', 'closed')
-    MESSAGE_PICKED_ANNOUNCE = ('message', 'picked_announce')
+_logger = logging.getLogger(__name__)
 
 
-def get_config_value(key: ConfigurationKey) -> Optional[str]:
-    global _CONFIG
-    env_key = 'DINGOMATA_' + '_'.join(k.upper() for k in key.value)
-    if env_key in os.environ:
-        logging.debug(f'Got config value for {key} from environment variable {env_key}')
-        return os.environ[env_key]
-    if not _CONFIG:
-        try:
-            with open(_CONFIG_FILE, 'r') as f:
-                logging.debug(f'Loaded config file')
-                _CONFIG = ConfigParser()
-                _CONFIG.read_file(f)
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Unable to read configuration {key} because the environment variable {env_key} is "
-                                    f"not found, and a configuration file does not exist.") from e
-    return _CONFIG.get(*key.value, fallback=None)
+class CommonGuildConfig(BaseModel):
+    """Configs used across all cogs."""
+    guild_id: int
+    mod_roles: List[int] = []
+
+
+class GameCodeConfig(BaseModel):
+    """Config for random user selector"""
+    player_roles: Dict[Optional[int], int]
+    player_channel: int
+
+    exclude_selected: bool
+
+    message_opened: str
+    message_opened_subtitle: str
+    message_closed: str
+    message_joined: str
+    message_left: str
+    message_picked_announce: str
+
+
+class BedtimeConfig(BaseModel):
+    cooldown: int = 7200
+    sleep_hours: int = 6
+
+
+class GuildConfig(BaseModel):
+    common: CommonGuildConfig
+    game_code: GameCodeConfig
+    bedtime: BedtimeConfig
+
+
+class BotConfig(BaseSettings):
+    token: SecretStr = Field(..., env='token')
+    db_url: SecretStr = Field(..., env='db_url')
+    command_prefix: str = Field('!', min_length=1, max_length=1)
+
+    class Config:
+        env_prefix = 'dingomata'
+        env_file = '.env'
+
+
+@cache
+def _get_all_configs() -> Dict[int, GuildConfig]:
+    result: Dict[int, GuildConfig] = {}
+    _logger.debug(f'Reading default configs from {_DEFAULT_CONFIG}')
+    defaults = yaml.safe_load(_DEFAULT_CONFIG.open())
+    for server_config_file in _SERVER_CONFIG_DIR.iterdir():
+        _logger.debug(f'Reading guild config for {server_config_file}')
+        server_config_data = yaml.safe_load(server_config_file.open())
+        keys = set(defaults) | set(server_config_data)
+        merged = {key: ChainMap(server_config_data.get(key, {}), defaults.get(key, {})) for key in keys}
+        server_config = GuildConfig.parse_obj(merged)
+        result[server_config.common.guild_id] = server_config
+    return result
+
+
+def get_guild_config(guild_id: int) -> GuildConfig:
+    return _get_all_configs()[guild_id]
+
+
+def has_guild_config(guild_id: int) -> bool:
+    return guild_id in _get_all_configs()
+
+
+def get_guilds() -> List[int]:
+    return list(_get_all_configs().keys())
+
+
+def get_mod_permissions():
+    return {guild_id: [
+        create_permission(role, SlashCommandPermissionType.ROLE, True) for role in guild_config.common.mod_roles
+    ] for guild_id, guild_config in _get_all_configs().items()}
 
 
 def get_logging_config():
-    logging.config.fileConfig(_CONFIG_FILE, disable_existing_loggers=False)
+    logging.config.fileConfig(_LOGGING_CONFIG, disable_existing_loggers=False)
+    _logger.debug('Loaded logging config.')
+
+
+def load_configs():
+    _get_all_configs.cache_clear()
+    _get_all_configs()

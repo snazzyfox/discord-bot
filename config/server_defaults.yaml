@@ -1,0 +1,31 @@
+common:
+  # List of role IDs who can use mod-level commands.
+  mod_roles: []
+game_code:
+  # List of role IDs that may join the game and their relative weight of being selected.
+  # Each user's chances of being selected is the highest weight they have based on their roles.
+  # Roles listed without weight has a default weight of 1. Roles not listed are not allowed to join.
+  # To give everyone access, use the null (~) key
+  player_roles:
+    ~: 1
+
+  player_channel:
+
+  # Whether to remember players have been selected in each pool and exclude them from future pools.
+  exclude_selected: false
+
+  # Message templates sent by the bot.
+  # {title} is a placeholder for the text input by a mod after the open command.
+  message_opened: The Dingomata is now accepting players for {title}!
+  message_opened_subtitle: Type /join for a chance to join the game! Make sure you allow DMs for this server so you
+    can receive the game code if you're selected.
+  message_closed: Submissions for {title} is now closed.
+  message_joined: You've successfully joined the pool for {title}. Good luck!
+  message_left: You've successfully left the pool for {title}.
+  message_picked_announce: Users have been picked. Check for your game code in DM's!
+bedtime:
+  # Don't bother the same user more than once every this many minutes
+  cooldown: 7200
+
+  # If it's been past this many hours since their bed time assume they don't need to go to bed anymore
+  sleep_hours: 6

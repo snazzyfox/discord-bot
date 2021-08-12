@@ -1,45 +1,90 @@
+import asyncio
 import logging
 
 import discord
 from discord import Intents
 from discord.ext import commands
-from discord.ext.commands import Context, CheckFailure, CommandInvokeError
+from discord.ext.commands import Context, CommandInvokeError, CheckFailure
+from discord_slash import SlashContext
+from discord_slash.client import SlashCommand
+from discord_slash.error import CheckFailure as SlashCheckFailure
+from sqlalchemy.ext.asyncio import create_async_engine
 
-from dingomata.cog import DingomataCommands
-from dingomata.config import get_config_value, ConfigurationKey
+from dingomata.checks import check_guild
+from dingomata.cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands
+from dingomata.config import BotConfig, load_configs
 from dingomata.exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
 discord.VoiceClient.warn_nacl = False  # Disable warning for no voice support since it's a text bot
 
-GUILD_ID = int(get_config_value(ConfigurationKey.SECURITY_SERVER_ID))
-MOD_ROLE_IDS = {int(item) for item in get_config_value(ConfigurationKey.SECURITY_MOD_ROLE_IDS).split()}
-MOD_CHANNEL_IDS = {int(item) for item in get_config_value(ConfigurationKey.SECURITY_MOD_CHANNEL_IDS).split()}
-
+bot_config = BotConfig()
 bot = commands.Bot(
-    command_prefix=get_config_value(ConfigurationKey.BOT_COMMAND_PREFIX),
+    command_prefix=bot_config.command_prefix,
     intents=Intents(guilds=True, messages=True, dm_messages=True, typing=True, guild_reactions=True, members=True)
 )
-bot.add_cog(DingomataCommands(bot))
+slash = SlashCommand(bot, sync_commands=True)
+
+engine = create_async_engine(bot_config.db_url.get_secret_value())
+
+bot.add_cog(GameCodeSenderCommands(bot))
+bot.add_cog(BedtimeCog(bot, engine))
+bot.add_cog(GambaCog(bot))
+bot.add_cog(TextCommandsCog(bot))
 
 
-@bot.listen()
+def run():
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(bot.start(bot_config.token.get_secret_value()))
+    except KeyboardInterrupt:
+        loop.run_until_complete(bot.close())
+    finally:
+        loop.run_until_complete(_stop_bot())
+        loop.close()
+
+
+async def _stop_bot():
+    await engine.dispose()
+
+
+@bot.event
 async def on_ready():
     log.info(f'Bot is now up and running.')
 
 
-@bot.listen()
+@bot.event
 async def on_disconnect():
     log.info(f'Bot has disconnected.')
 
 
-@bot.listen()
+@bot.event
 async def on_command_error(ctx: Context, exc: Exception):
-    if isinstance(exc, CheckFailure):
+    if isinstance(exc, CheckFailure) or isinstance(exc, SlashCheckFailure):
         log.warning(f'Ignored a message from {ctx.author} in guild {ctx.guild or "DM"} '
                     f'because a check failed: {exc.args}')
     elif isinstance(exc, CommandInvokeError) and isinstance(exc.original, DingomataUserError):
         await ctx.reply(f"You can't do that. {exc.original}")
+        log.warning(f'{exc.__class__.__name__}: {exc}')
+    else:
+        log.exception(exc)
+
+
+@bot.event
+async def on_slash_command(ctx: SlashContext):
+    log.info(f'Received slash command {ctx.command} from {ctx.author} at {ctx.channel}')
+
+
+@bot.event
+async def on_slash_command_error(ctx: SlashContext, exc: Exception):
+    if isinstance(exc, (CheckFailure, SlashCheckFailure)):
+        log.warning(f'Ignored a message from {ctx.author} in guild {ctx.guild or "DM"} '
+                    f'because a check failed: {exc.args}')
+        return
+    if isinstance(exc, CommandInvokeError):
+        exc = exc.original
+    if isinstance(exc, DingomataUserError):
+        await ctx.reply(f"You can't do that. {exc}", hidden=True)
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
         log.exception(exc)
@@ -50,32 +95,9 @@ async def log_command(ctx: Context) -> None:
     log.info(f'Received command {ctx.command} from {ctx.author} at {ctx.channel}')
 
 
-@bot.check_once
-async def check_guild(ctx: Context):
-    if not ctx.guild:
-        await ctx.send(f'You can only run this command from a server, not from DMs.')
-        raise CheckFailure('Messaged received via DM.')
-    if ctx.guild.id != GUILD_ID:
-        await ctx.reply(f'You cannot use this bot in this server.')
-        raise CheckFailure(f'Received message from server {ctx.guild}, which is not the server set in the config file.')
-    return True
-
-
-@bot.check_once
-async def check_mod_permission(ctx: Context):
-    if ctx.author.guild_permissions.administrator or any(role.id in MOD_ROLE_IDS for role in ctx.author.roles):
-        return True
-    else:
-        await ctx.reply(f'You do not have permissions to do this. Bonk. This incident will be reported.')
-        raise CheckFailure(f'Member {ctx.author} sent "{ctx.message.content}" in {ctx.channel}, but the user does not '
-                           f'have any valid mod roles.')
-
-
-@bot.check_once
-async def check_mod_channel(ctx: Context):
-    if ctx.channel.id in MOD_CHANNEL_IDS or not MOD_CHANNEL_IDS:
-        return True
-    else:
-        await ctx.reply(f"You can't do that in this channel.")
-        raise CheckFailure(f'Member {ctx.author} sent "{ctx.message.content} in {ctx.channel}, but bot messages are '
-                           f'not allowed there.')
+@bot.command()
+@commands.check(check_guild)
+async def reload_config(ctx: Context) -> None:
+    load_configs()
+    log.info(f'Reloaded configs on request from {ctx.guild}: {ctx.author}')
+    await ctx.reply('All done.')

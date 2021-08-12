@@ -1,0 +1,116 @@
+import logging
+from datetime import datetime, timedelta
+
+import pytz
+from dateutil.parser import parse as parse_datetime, ParserError
+from dateutil.rrule import rrule, DAILY
+from discord import Message, Forbidden
+from discord.ext.commands import Bot, Cog
+from discord_slash import SlashContext
+from discord_slash.cog_ext import cog_slash
+from discord_slash.utils.manage_commands import create_option
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from sqlalchemy import select, delete
+from sqlalchemy.orm import sessionmaker
+
+from dingomata.cogs.bedtime.models import Base, Bedtime
+from dingomata.config import get_guilds, get_guild_config
+from dingomata.exceptions import DingomataUserError
+
+
+_log = logging.getLogger(__name__)
+
+
+class BedtimeSpecificationError(DingomataUserError):
+    """Error because the pool is in the wrong state (open/closed)"""
+    pass
+
+
+class BedtimeCog(Cog, name='Bedtime'):
+    """Remind users to go to bed."""
+
+    def __init__(self, bot: Bot, engine: AsyncEngine):
+        self._bot = bot
+        self._engine = engine
+        self._session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+
+    @Cog.listener()
+    async def on_ready(self):
+        async with self._engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+    @cog_slash(
+        name='bedtime',
+        description='Set your own bed time.',
+        guild_ids=get_guilds(),
+        options=[
+            create_option(name='time', description='When do you go to sleep? e.g. 12:00am',
+                          option_type=str, required=True),
+            create_option(name='timezone', description='Time zone you are in', option_type=str, required=True),
+        ]
+    )
+    async def set_bedtime(self, ctx: SlashContext, time: str, timezone: str) -> None:
+        # Convert user timezone to UTC
+        try:
+            tzname = str(pytz.timezone(timezone))  # test if timezone is valid
+        except pytz.UnknownTimeZoneError as e:
+            raise BedtimeSpecificationError(
+                f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
+                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones')
+        try:
+            time_obj = parse_datetime(time).time()
+        except ParserError:
+            raise BedtimeSpecificationError(
+                f"Can't interpret {time} as a valid time. Try using something like '11:00pm', '23:00', '11pm'")
+        bedtime = Bedtime(user=ctx.author.id, bedtime=time_obj, timezone=tzname)
+        async with self._session() as session:
+            async with session.begin():
+                await session.merge(bedtime)
+                await session.commit()
+        await ctx.reply(f"Done! I've saved your bedtime as {time_obj} {tzname}.", hidden=True)
+
+    @cog_slash(
+        name='bedtime_off',
+        description='Clears your bed time.',
+        guild_ids=get_guilds(),
+    )
+    async def bedtime_off(self, ctx: SlashContext) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                statement = delete(Bedtime).filter(Bedtime.user == ctx.author.id)
+                await session.execute(statement)
+                await session.commit()
+        await ctx.reply(f"Done! I've removed your bedtime preferences.", hidden=True)
+
+    @Cog.listener()
+    async def on_message(self, message: Message) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                # Grab the user's bedtime
+                statement = select(Bedtime).filter(Bedtime.user == message.author.id)
+                result = (await session.execute(statement)).scalars().one_or_none()
+
+                # Do nothing if the user dont have a bedtime set or if they're in cooldown
+                if not result or (result.last_notified and
+                                  datetime.now() < result.last_notified
+                                  + timedelta(minutes=get_guild_config(message.guild.id).bedtime.cooldown)):
+                    return
+
+                # Check if it's time to go to bed. Bedtime may be either yesterday or earlier today
+                tz = pytz.timezone(result.timezone)
+                now_tz = datetime.now(tz)
+                yesterday_bedtime = datetime.combine(now_tz.date(), result.bedtime, tz) - timedelta(days=1)
+                rule = rrule(dtstart=yesterday_bedtime, freq=DAILY)
+
+                # Find the nearest bedtime before current time
+                last_bedtime = rule.before(now_tz)
+                sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
+                if last_bedtime > now_tz - timedelta(hours=sleep_hours):
+                    try:
+                        await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your bedtime "
+                                                   f"now. ")
+                        result.last_notified = datetime.utcnow()
+                        _log.info(f'Notified {message.author} about bedtime.')
+                    except Forbidden:
+                        _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
+                                     f"bot doesn't have permissions to post there.")
