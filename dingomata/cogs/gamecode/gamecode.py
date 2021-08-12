@@ -139,16 +139,17 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         list after they're picked.
         """
         pool = self._pool_for_guild(ctx.guild.id)
-        self._picked_users = pool.pick(count)
-        log.info(f'Picked users: {self._picked_users}')
+        picked_users = pool.pick(count)
+        log.info(f'Picked users: {", ".join(str(user) for user in self._picked_users)}')
         if get_guild_config(ctx.guild.id).game_code.exclude_selected:
-            self._previously_selected_users[ctx.guild.id].update(self._picked_users)
+            self._previously_selected_users[ctx.guild.id].update(picked_users)
         embed = Embed(title=get_guild_config(ctx.guild.id).game_code.message_picked_announce.format(title=self._title),
                       description=f'Total entries: {pool.size}\n'
-                                  + '\n'.join(user.display_name for user in self._picked_users),
+                                  + '\n'.join(user.display_name for user in picked_users),
                       color=Color.blue())
+        self._picked_users[ctx.guild.id] = picked_users
         await self._channel_for_guild(ctx.guild.id).send(embed=embed)
-        await self.resend(ctx, message=message)
+        await self._send(ctx, message)
 
     @cog_subcommand(
         base=_GROUP_NAME,
@@ -162,6 +163,9 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         base_default_permission=False,
     )
     async def resend(self, ctx: SlashContext, *, message: str) -> None:
+        await self._send(ctx, message)
+
+    async def _send(self, ctx: SlashContext, message: str) -> None:
         for user in self._picked_users[ctx.guild.id]:
             try:
                 await user.send(message)

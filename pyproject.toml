@@ -19,6 +19,13 @@ async-cache = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.5.1"
+mypy = "^0.910"
+flake8 = "^3.9.2"
+types-PyYAML = "^5.4.6"
+types-pytz = "^2021.1.2"
+types-python-dateutil = "^0.1.6"
+"discord.py-stubs" = "^1.7.3"
+sqlalchemy-stubs = "^0.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
