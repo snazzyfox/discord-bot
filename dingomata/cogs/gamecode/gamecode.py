@@ -174,8 +174,8 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                 await user.send(message)
                 log.info(f'Sent a DM to {user}.')
             except Forbidden:
-                await ctx.reply(f'Failed to DM {user}. Their DM is probably not open. Use the resend command to try '
-                                'sending again, or issue another pick command to pick more members.', hidden=True)
+                await ctx.reply(f'Failed to DM {user.mention}. Their DM is probably not open. Use the resend command '
+                                f'to try again, or issue another pick command to pick more members.', hidden=True)
                 log.warning(f'Failed to DM {user}. DM not open?')
             except HTTPException as e:
                 await ctx.reply(f'Failed to DM {user}. You may want to resend the message. {e}', hidden=True)
