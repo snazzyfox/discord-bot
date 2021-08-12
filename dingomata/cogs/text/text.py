@@ -17,7 +17,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     @cog_slash(name='tuch', description='Tuch some butts', guild_ids=get_guilds())
     async def tuch(self, ctx: SlashContext) -> None:
-        await ctx.send(f'{ctx.author.mention} tuches {randint(1, 999)} butts.')
+        await ctx.send(f'{ctx.author.mention} tuches {randint(0, 999)} butts.')
 
     @cog_slash(
         name='hug',
@@ -35,7 +35,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     async def pat(self, ctx: SlashContext, user: User) -> None:
-        await ctx.send(f'{ctx.author.mention} gives {user.mention} a all the pats!')
+        await ctx.send(f'{ctx.author.mention} gives {user.mention} all the pats!')
 
     @cog_slash(
         name='bonk',
@@ -44,7 +44,16 @@ class TextCommandsCog(Cog, name='Text Commands'):
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     async def bonk(self, ctx: SlashContext, user: User) -> None:
-        await ctx.send(f'{ctx.author.mention} bonks {user.mention}. Bad!')
+        await ctx.send(f'{ctx.author.mention} bonks {user.mention} lightly on the head. Bad!')
+
+    @cog_slash(
+        name='bap',
+        description='Give someone baps!',
+        guild_ids=get_guilds(),
+        options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+    )
+    async def bap(self, ctx: SlashContext, user: User) -> None:
+        await ctx.send(f'{ctx.author.mention} rolls up a magazine and baps {user.mention} on the snoot.')
 
     @cog_slash(
         name='smooch',
