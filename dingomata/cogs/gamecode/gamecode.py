@@ -1,12 +1,13 @@
 import logging
-from typing import Optional, List, Set, Dict
+from typing import List, Set, Dict
 
-from discord import Embed, Color, Message, Member, TextChannel, Forbidden, HTTPException
+from discord import Embed, Color, Message, Member, Forbidden, HTTPException
 from discord.ext.commands import Cog, Bot
-from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_slash, cog_subcommand
-from discord_slash.model import SlashCommandPermissionType
+from discord_slash import SlashContext, ComponentContext
+from discord_slash.cog_ext import cog_slash, cog_subcommand, cog_component
+from discord_slash.model import SlashCommandPermissionType, ButtonStyle
 from discord_slash.utils.manage_commands import create_option, create_permission
+from discord_slash.utils.manage_components import create_actionrow, create_button
 
 from dingomata.cogs.gamecode.pool import MemberPool, MemberRoleError
 from dingomata.config import get_guild_config, get_guilds, get_mod_permissions
@@ -22,6 +23,8 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                 for role in get_guild_config(guild).game_code.player_roles]
         for guild in get_guilds() if None not in get_guild_config(guild).game_code.player_roles
     }  # Precompute player permissions on load
+    _JOIN_BUTTON = 'game_join'
+    _LEAVE_BUTTON = 'game_leave'
 
     def __init__(self, bot: Bot):
         """Initialize application state."""
@@ -32,13 +35,8 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         self._picked_users: Dict[int, List[Member]] = {}
         self._previously_selected_users: Dict[int, Set[Member]] = {}
 
-    @cog_slash(
-        name='join',
-        description='Join the open game pool.',
-        guild_ids=get_guilds(),
-        permissions=_PLAYER_PERMS,
-    )
-    async def join(self, ctx: SlashContext) -> None:
+    @cog_component(components=_JOIN_BUTTON)
+    async def join(self, ctx: ComponentContext) -> None:
         guild_id = ctx.guild.id
         pool = self._pool_for_guild(guild_id)
         if pool.is_open:
@@ -49,8 +47,15 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             try:
                 pool.add_member(ctx.author)
                 log.info(f"Joined successfully: {ctx.author}")
-                await ctx.reply(get_guild_config(guild_id).game_code.message_joined.format(title=self._title),
-                                hidden=True)
+                await ctx.author.send("You're in!")
+                action_row = create_actionrow(create_button(label='Leave', style=ButtonStyle.secondary,
+                                                            custom_id=self._LEAVE_BUTTON))
+                await ctx.send(get_guild_config(guild_id).game_code.message_joined.format(title=self._title),
+                               components=[action_row], hidden=True)
+            except Forbidden:
+                await ctx.reply(f"Join request failed because I can't DM you. Please update your server privacy "
+                                f"settings to allow DMs, so that I can send you your secret message if you're "
+                                f"selected.", hidden=True)
             except MemberRoleError as e:
                 await ctx.reply(str(e), hidden=True)
                 log.warning(f"Rejected join request from {ctx.author}: missing roles.")
@@ -58,19 +63,16 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             await ctx.reply(f"You can't join the pool, it's not open right now.", hidden=True)
             log.info(f"Rejected join request from {ctx.author}: pool closed")
 
-    @cog_slash(
-        name='leave',
-        description="Leave the open game pool that you've already joined.",
-        guild_ids=get_guilds(),
-        permissions=_PLAYER_PERMS,
-    )
-    async def leave(self, ctx: SlashContext) -> None:
+    @cog_component(components=_LEAVE_BUTTON)
+    async def leave(self, ctx: ComponentContext) -> None:
         guild_id = ctx.guild.id
         pool = self._pool_for_guild(guild_id)
         if pool.is_open:
             pool.remove_member(ctx.author)
-            await ctx.reply(get_guild_config(ctx.guild.id).game_code.message_left.format(title=self._title),
-                            hidden=True)
+            await ctx.edit_origin(
+                content=get_guild_config(ctx.guild.id).game_code.message_left.format(title=self._title),
+                components=[],
+            )
             log.info(f"Member removed from pool: {ctx.author}")
         else:
             await ctx.reply(f'The pool is currently closed. You have not been added.', hidden=True)
@@ -95,9 +97,10 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                       description=get_guild_config(ctx.guild.id).game_code.message_opened_subtitle.format(title=title),
                       color=Color.gold(),
                       )
-        await self._channel_for_guild(ctx.guild.id).send(embed=embed)
+        action_row = create_actionrow(create_button(label='Join', style=ButtonStyle.primary,
+                                                    custom_id=self._JOIN_BUTTON))
+        await ctx.send(embed=embed, components=[action_row])
         log.info(f'Pool opened with title: {self._title}')
-        await ctx.reply(f'Done, opened a pool with title {self._title}')
 
     @cog_subcommand(
         base=_GROUP_NAME,
@@ -114,7 +117,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             title=get_guild_config(ctx.guild.id).game_code.message_closed.format(title=self._title),
             description=f'Total Entries: {pool.size}',
             color=Color.dark_red())
-        await self._channel_for_guild(ctx.guild.id).send(embed=embed)
+        await ctx.send(embed=embed)
         log.info(f'Pool closed')
         await ctx.reply(f'Done, pool is closed.')
 
@@ -148,8 +151,8 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                                   + '\n'.join(user.display_name for user in picked_users),
                       color=Color.blue())
         self._picked_users[ctx.guild.id] = picked_users
-        await self._channel_for_guild(ctx.guild.id).send(embed=embed)
-        await self._send(ctx, message)
+        await ctx.send(embed=embed)
+        await self._send_dms(ctx, message)
 
     @cog_subcommand(
         base=_GROUP_NAME,
@@ -163,9 +166,9 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         base_default_permission=False,
     )
     async def resend(self, ctx: SlashContext, *, message: str) -> None:
-        await self._send(ctx, message)
+        await self._send_dms(ctx, message)
 
-    async def _send(self, ctx: SlashContext, message: str) -> None:
+    async def _send_dms(self, ctx: SlashContext, message: str) -> None:
         for user in self._picked_users[ctx.guild.id]:
             try:
                 await user.send(message)
@@ -214,10 +217,6 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
     async def clear_selected(self, ctx: SlashContext) -> None:
         self._previously_selected_users = set()
         await ctx.reply('All done!', hidden=True)
-
-    def _channel_for_guild(self, guild_id: int) -> Optional[TextChannel]:
-        channel_id = get_guild_config(guild_id).game_code.player_channel
-        return self._bot.get_channel(channel_id)
 
     def _pool_for_guild(self, guild_id: int) -> MemberPool:
         if guild_id not in self._pools:

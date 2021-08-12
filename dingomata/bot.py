@@ -4,15 +4,14 @@ import logging
 import discord
 from discord import Intents
 from discord.ext import commands
-from discord.ext.commands import Context, CommandInvokeError, CheckFailure
+from discord.ext.commands import CommandInvokeError, CheckFailure
 from discord_slash import SlashContext
 from discord_slash.client import SlashCommand
 from discord_slash.error import CheckFailure as SlashCheckFailure
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from dingomata.checks import check_guild
 from dingomata.cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands
-from dingomata.config import BotConfig, load_configs
+from dingomata.config import BotConfig
 from dingomata.exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ discord.VoiceClient.warn_nacl = False  # Disable warning for no voice support si
 bot_config = BotConfig()
 bot = commands.Bot(
     command_prefix=bot_config.command_prefix,
-    intents=Intents(guilds=True, messages=True, dm_messages=True, typing=True, guild_reactions=True, members=True)
+    intents=Intents(guilds=True, messages=True, dm_messages=True, typing=True)
 )
 slash = SlashCommand(bot, sync_commands=True)
 
@@ -59,18 +58,6 @@ async def on_disconnect():
 
 
 @bot.event
-async def on_command_error(ctx: Context, exc: Exception):
-    if isinstance(exc, CheckFailure) or isinstance(exc, SlashCheckFailure):
-        log.warning(f'Ignored a message from {ctx.author} in guild {ctx.guild or "DM"} '
-                    f'because a check failed: {exc.args}')
-    elif isinstance(exc, CommandInvokeError) and isinstance(exc.original, DingomataUserError):
-        await ctx.reply(f"You can't do that. {exc.original}")
-        log.warning(f'{exc.__class__.__name__}: {exc}')
-    else:
-        log.exception(exc)
-
-
-@bot.event
 async def on_slash_command(ctx: SlashContext):
     log.info(f'Received slash command {ctx.command} from {ctx.author} at {ctx.channel}')
 
@@ -88,16 +75,3 @@ async def on_slash_command_error(ctx: SlashContext, exc: Exception):
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
         log.exception(exc)
-
-
-@bot.before_invoke
-async def log_command(ctx: Context) -> None:
-    log.info(f'Received command {ctx.command} from {ctx.author} at {ctx.channel}')
-
-
-@bot.command()
-@commands.check(check_guild)
-async def reload_config(ctx: Context) -> None:
-    load_configs()
-    log.info(f'Reloaded configs on request from {ctx.guild}: {ctx.author}')
-    await ctx.reply('All done.')

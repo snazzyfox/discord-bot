@@ -4,17 +4,9 @@ players on stream.
 
 ## Getting Started
 
-Before you run the bot, you'll need 
-- A channel where the bot posts messages
-- A channel where admins control the bot (this should be hidden from public view, otherwise everyone will be able to 
-  see the messages you're DMing winners via the bot)
-
 When creating a bot user on the Discord developer portal, you will need to enable
-- Bot permissions: Send Messages, View Channels, Read Message History, and Add Reactions (68672)
-- Server Members intent. This is required for the bot to detect removal of reactions.
-
-This bot is intended to be run locally instead of hosted. (Well, you *could* host it, but it works on one Discord server 
-at a time.)
+- Bot permissions: Send Messages, View Channels, Read Message History
+- Application commands to register slash commands on your server
 
 You will need 
 - Python 3.9+
@@ -22,55 +14,59 @@ You will need
 
 To run the app
 - `git clone` this repository
+- Copy the `.env.template` file to `.env` and fill in values
 - `poetry install`
 - `poetry run python -m dingomata`
 
-## How it works
+## Cogs in the bot
 
-The typical way this bot should be used is like this:
+All commands for the bot are created as slash (application) commands. To view the list of commands available, simply
+type a `/` into discord's chat box after the bot has joined your server.
 
-- A moderator opens the pool with `+open My Awesome Game`
-- The bot posts a message in a channel
-- Members join the pool by clicking on the provided reaction. They can leave the pool by un-reacting.
+### Game Code Distributor
+
+Randomly pick users to join games.
+
+The typical way it's used:
+
+- A moderator opens the pool with `/game open My Awesome Game`
+- The bot responds by posting an announcement *in the same channel*
+- Members join the pool by clicking on the provided "join" button
 - Member receives a join successful message via DM. **Users whose DM is not open cannot join, because there will be no way to privately send them the game code.** 
-- Mod closes the pool with `+close`.
-- Mod issues a command like `+pick 8 Game code is ABCD`
+- Mod closes the pool with `/game close`.
+- Mod issues a command like `/game pick 7 Game code is ABCD`
 - The bot DM's the secret message (game code) to selected users, and a public announcement listing the users selected
 
-After that, mods can continue issuing `+pick` commands to select more and more users from the same pool, or they can
+After that, mods can continue issuing `pick` commands to select more users from the same pool, or they can
 clear the pool and start over.
 
 Optionally, the bot keeps track of which users selected in each round, and denies these users from joining after they've
 been selected once.
 
-Everything this bot does is stored in memory. If you close the app, all data will be lost. 
+*Note: As of now, pool data is stored in memory. If the bot is restarted, all data will be lost.* 
 
-## Command List
+### Bedtime
 
-All commands in this list requires moderator permissions (controlled by the `manager_roles` config), and are only 
-accepted from moderator channels (controlled by `manage_channel` config).
+Allows each user to set a time of day (in their own timezone) as bedtime. The bot will remind the user to go to bed if
+the user posts anything after their bedtime.
 
-| Command | Description |
-| --- | --- |
-| `+open <title>` | Opens the pool for entry. The title parameter is text that can be included in the bot's message. If there's no title, the previous title is reused. |
-| `+close` | Closes the pool, so no more people can enter. |
-| `+pick <count> <message>` | Pick <count> users at random from the pool. These users will be removed from the pool after picking. The pool will be closed. |
-| `+resend <message>` | Send a message to everyone who was last picked. |
-| `+clear pool` | Clears the current pool |
-| `+clear selected` | Clears the history of selected users, making everyone eligible for the next pool. |
-| `+list` | Lists all members who in the current pool. This will not actually mention the users to avoid being bonked by moderation bots.
-| `+help` | Displays this list. |
+### 
 
-## Configuration File
+## Configuration
 
-Options in the configuration file control how the bot runs. The config file is by default `dingomata.cfg` in the 
-working directory, but a different name can be specified using the `DINGOMATA_CONFIG` environment variable.
- 
-See comments in the file for the meaning of each configuration option.
+There are multiple sources of configurations for the bot. 
 
-Global configs in the `[bot]` section can be set using environment variables with the format 
-`DINGOMATA_{UPPERCASE_KEY}`, for example `DINGOMATA_TOKEN`. Values in environment variables take precedence over those
-in the file. Any bot-level config changes only take effect when the bot is completely restarted.
+- Secrets necessary for the bot to function are placed in the `.env` file in the current working directory. 
+  You can also provide values for them directly through environment variables. These values are generally sensitive 
+  and should be guarded with care.
+- Logging configs control what the bot prints to STDOUT. This is a standard python logging file in config/logging.cfg.
+- Server-specific settings affect the behavior of the bot. 
+  + `config/server_defaults.yaml` lists default values used for all servers.
+  + To override options for a particular server, add a file in `config/servers`. The actual filename doesn't matter, but
+    you can only have one file for each server. (If you have more than one, the app will arbitrarily pick one and ignore 
+    the rest.) Each of these files follow the same structure as `server_defaults.yaml` except each one must have an
+    additional `guild_id` property with the server ID.
 
-Configurations at the server level (including those set in the `[DEFAULT]` section) can be reloaded by running the 
-`reload_config` command on any server.
+See comments in the config files for the meaning of each configuration option.
+
+Because all configs are files at the moment, the bot must be restarted for new config options to take effect.

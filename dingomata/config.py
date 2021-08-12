@@ -26,10 +26,8 @@ class CommonGuildConfig(BaseModel):
 class GameCodeConfig(BaseModel):
     """Config for random user selector"""
     player_roles: Dict[Optional[int], int]
-    player_channel: int
 
     exclude_selected: bool
-
     message_opened: str
     message_opened_subtitle: str
     message_closed: str
