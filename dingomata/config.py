@@ -49,7 +49,7 @@ class GuildConfig(BaseModel):
 
 class BotConfig(BaseSettings):
     token: SecretStr = Field(..., env='token')
-    db_url: SecretStr = Field(..., env='db_url')
+    database_url: SecretStr = Field(..., env='database_Url')
     command_prefix: str = Field('!', min_length=1, max_length=1)
 
     class Config:

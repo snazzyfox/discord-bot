@@ -24,7 +24,7 @@ bot = commands.Bot(
 )
 slash = SlashCommand(bot, sync_commands=True)
 
-engine = create_async_engine(bot_config.db_url.get_secret_value())
+engine = create_async_engine(bot_config.database_url.get_secret_value())
 
 bot.add_cog(GameCodeSenderCommands(bot, engine))
 bot.add_cog(BedtimeCog(bot, engine))
