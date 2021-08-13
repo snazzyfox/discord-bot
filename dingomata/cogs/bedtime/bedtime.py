@@ -94,7 +94,8 @@ class BedtimeCog(Cog, name='Bedtime'):
                 # Do nothing if the user dont have a bedtime set or if they're in cooldown
                 if not result:
                     _log.debug(f'User {message.author.id} does not have a bedtime set. Skipping.')
-                if result.last_notified and datetime.utcnow() < result.last_notified + \
+                    return
+                elif result.last_notified and datetime.utcnow() < result.last_notified + \
                         timedelta(minutes=get_guild_config(message.guild.id).bedtime.cooldown):
                     _log.debug(f'User {message.author.id} was last notified at {result.last_notified}, before cooldown '
                                f'ends. Skipping.')
