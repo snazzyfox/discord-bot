@@ -15,12 +15,12 @@ class TextCommandsCog(Cog, name='Text Commands'):
     def __init__(self, bot: Bot):
         self._bot = bot
 
-    @cog_slash(name='tuch', description='Tuch some butts', guild_ids=get_guilds())
+    @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
     async def tuch(self, ctx: SlashContext) -> None:
         if random() < 0.95:
             await ctx.send(f'{ctx.author.mention} tuches {randint(0, 999)} butts. So much floof!')
         else:
-            await ctx.send(f"{ctx.author.mention} tuches {choice(ctx.channel.members).display_name}'s butt, OwO")
+            await ctx.send(f"{ctx.author.mention} tuches {choice(ctx.channel.members).mention}'s butt, OwO")
 
     @cog_slash(
         name='hug',
