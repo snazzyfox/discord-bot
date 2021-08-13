@@ -115,3 +115,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.send(f'{ctx.author.mention} takes a blanket and rolls {user.mention} into a burrito before '
                            f'tucking them into bed. Sweet dreams!')
+
+    @cog_slash(name='scream', description='AAAAA', guild_ids=get_guilds())
+    async def scream(self, ctx: SlashContext) -> None:
+        await ctx.send('A' * randint(1, 35) + '!')
