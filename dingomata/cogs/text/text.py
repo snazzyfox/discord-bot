@@ -71,7 +71,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f"Aw, don't be so rough on yourself.")
         elif user == self._bot.user:
             await ctx.send(f"{user.mention} rolls up a magazine and baps {ctx.author.mention} on the snoot.")
-        await ctx.send(f'{ctx.author.mention} rolls up a magazine and baps {user.mention} on the snoot.')
+        else:
+            await ctx.send(f'{ctx.author.mention} rolls up a magazine and baps {user.mention} on the snoot.')
 
     @cog_slash(
         name='boop',
@@ -95,7 +96,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f'{ctx.author.mention} tries to smooch themselves... How is that possible?')
         else:
-            await ctx.send(f'{ctx.author.mention} gives {user.mention} a lovely smooch on the cheek.')
+            location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'hand', 'beans'])
+            await ctx.send(f'{ctx.author.mention} gives {user.mention} a lovely smooch on the {location}.')
 
     @cog_slash(name='smooth', guild_ids=get_guilds())
     async def smooth(self, ctx: SlashContext) -> None:
