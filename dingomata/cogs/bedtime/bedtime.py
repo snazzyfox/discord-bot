@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from random import random
 
 import pytz
 from dateutil.parser import parse as parse_datetime, ParserError
@@ -91,28 +92,34 @@ class BedtimeCog(Cog, name='Bedtime'):
                 result = (await session.execute(statement)).scalars().one_or_none()
 
                 # Do nothing if the user dont have a bedtime set or if they're in cooldown
-                if not result or (result.last_notified and
-                                  datetime.utcnow() < result.last_notified
-                                  + timedelta(minutes=get_guild_config(message.guild.id).bedtime.cooldown)):
+                if not result:
+                    _log.debug(f'User {message.author.id} does not have a bedtime set. Skipping.')
+                if result.last_notified and datetime.utcnow() < result.last_notified + \
+                        timedelta(minutes=get_guild_config(message.guild.id).bedtime.cooldown):
+                    _log.debug(f'User {message.author.id} was last notified at {result.last_notified}, before cooldown '
+                               f'ends. Skipping.')
                     return
 
-                # Check if it's time to go to bed. Bedtime may be either yesterday or earlier today
+                # Find the nearest bedtime before current time in user's timezone, either earlier today or yesterday.
+                # Not comparing in UTC because bedtime can change due to DST
                 tz = pytz.timezone(result.timezone)
                 now_tz = datetime.now(tz)
-
-                # Find the nearest bedtime before current time
                 bedtime = tz.localize(datetime.combine(now_tz.date(), result.bedtime))
                 if now_tz.time() < result.bedtime:
                     bedtime -= timedelta(days=1)
+                _log.debug(f'User {message.author.id} has bedtime {bedtime}; it is currently {now_tz}')
 
-                sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
-                if bedtime > now_tz - timedelta(hours=sleep_hours):
-                    try:
-                        await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your bedtime "
-                                                   f"now. ")
-                        result.last_notified = datetime.utcnow()
-                        await session.commit()
-                        _log.info(f'Notified {message.author} about bedtime.')
-                    except Forbidden:
-                        _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
-                                     f"bot doesn't have permissions to post there.")
+        sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
+        if bedtime > now_tz - timedelta(hours=sleep_hours):
+            if random() < 0.2:
+                text = "https://cdn.discordapp.com/attachments/178042794386915328/875595133414961222/unknown-8.png"
+            else:
+                text = f"Hey {message.author.mention}, go to bed! It's past your bedtime now. "
+            try:
+                await message.channel.send(text)
+                result.last_notified = datetime.utcnow()
+                await session.commit()
+                _log.info(f'Notified {message.author} about bedtime.')
+            except Forbidden:
+                _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
+                             f"bot doesn't have permissions to post there.")

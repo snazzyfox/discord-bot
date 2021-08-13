@@ -14,6 +14,7 @@ from sqlalchemy.orm import sessionmaker
 from dingomata.cogs.gamecode.models import GamecodeModel
 from dingomata.cogs.gamecode.pool import MemberPool, MemberRoleError
 from dingomata.config import get_guild_config, get_guilds, get_mod_permissions
+from dingomata.exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
 
@@ -146,6 +147,8 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         If the bot is configured to exclude selected users from future pools, they will be added to the exclusion
         list after they're picked.
         """
+        if count < 1:
+            raise DingomataUserError(f'You have to pick at least one user.')
         pool = self._pool_for_guild(ctx.guild.id)
         picked_users = await pool.pick(count)
         log.info(f'Picked users: {", ".join(str(user) for user in self._picked_users)}')
