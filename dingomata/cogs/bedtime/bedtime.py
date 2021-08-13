@@ -110,17 +110,17 @@ class BedtimeCog(Cog, name='Bedtime'):
                     bedtime -= timedelta(days=1)
                 _log.debug(f'User {message.author.id} has bedtime {bedtime}; it is currently {now_tz}')
 
-        sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
-        if bedtime > now_tz - timedelta(hours=sleep_hours):
-            if random() < 0.2:
-                text = "https://cdn.discordapp.com/attachments/178042794386915328/875595133414961222/unknown-8.png"
-            else:
-                text = f"Hey {message.author.mention}, go to bed! It's past your bedtime now. "
-            try:
-                await message.channel.send(text)
-                result.last_notified = datetime.utcnow()
-                await session.commit()
-                _log.info(f'Notified {message.author} about bedtime.')
-            except Forbidden:
-                _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
-                             f"bot doesn't have permissions to post there.")
+                sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
+                if bedtime > now_tz - timedelta(hours=sleep_hours):
+                    if random() < 0.2:
+                        text = "https://cdn.discordapp.com/attachments/178042794386915328/875595133414961222/unknown-8.png"
+                    else:
+                        text = f"Hey {message.author.mention}, go to bed! It's past your bedtime now. "
+                    try:
+                        await message.channel.send(text)
+                        result.last_notified = datetime.utcnow()
+                        await session.commit()
+                        _log.info(f'Notified {message.author} about bedtime.')
+                    except Forbidden:
+                        _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
+                                     f"bot doesn't have permissions to post there.")
