@@ -2,12 +2,12 @@ import logging.config
 from collections import ChainMap
 from functools import cache
 from pathlib import Path
-from typing import Optional, Dict, Set, List
+from typing import Optional, Dict, Set, List, Any
 
 import yaml
 from discord_slash.model import SlashCommandPermissionType
 from discord_slash.utils.manage_commands import create_permission
-from pydantic import BaseSettings, SecretStr, BaseModel, constr, Field, AnyUrl
+from pydantic import BaseSettings, SecretStr, BaseModel, constr, Field, AnyUrl, validator
 
 _CONFIG_DIR = Path('config')
 _LOGGING_CONFIG = _CONFIG_DIR / 'logging.cfg'
@@ -51,6 +51,12 @@ class BotConfig(BaseSettings):
     token: SecretStr = Field(..., env='token')
     database_url: SecretStr = Field(..., env='database_Url')
     command_prefix: str = Field('!', min_length=1, max_length=1)
+
+    @validator('database_url', pre=True)
+    def translate_postgres(cls, v: Any):
+        if isinstance(v, str) and v.startswith('postgres://'):
+            return v.replace('postgres://', 'postgresql+asyncpg://')
+        return v
 
     class Config:
         env_prefix = 'dingomata'
