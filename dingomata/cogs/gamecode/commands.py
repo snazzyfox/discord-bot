@@ -1,7 +1,7 @@
 import logging
 from typing import List, Set, Dict
 
-from discord import Embed, Color, Message, Member, Forbidden, HTTPException
+from discord import Embed, Color, Member, Forbidden, HTTPException
 from discord.ext.commands import Cog, Bot
 from discord_slash import SlashContext, ComponentContext
 from discord_slash.cog_ext import cog_subcommand, cog_component
@@ -11,10 +11,10 @@ from discord_slash.utils.manage_components import create_actionrow, create_butto
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from dingomata.cogs.gamecode.models import GamecodeModel
-from dingomata.cogs.gamecode.pool import MemberPool, MemberRoleError
-from dingomata.config import get_guild_config, get_guilds, get_mod_permissions
-from dingomata.exceptions import DingomataUserError
+from .models import GamecodeModel
+from .pool import MemberPool, MemberRoleError
+from ...config import get_guild_config, get_guilds, get_mod_permissions
+from ...exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
 

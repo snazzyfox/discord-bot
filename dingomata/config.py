@@ -2,12 +2,12 @@ import logging.config
 from collections import ChainMap
 from functools import cache
 from pathlib import Path
-from typing import Optional, Dict, Set, List, Any
+from typing import Optional, Dict, List, Any
 
 import yaml
 from discord_slash.model import SlashCommandPermissionType
 from discord_slash.utils.manage_commands import create_permission
-from pydantic import BaseSettings, SecretStr, BaseModel, constr, Field, AnyUrl, validator
+from pydantic import BaseSettings, SecretStr, BaseModel, Field, validator
 
 _CONFIG_DIR = Path('config')
 _LOGGING_CONFIG = _CONFIG_DIR / 'logging.cfg'

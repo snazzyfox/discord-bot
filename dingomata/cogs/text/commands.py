@@ -6,7 +6,7 @@ from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_slash
 from discord_slash.utils.manage_commands import create_option
 
-from dingomata.config import get_guilds
+from ...config import get_guilds
 
 
 class TextCommandsCog(Cog, name='Text Commands'):

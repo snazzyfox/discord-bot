@@ -13,9 +13,9 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from dingomata.cogs.bedtime.models import BedtimeModel, Bedtime
-from dingomata.config import get_guilds, get_guild_config
-from dingomata.exceptions import DingomataUserError
+from .models import BedtimeModel, Bedtime
+from ...config import get_guilds, get_guild_config
+from ...exceptions import DingomataUserError
 
 _log = logging.getLogger(__name__)
 

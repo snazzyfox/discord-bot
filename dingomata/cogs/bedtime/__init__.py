@@ -1,3 +1,3 @@
-from dingomata.cogs.bedtime.bedtime import BedtimeCog
+from .commands import BedtimeCog
 
 __all__ = ['BedtimeCog']

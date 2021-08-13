@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, Integer
+from sqlalchemy import Column, BigInteger, String, Boolean, Integer
 from sqlalchemy.orm import declarative_base
 
 GamecodeModel = declarative_base()

@@ -4,7 +4,7 @@ from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_subcommand, cog_slash
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from dingomata.config import get_guilds, get_mod_permissions
+from ...config import get_guilds, get_mod_permissions
 
 
 class GambaCog(Cog, name='GAMBA'):

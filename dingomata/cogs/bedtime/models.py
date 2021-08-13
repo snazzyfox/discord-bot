@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, Time, String, DateTime
+from sqlalchemy import Column, BigInteger, Time, String, DateTime
 from sqlalchemy.orm import declarative_base
 
 BedtimeModel = declarative_base()

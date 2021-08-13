@@ -1,3 +1,3 @@
-from .text import TextCommandsCog
+from .commands import TextCommandsCog
 
 __all__ = ['TextCommandsCog']

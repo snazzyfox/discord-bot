@@ -1,14 +1,14 @@
 from random import sample
-from typing import List, Optional
+from typing import List
 
 from discord import Member
 from sqlalchemy import delete, func
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
-from dingomata.cogs.gamecode.models import GamePool, GamePoolEntry
-from dingomata.config import get_guild_config
-from dingomata.exceptions import DingomataUserError
+from .models import GamePool, GamePoolEntry
+from ...config import get_guild_config
+from ...exceptions import DingomataUserError
 
 
 class MemberPoolStateError(DingomataUserError):

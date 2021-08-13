@@ -1,3 +1,3 @@
-from .gamecode import GameCodeSenderCommands
+from .commands import GameCodeSenderCommands
 
 __all__ = ['GameCodeSenderCommands']

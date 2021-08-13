@@ -10,9 +10,9 @@ from discord_slash.client import SlashCommand
 from discord_slash.error import CheckFailure as SlashCheckFailure
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from dingomata.cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands
-from dingomata.config import BotConfig
-from dingomata.exceptions import DingomataUserError
+from .cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands
+from .config import BotConfig
+from .exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
 discord.VoiceClient.warn_nacl = False  # Disable warning for no voice support since it's a text bot
