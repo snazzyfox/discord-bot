@@ -101,7 +101,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 now_tz = datetime.now(tz)
 
                 # Find the nearest bedtime before current time
-                bedtime = datetime.combine(now_tz.date(), result.bedtime, tz)
+                bedtime = tz.localize(datetime.combine(now_tz.date(), result.bedtime))
                 if now_tz.time() < result.bedtime:
                     bedtime -= timedelta(days=1)
 
