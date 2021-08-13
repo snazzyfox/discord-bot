@@ -96,7 +96,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f'{ctx.author.mention} tries to smooch themselves... How is that possible?')
         else:
-            location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'hand', 'beans'])
+            location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'paws', 'beans',
+                               'ears', 'you-know-what'])
             await ctx.send(f'{ctx.author.mention} gives {user.mention} a lovely smooch on the {location}.')
 
     @cog_slash(name='smooth', guild_ids=get_guilds())
