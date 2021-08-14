@@ -232,7 +232,7 @@ class GambaCog(Cog, name='GAMBA'):
                 )
 
                 # Update the embed and send a new embed
-                embed = await self._generate_gamba_embed(game)
+                embed = await self._generate_gamba_embed(game, GameStatus.CANCELLED)
                 embed.description = f'{totals.amount_a + totals.amount_b} goes to ' \
                                     f'{totals.count_a if outcome == "a" else totals.count_b} users.'
                 message = self._bot.get_channel(game.channel_id).get_partial_message(game.message_id)
@@ -275,7 +275,7 @@ class GambaCog(Cog, name='GAMBA'):
         async with self._session() as session:
             async with session.begin():
                 game = (await session.execute(select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id))).scalar()
-                embed = await self._generate_gamba_embed(game)
+                embed = await self._generate_gamba_embed(game, GameStatus.CANCELLED)
 
                 await session.execute(update(GambaUser).filter(
                     GambaUser.guild_id == ctx.guild.id,
