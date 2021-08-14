@@ -100,7 +100,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'paws', 'beans',
                                'ears', 'you-know-what'])
-            adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'fridnely', 'warm', 'wet'])
+            adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'friendly', 'warm', 'wet'])
             await ctx.send(f'{ctx.author.mention} gives {user.mention} a {adj} smooch on the {location}.')
 
     @cog_slash(
