@@ -108,7 +108,7 @@ class GambaCog(Cog, name='GAMBA'):
                 game.message_id = message.id
                 session.add(game)
                 await session.commit()
-                await ctx.reply(f'Gamba created. It will be posted shortly in this channel.', hidden=True)
+                await ctx.reply(f'A new gamba has been started!')
 
     @tasks.loop(seconds=2)
     async def gamba_message_updater(self):
@@ -144,7 +144,7 @@ class GambaCog(Cog, name='GAMBA'):
                     amount_a, amount_b = points.amount_a, points.amount_b
                     count_a, count_b = points.count_a, points.count_b
                     pct_a = round(amount_a / (amount_a + amount_b) * 100, 1)
-                    pct_b = 100 - pct_a
+                    pct_b = round(100 - pct_a, 1)
                 if pct_a == 0 or pct_b == 0:
                     ratio_a = ratio_b = 1
                 else:
@@ -251,7 +251,7 @@ class GambaCog(Cog, name='GAMBA'):
                     if not won_amount:
                         message = "Sorry, you did not bet on the winning option. Better luck next time!"
                     else:
-                        message = f"Congrats! You won {won_amount:,} {points_name}. " \
+                        message = f"Congrats! You won {round(won_amount * ratio):,} {points_name}. " \
                                   f"Your total is now {bet.balance:,}."
                     try:
                         await user.send(message)
@@ -402,7 +402,10 @@ class GambaCog(Cog, name='GAMBA'):
                     bet.option_a = (bet.option_a or 0) + amount
                 else:
                     bet.option_b = (bet.option_b or 0) + amount
-                await self._change_point_amount(ctx.guild.id, ctx.author.id, -amount)
+                balance = await self._change_point_amount(ctx.guild.id, ctx.author.id, -amount)
+                if balance == 0:
+                    await ctx.reply(f'{ctx.author.mention} just went all all-in on '
+                                    f'{"believe" if option == "a" else "doubt"}!')
                 await session.merge(bet)
                 await session.commit()
                 await ctx.reply(f"You've successfully made the bet. You've bet a total of "
@@ -499,7 +502,8 @@ class GambaCog(Cog, name='GAMBA'):
                     GambaUser.guild_id == guild_id, GambaUser.user_id == user_id)
                 return (await session.execute(stmt)).scalar() or 0
 
-    async def _change_point_amount(self, guild_id: int, user_id: int, amount: int):
+    async def _change_point_amount(self, guild_id: int, user_id: int, amount: int) -> int:
+        """Change a user's point amount by a given value. Returns the user's new balance."""
         async with self._session() as session:
             async with session.begin():
                 stmt = select(GambaUser).filter(GambaUser.guild_id == guild_id, GambaUser.user_id == user_id)
@@ -513,6 +517,7 @@ class GambaCog(Cog, name='GAMBA'):
                 _log.debug(f"Changed point balance for {user_id} to {user.balance}")
                 await session.merge(user)
                 await session.commit()
+                return user.balance
 
     def _generate_leaderboard_table(self, data: List) -> str:
         result = ''
