@@ -103,17 +103,22 @@ class TextCommandsCog(Cog, name='Text Commands'):
             adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'fridnely', 'warm', 'wet'])
             await ctx.send(f'{ctx.author.mention} gives {user.mention} a {adj} smooch on the {location}.')
 
-    @cog_slash(name='smooth', guild_ids=get_guilds())
+    @cog_slash(
+        name='smooth',
+        description="This was supposed to be smooch but I'm leaving it",
+        guild_ids=get_guilds())
     async def smooth(self, ctx: SlashContext) -> None:
         await ctx.send(f'{ctx.author.mention} takes a sip of their drink. Smoooooth.')
 
     @cog_slash(name='cuddle', guild_ids=get_guilds(),
+               description="Give a cutie some cuddles",
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
     async def cuddle(self, ctx: SlashContext, user: User) -> None:
         await ctx.send(f'{ctx.author.mention} pulls {user.mention} into their arm for a long cuddle.')
 
     @cog_slash(name='snug', guild_ids=get_guilds(),
+               description="Give someone some snuggles",
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
     async def snug(self, ctx: SlashContext, user: User) -> None:
