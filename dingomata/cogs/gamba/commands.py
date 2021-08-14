@@ -233,7 +233,7 @@ class GambaCog(Cog, name='GAMBA'):
 
                 # Update the embed and send a new embed
                 embed = await self._generate_gamba_embed(game, GameStatus.CANCELLED)
-                embed.description = f'{totals.amount_a + totals.amount_b} goes to ' \
+                embed.description = f'{totals.amount_a + totals.amount_b} {points_name} goes to ' \
                                     f'{totals.count_a if outcome == "a" else totals.count_b} users.'
                 message = self._bot.get_channel(game.channel_id).get_partial_message(game.message_id)
                 await message.edit(embed=embed)
@@ -264,7 +264,7 @@ class GambaCog(Cog, name='GAMBA'):
                 await session.commit()
 
                 # Notify the mod
-                await ctx.reply('All members have been notified. You can start a new gamba now.')
+                await ctx.reply('All members have been notified. You can start a new gamba now.', hidden=True)
 
     @cog_subcommand(
         name='refund',
@@ -519,5 +519,5 @@ class GambaCog(Cog, name='GAMBA'):
         for row in data:
             user = self._bot.get_user(row.user_id)
             username = user.display_name if user else "Unknown User"
-            result += f'{row.rank:4} {username:24} {row.balance}\n'
+            result += f'{row.rank:4} {username:24} {row.balance:,}\n'
         return result
