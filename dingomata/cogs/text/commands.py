@@ -146,3 +146,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cog_slash(name='banger', description='Such a jam!', guild_ids=get_guilds())
     async def banger(self, ctx: SlashContext) -> None:
         await ctx.send('⚠🎶 Banger Alert! 🎶⚠')
+
+    @cog_slash(name='neo', description='The red and black wolf', guild_ids=get_guilds())
+    async def neo(self, ctx: SlashContext) -> None:
+        await ctx.send('Neo is *so* cute, awwwwww!')
