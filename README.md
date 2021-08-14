@@ -26,7 +26,7 @@ type a `/` into discord's chat box after the bot has joined your server.
 
 ### Game Code Distributor
 
-Randomly pick users to join games.
+Randomly pick users to join games. All commands are under `/game` and restricted to mods only.
 
 The typical way it's used:
 
@@ -44,14 +44,35 @@ clear the pool and start over.
 Optionally, the bot keeps track of which users selected in each round, and denies these users from joining after they've
 been selected once.
 
-*Note: As of now, pool data is stored in memory. If the bot is restarted, all data will be lost.* 
+*Note: As of now, pool data is persisted, but recently picked members data is stored in memory. If the bot is restarted,
+everyone will become eligible to be picked again.*
 
 ### Bedtime
 
-Allows each user to set a time of day (in their own timezone) as bedtime. The bot will remind the user to go to bed if
-the user posts anything after their bedtime.
+Allows each user to set a time of day and a timezone as their bedtime. If the user talks after their bedtime, the bot 
+will remind them to go to bed.
 
-### 
+### Text
+
+Fun text commands. May contain surprises and random variations.
+
+### Gamba
+
+A GAMBA bot similar to Twitch's predictions. There are two sets of commands: `/gamba` is for all users and allows them 
+to interact with their own points and make bets, while `/gamble` is for admins to manage betting games.
+
+Users earn server points by either:
+- running the `/gamba daily` command to receive a fixed amount of points. This command can be run once every 24 hours.
+- being manually given points by a mod
+
+Once users have points, they can participate in bets:
+- A mod can start a bet with `/gamble start`
+- While the bet is open, users can place bets using either `/gamba believe` or `/gamba doubt`
+- After the bet closes, a mod can pay out either option using `/gamba payour`, or cancel it using `/gamba refund`
+
+Users can check their point balance using `/gamba balance`.
+Points can't be used for anything right now, but if mods want to allow people to redeem points for anything, they 
+can manually deduct points using `/gamble deduct`
 
 ## Configuration
 
