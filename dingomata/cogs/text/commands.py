@@ -145,7 +145,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
-    async def tuck(self, ctx: SlashContext, user: User) -> None:
+    async def bodycheck(self, ctx: SlashContext, user: User) -> None:
         if user.bot:
             await ctx.send(f"{ctx.author.mention} tries to ram {user.mention}, but misses because they're a bot.")
         else:
