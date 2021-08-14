@@ -139,6 +139,19 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.mention} takes a blanket and rolls {user.mention} into a burrito before '
                            f'tucking them into bed. Sweet dreams!')
 
+    @cog_slash(
+        name='bodycheck',
+        description='Bam!',
+        guild_ids=get_guilds(),
+        options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+    )
+    async def tuck(self, ctx: SlashContext, user: User) -> None:
+        if user.bot:
+            await ctx.send(f"{ctx.author.mention} tries to ram {user.mention}, but misses because they're a bot.")
+        else:
+            await ctx.send(f'{ctx.user.mention} gets absolutely RAMMED into the boards by {ctx.author.mention}. '
+                           f'It is very effective!')
+
     @cog_slash(name='scream', description='AAAAA', guild_ids=get_guilds())
     async def scream(self, ctx: SlashContext) -> None:
         await ctx.send('A' * randint(1, 35) + '!')
