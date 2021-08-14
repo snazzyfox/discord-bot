@@ -58,7 +58,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
         elif user == self._bot.user:
             await ctx.send(f"How dare you.")
         else:
-            await ctx.send(f'{ctx.author.mention} bonks {user.mention} lightly on the head. Bad!')
+            adj = choice(['lightly', 'gently', 'aggressively'])
+            await ctx.send(f'{ctx.author.mention} bonks {user.mention} {adj} on the head. Bad!')
 
     @cog_slash(
         name='bap',
@@ -67,6 +68,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     async def bap(self, ctx: SlashContext, user: User) -> None:
+        thing = choice(['magazine', 'newspaper', 'mousepad', 'phonebook', 'pancake', 'pillow'])
         if ctx.author == user:
             await ctx.send(f"Aw, don't be so rough on yourself.")
         elif user == self._bot.user:
@@ -98,11 +100,24 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'paws', 'beans',
                                'ears', 'you-know-what'])
-            await ctx.send(f'{ctx.author.mention} gives {user.mention} a lovely smooch on the {location}.')
+            adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'fridnely', 'warm', 'wet'])
+            await ctx.send(f'{ctx.author.mention} gives {user.mention} a {adj} smooch on the {location}.')
 
     @cog_slash(name='smooth', guild_ids=get_guilds())
     async def smooth(self, ctx: SlashContext) -> None:
         await ctx.send(f'{ctx.author.mention} takes a sip of their drink. Smoooooth.')
+
+    @cog_slash(name='cuddle', guild_ids=get_guilds(),
+               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+               )
+    async def cuddle(self, ctx: SlashContext, user: User) -> None:
+        await ctx.send(f'{ctx.author.mention} pulls {user.mention} into their arm for a long cuddle.')
+
+    @cog_slash(name='snug', guild_ids=get_guilds(),
+               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+               )
+    async def snug(self, ctx: SlashContext, user: User) -> None:
+        await ctx.send(f'{ctx.author.mention} snuggles the heck out of {user.mention}!')
 
     @cog_slash(
         name='tuck',
