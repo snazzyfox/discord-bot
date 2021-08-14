@@ -41,16 +41,22 @@ class BedtimeConfig(BaseModel):
     sleep_hours: int = 6
 
 
+class GambaConfig(BaseModel):
+    points_name: str = 'points'
+    daily_points: int = 1000
+
+
 class GuildConfig(BaseModel):
     common: CommonGuildConfig
     game_code: GameCodeConfig
     bedtime: BedtimeConfig
+    gamba: GambaConfig
 
 
 class BotConfig(BaseSettings):
     token: SecretStr = Field(..., env='token')
     database_url: SecretStr = Field(..., env='database_Url')
-    command_prefix: str = Field('!', min_length=1, max_length=1)
+    command_prefix: str = Field('\\', min_length=1, max_length=1)  # This is unused
 
     @validator('database_url', pre=True)
     def translate_postgres(cls, v: Any):

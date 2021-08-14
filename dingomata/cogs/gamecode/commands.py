@@ -19,14 +19,17 @@ from ...exceptions import DingomataUserError
 log = logging.getLogger(__name__)
 
 
+def _base_command():
+    return dict(
+        base='game',
+        base_permissions=get_mod_permissions(),
+        base_default_permission=False,
+        guild_ids=get_guilds(),
+    )
+
+
 class GameCodeSenderCommands(Cog, name='Game Code Sender'):
     """RNG-based Game Code distributor."""
-    _GROUP_NAME = 'game'
-    _PLAYER_PERMS = {
-        guild: [create_permission(role, SlashCommandPermissionType.ROLE, True)
-                for role in get_guild_config(guild).game_code.player_roles]
-        for guild in get_guilds() if None not in get_guild_config(guild).game_code.player_roles
-    }  # Precompute player permissions on load
     _JOIN_BUTTON = 'game_join'
     _LEAVE_BUTTON = 'game_leave'
 
@@ -88,15 +91,12 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             log.info(f"Rejected unjoin request from {ctx.author}: pool closed")
 
     @cog_subcommand(
-        base=_GROUP_NAME,
         name='open',
         description='Open a new game pool for people to join.',
-        guild_ids=get_guilds(),
         options=[
             create_option(name='title', description='Name of the game to start', option_type=str, required=True),
         ],
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
+        **_base_command(),
     )
     async def open(self, ctx: SlashContext, *, title: str = '') -> None:
         await self._pool_for_guild(ctx.guild.id).open(title)
@@ -109,14 +109,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         await ctx.send(embed=embed, components=[action_row])
         log.info(f'Pool opened with title: {title}')
 
-    @cog_subcommand(
-        base=_GROUP_NAME,
-        name='close',
-        description='Close the open pool.',
-        guild_ids=get_guilds(),
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
-    )
+    @cog_subcommand(name='close', description='Close the open pool.', **_base_command())
     async def close(self, ctx: SlashContext) -> None:
         pool = self._pool_for_guild(ctx.guild.id)
         await pool.close()
@@ -128,16 +121,13 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         log.info(f'Pool closed')
 
     @cog_subcommand(
-        base=_GROUP_NAME,
         name='pick',
         description='Pick users randomly from the pool and send them a DM.',
-        guild_ids=get_guilds(),
         options=[
             create_option(name='count', description='Number of users to pick', option_type=int, required=True),
             create_option(name='message', description='Message to DM to selected users', option_type=str, required=True)
         ],
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
+        **_base_command(),
     )
     async def pick(self, ctx: SlashContext, count: int, *, message: str) -> None:
         """Randomly pick users from the pool and send them a DM.
@@ -156,23 +146,20 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             self._previously_selected_users[ctx.guild.id].update(picked_users)
         embed = Embed(title=get_guild_config(ctx.guild.id).game_code.message_picked_announce.format(
             title=await pool.title()),
-                      description=f'Total entries: {await pool.size()}\n'
-                                  + '\n'.join(user.display_name for user in picked_users),
-                      color=Color.blue())
+            description=f'Total entries: {await pool.size()}\n'
+                        + '\n'.join(user.display_name for user in picked_users),
+            color=Color.blue())
         self._picked_users[ctx.guild.id] = picked_users
         await ctx.send(embed=embed)
         await self._send_dms(ctx, message)
 
     @cog_subcommand(
-        base=_GROUP_NAME,
         name='resend',
         description='Send a DM to all users picked in the previous pool.',
-        guild_ids=get_guilds(),
         options=[
             create_option(name='message', description='Message to DM to selected users', option_type=str, required=True)
         ],
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
+        **_base_command(),
     )
     async def resend(self, ctx: SlashContext, *, message: str) -> None:
         await self._send_dms(ctx, message)
@@ -191,37 +178,20 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                 log.exception(e)
         await ctx.send('All done', hidden=True)
 
-    @cog_subcommand(
-        base=_GROUP_NAME,
-        name='list',
-        description='Show a list of all users currently in the pool.',
-        guild_ids=get_guilds(),
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
-    )
+    @cog_subcommand(name='list', description='Show a list of all users currently in the pool.', **_base_command())
     async def list(self, ctx: SlashContext) -> None:
         members = await self._pool_for_guild(ctx.guild.id).members()
         await ctx.reply(' '.join(f'<@{user_id}>' for user_id in members), hidden=True)
 
-    @cog_subcommand(
-        base=_GROUP_NAME,
-        name='clear_pool',
-        description='Clear the current pool.',
-        guild_ids=get_guilds(),
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
-    )
+    @cog_subcommand(name='clear_pool', description='Clear the current pool.', **_base_command())
     async def clear_pool(self, ctx: SlashContext) -> None:
         await self._pool_for_guild(ctx.guild.id).clear()
         await ctx.reply('All done!', hidden=True)
 
     @cog_subcommand(
-        base=_GROUP_NAME,
         name='clear_selected',
         description='Clear the list of people who were selected before so they become eligible again.',
-        guild_ids=get_guilds(),
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
+        **_base_command(),
     )
     async def clear_selected(self, ctx: SlashContext) -> None:
         self._previously_selected_users = set()

@@ -20,7 +20,7 @@ discord.VoiceClient.warn_nacl = False  # Disable warning for no voice support si
 bot_config = BotConfig()
 bot = commands.Bot(
     command_prefix=bot_config.command_prefix,
-    intents=Intents(guilds=True, messages=True, dm_messages=True, typing=True)
+    intents=Intents(guilds=True, messages=True, dm_messages=True, members=True)
 )
 slash = SlashCommand(bot, sync_commands=True)
 
@@ -28,7 +28,7 @@ engine = create_async_engine(bot_config.database_url.get_secret_value())
 
 bot.add_cog(GameCodeSenderCommands(bot, engine))
 bot.add_cog(BedtimeCog(bot, engine))
-bot.add_cog(GambaCog(bot))
+bot.add_cog(GambaCog(bot, engine))
 bot.add_cog(TextCommandsCog(bot))
 
 
@@ -59,7 +59,7 @@ async def on_disconnect():
 
 @bot.event
 async def on_slash_command(ctx: SlashContext):
-    log.info(f'Received slash command {ctx.command} from {ctx.author} at {ctx.channel}')
+    log.info(f'Received slash command {ctx.command} {ctx.subcommand_name} from {ctx.author} at {ctx.channel}')
 
 
 @bot.event

@@ -6,6 +6,7 @@ players on stream.
 
 When creating a bot user on the Discord developer portal, you will need to enable
 - Bot permissions: Send Messages, View Channels, Read Message History
+- Server members intent: This is required so that the bot can get information about users in your server
 - Application commands to register slash commands on your server
 
 You will need 

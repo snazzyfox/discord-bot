@@ -97,8 +97,8 @@ class BedtimeCog(Cog, name='Bedtime'):
                     return
                 elif result.last_notified and datetime.utcnow() < result.last_notified + \
                         timedelta(minutes=get_guild_config(message.guild.id).bedtime.cooldown):
-                    _log.debug(f'User {message.author.id} was last notified at {result.last_notified}, before cooldown '
-                               f'ends. Skipping.')
+                    _log.debug(f'User {message.author.id} was last notified at {result.last_notified}, still in '
+                               f'cooldown. Skipping.')
                     return
 
                 # Find the nearest bedtime before current time in user's timezone, either earlier today or yesterday.
@@ -112,12 +112,14 @@ class BedtimeCog(Cog, name='Bedtime'):
 
                 sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
                 if bedtime > now_tz - timedelta(hours=sleep_hours):
-                    if random() < 0.2:
-                        text = "https://cdn.discordapp.com/attachments/178042794386915328/875595133414961222/unknown-8.png"
-                    else:
-                        text = f"Hey {message.author.mention}, go to bed! It's past your bedtime now. "
                     try:
-                        await message.channel.send(text)
+                        if random() < 0.2:
+                            await message.channel.send(message.author.mention)
+                            await message.channel.send("https://cdn.discordapp.com/attachments/178042794386915328/"
+                                                       "875595133414961222/unknown-8.png")
+                        else:
+                            await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your "
+                                                       f"bedtime now. ")
                         result.last_notified = datetime.utcnow()
                         await session.commit()
                         _log.info(f'Notified {message.author} about bedtime.')

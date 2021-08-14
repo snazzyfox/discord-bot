@@ -27,3 +27,9 @@ bedtime:
 
   # Alert the user if they send a message within this many hours of their bedtime
   sleep_hours: 6
+gamba:
+  # What to call points for this server (should be plural if applicable)
+  points_name: points
+
+  # Number of daily gamba points to grant
+  daily_points: 1000
