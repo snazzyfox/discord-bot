@@ -16,7 +16,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     def __init__(self, bot: Bot):
         self._bot = bot
-        self._quotes = yaml.safe_load((Path(__file__).parent / 'quotes.yaml').open())
+        self._quotes = yaml.safe_load((Path(__file__).parent / 'quotes.yaml').open(encoding='utf-8'))
 
     @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
     async def tuch(self, ctx: SlashContext) -> None:
