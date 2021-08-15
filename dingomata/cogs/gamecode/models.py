@@ -1,7 +1,16 @@
+from enum import Enum
+
 from sqlalchemy import Column, BigInteger, String, Boolean, Integer
 from sqlalchemy.orm import declarative_base
 
 GamecodeModel = declarative_base()
+
+
+class EntryStatus(Enum):
+    ELIGIBLE = 1
+    SELECTED = 2
+    PLAYED = 3
+    BANNED = 4
 
 
 class GamePool(GamecodeModel):
@@ -17,4 +26,5 @@ class GamePoolEntry(GamecodeModel):
 
     guild_id = Column(BigInteger, primary_key=True)
     user_id = Column(BigInteger, primary_key=True)
+    status = Column(Integer, nullable=False)
     weight = Column(Integer)

@@ -1,7 +1,7 @@
 import logging
 from typing import List, Set, Dict
 
-from discord import Embed, Color, Member, Forbidden, HTTPException
+from discord import Embed, Color, Member, Forbidden, HTTPException, User
 from discord.ext.commands import Cog, Bot
 from discord_slash import SlashContext, ComponentContext
 from discord_slash.cog_ext import cog_subcommand, cog_component
@@ -11,7 +11,7 @@ from discord_slash.utils.manage_components import create_actionrow, create_butto
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from .models import GamecodeModel
+from .models import GamecodeModel, EntryStatus
 from .pool import MemberPool, MemberRoleError
 from ...config import get_guild_config, get_guilds, get_mod_permissions
 from ...exceptions import DingomataUserError
@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 
 def _base_command():
+    print(get_mod_permissions())
     return dict(
         base='game',
         base_permissions=get_mod_permissions(),
@@ -37,8 +38,6 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         """Initialize application state."""
         self._bot = bot
         self._pools: Dict[int, MemberPool] = {}
-        self._picked_users: Dict[int, List[Member]] = {}
-        self._previously_selected_users: Dict[int, Set[Member]] = {}
         self._engine = engine
         self._session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
@@ -52,14 +51,10 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         guild_id = ctx.guild.id
         pool = self._pool_for_guild(guild_id)
         if await pool.is_open():
-            if ctx.author in self._previously_selected_users:
-                log.info(f'Rejected join request from {ctx.author}: recently selected')
-                await ctx.reply('You cannot join this pool because you were recently selected.', hidden=True)
-                return
             try:
                 await pool.add_member(ctx.author)
                 log.info(f"Joined successfully: {ctx.author}")
-                await ctx.author.send("You're in!")
+                await ctx.author.send("You're in the pool! I'll send you your super secret message if you're selected.")
                 action_row = create_actionrow(create_button(label='Leave', style=ButtonStyle.secondary,
                                                             custom_id=self._LEAVE_BUTTON))
                 await ctx.send(get_guild_config(guild_id).game_code.message_joined.format(title=await pool.title()),
@@ -115,7 +110,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         await pool.close()
         embed = Embed(
             title=get_guild_config(ctx.guild.id).game_code.message_closed.format(title=await pool.title()),
-            description=f'Total Entries: {await pool.size()}',
+            description=f'Total Entries: {await pool.size(EntryStatus.ELIGIBLE)}',
             color=Color.dark_red())
         await ctx.send(embed=embed)
         log.info(f'Pool closed')
@@ -139,19 +134,19 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         """
         if count < 1:
             raise DingomataUserError(f'You have to pick at least one user.')
+
         pool = self._pool_for_guild(ctx.guild.id)
-        picked_users = await pool.pick(count)
-        log.info(f'Picked users: {", ".join(str(user) for user in self._picked_users)}')
-        if get_guild_config(ctx.guild.id).game_code.exclude_selected:
-            self._previously_selected_users[ctx.guild.id].update(picked_users)
+        picked_users = [self._bot.get_user(user) for user in await pool.pick(count)]
+        log.info(f'Picked users: {", ".join(str(user) for user in picked_users)}')
         embed = Embed(title=get_guild_config(ctx.guild.id).game_code.message_picked_announce.format(
             title=await pool.title()),
-            description=f'Total entries: {await pool.size()}\n'
+            description=f'Total entries: {await pool.size(EntryStatus.ELIGIBLE)}\n'
                         + '\n'.join(user.display_name for user in picked_users),
             color=Color.blue())
-        self._picked_users[ctx.guild.id] = picked_users
         await ctx.send(embed=embed)
-        await self._send_dms(ctx, message)
+        for user in picked_users:
+            await self._send_dm(ctx, message, user)
+        await ctx.reply('All done!', hidden=True)
 
     @cog_subcommand(
         name='resend',
@@ -162,30 +157,27 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         **_base_command(),
     )
     async def resend(self, ctx: SlashContext, *, message: str) -> None:
-        await self._send_dms(ctx, message)
+        pool = self._pool_for_guild(ctx.guild.id)
+        users = [self._bot.get_user(user) for user in await pool.members(EntryStatus.SELECTED)]
+        for user in users:
+            await self._send_dm(ctx, message, user)
+        await ctx.reply(f'All done!', hidden=True)
 
-    async def _send_dms(self, ctx: SlashContext, message: str) -> None:
-        for user in self._picked_users[ctx.guild.id]:
-            try:
-                await user.send(message)
-                log.info(f'Sent a DM to {user}.')
-            except Forbidden:
-                await ctx.reply(f'Failed to DM {user.mention}. Their DM is probably not open. Use the resend command '
-                                f'to try again, or issue another pick command to pick more members.', hidden=True)
-                log.warning(f'Failed to DM {user}. DM not open?')
-            except HTTPException as e:
-                await ctx.reply(f'Failed to DM {user}. You may want to resend the message. {e}', hidden=True)
-                log.exception(e)
-        await ctx.send('All done', hidden=True)
+    async def _send_dm(self, ctx: SlashContext, message: str, user: User) -> None:
+        try:
+            await user.send(message)
+            log.info(f'Sent a DM to {user}.')
+        except Forbidden:
+            await ctx.reply(f'Failed to DM {user.mention}. Their DM is probably not open. Use the resend command '
+                            f'to try again, or issue another pick command to pick more members.', hidden=True)
+            log.warning(f'Failed to DM {user}. DM not open?')
+        except HTTPException as e:
+            await ctx.reply(f'Failed to DM {user}. You may want to resend the message. {e}', hidden=True)
+            log.exception(e)
 
-    @cog_subcommand(name='list', description='Show a list of all users currently in the pool.', **_base_command())
-    async def list(self, ctx: SlashContext) -> None:
-        members = await self._pool_for_guild(ctx.guild.id).members()
-        await ctx.reply(' '.join(f'<@{user_id}>' for user_id in members), hidden=True)
-
-    @cog_subcommand(name='clear_pool', description='Clear the current pool.', **_base_command())
+    @cog_subcommand(name='clear', description='Clear the current pool.', **_base_command())
     async def clear_pool(self, ctx: SlashContext) -> None:
-        await self._pool_for_guild(ctx.guild.id).clear()
+        await self._pool_for_guild(ctx.guild.id).clear(EntryStatus.SELECTED)
         await ctx.reply('All done!', hidden=True)
 
     @cog_subcommand(
@@ -194,10 +186,23 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         **_base_command(),
     )
     async def clear_selected(self, ctx: SlashContext) -> None:
-        self._previously_selected_users = set()
+        pool = self._pools.get(ctx.guild.id)
+        if pool:
+            await pool.clear(EntryStatus.SELECTED)
+        await ctx.reply('All done!', hidden=True)
+
+    @cog_subcommand(name='ban', description='Ban a user from joining.',
+                    options=[
+                        create_option(name='user', description='Who to ban', option_type=User, required=True),
+                    ],
+                    **_base_command())
+    async def clear_pool(self, ctx: SlashContext, user: User) -> None:
+        await self._pool_for_guild(ctx.guild.id).ban_user(user)
         await ctx.reply('All done!', hidden=True)
 
     def _pool_for_guild(self, guild_id: int) -> MemberPool:
         if guild_id not in self._pools:
-            self._pools[guild_id] = MemberPool(guild_id, self._session)
+            self._pools[guild_id] = MemberPool(
+                guild_id, self._session, track_played=get_guild_config(guild_id).game_code.exclude_selected,
+            )
         return self._pools[guild_id]

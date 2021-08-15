@@ -2,11 +2,12 @@ from random import sample
 from typing import List
 
 from discord import Member
-from sqlalchemy import delete, func
+from sqlalchemy import delete, func, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
-from .models import GamePool, GamePoolEntry
+from .models import GamePool, GamePoolEntry, EntryStatus
 from ...config import get_guild_config
 from ...exceptions import DingomataUserError
 
@@ -22,16 +23,18 @@ class MemberRoleError(DingomataUserError):
 
 
 class MemberPool:
-    def __init__(self, guild_id: int, session: sessionmaker) -> None:
+    def __init__(self, guild_id: int, session: sessionmaker, track_played: bool) -> None:
         self._guild_id = guild_id
         self._player_roles = get_guild_config(guild_id).game_code.player_roles
         self._session = session
+        self._track_played = track_played
 
     async def open(self, title: str) -> None:
         await self._require_pool_status(False)
         pool = GamePool(guild_id=self._guild_id, is_open=True, title=title)
         async with self._session() as session:
             async with session.begin():
+                await self._finalize_pick()
                 await session.merge(pool)
                 await session.commit()
 
@@ -46,29 +49,59 @@ class MemberPool:
                 await session.merge(pool)
                 await session.commit()
 
-    async def clear(self) -> None:
+    async def clear(self, status: EntryStatus = EntryStatus.ELIGIBLE) -> None:
         await self._require_pool_status(False)
+        await self._finalize_pick()
         async with self._session() as session:
             async with session.begin():
-                statement = delete(GamePoolEntry).filter(GamePoolEntry.guild_id == self._guild_id)
+                statement = delete(GamePoolEntry).filter(GamePoolEntry.guild_id == self._guild_id,
+                                                         GamePoolEntry.status == status.value)
                 await session.execute(statement)
                 await session.commit()
 
-    async def pick(self, count: int) -> List[Member]:
+    async def ban_user(self, user_id: int):
+        async with self._session() as session:
+            async with session.begin():
+                entry = GamePoolEntry(guild_id=self._guild_id, user_id=user_id, weight=0,
+                                      status=EntryStatus.BANNED.value)
+                await session.merge(entry)
+                await session.commit()
+
+    async def pick(self, count: int) -> List[int]:
         await self._close()
         async with self._session() as session:
             async with session.begin():
-                statement = select(GamePoolEntry.user_id, GamePool.weight).filter(
-                    GamePoolEntry.guild_id == self._guild_id)
-                members = (await session.execute(statement)).scalars()
-            if count > len(members):
-                raise MemberPoolStateError(
-                    f'Cannot pick more member than there are in the pool. The pool has {await self.size()} '
-                    f'members in it.')
-            # turn into parallel lists for sampling
-            population, weights = zip(*((member.user_id, member.weight) for member in members))
-            picked = sample(population=population, k=count, counts=weights)
-        return picked
+                statement = select(GamePoolEntry.user_id, GamePoolEntry.weight).filter(
+                    GamePoolEntry.guild_id == self._guild_id, GamePoolEntry.status == EntryStatus.ELIGIBLE.value)
+                members = (await session.execute(statement)).all()
+                if count > len(members):
+                    raise MemberPoolStateError(
+                        f'Cannot pick more member than there are in the pool. The pool has '
+                        f'{await self.size(EntryStatus.ELIGIBLE)} eligible members in it.')
+                # turn into parallel lists for sampling
+                population, weights = zip(*((member.user_id, member.weight) for member in members))
+                picked_user_ids = sample(population=population, k=count, counts=weights)
+                # Change their status
+                statement = update(GamePoolEntry).filter(
+                    GamePoolEntry.guild_id == self._guild_id, GamePoolEntry.user_id.in_(picked_user_ids)
+                ).values({GamePoolEntry.status: EntryStatus.SELECTED.value})
+                await session.execute(statement)
+                await session.commit()
+        return picked_user_ids
+
+    async def _finalize_pick(self):
+        async with self._session() as session:
+            async with session.begin():
+                if self._track_played:
+                    stmt = update(GamePoolEntry).filter(
+                        GamePoolEntry.guild_id == self._guild_id, GamePoolEntry.status == EntryStatus.SELECTED.value
+                    ).values({GamePoolEntry.status: EntryStatus.PLAYED.value})
+                else:
+                    stmt = delete(GamePoolEntry).filter(
+                        GamePoolEntry.guild_id == self._guild_id, GamePoolEntry.status == EntryStatus.SELECTED.value
+                    )
+                await session.execute(stmt)
+                await session.commit()
 
     def _get_member_weight(self, member: Member) -> int:
         if not self._player_roles:
@@ -81,23 +114,31 @@ class MemberPool:
         weight = self._get_member_weight(member)
         if weight == 0:
             raise MemberRoleError(f'You cannot join this pool because you do not have the necessary roles.')
-        entry = GamePoolEntry(guild_id=self._guild_id, user_id=member.id, weight=weight)
+        entry = GamePoolEntry(guild_id=self._guild_id, user_id=member.id, weight=weight,
+                              status=EntryStatus.ELIGIBLE.value)
         async with self._session() as session:
             async with session.begin():
-                await session.merge(entry)
+                try:
+                    session.add(entry)
+                except IntegrityError:
+                    raise MemberPoolStateError(f"You can't join this pool. You've either already joined, or have "
+                                               f"been selected already.")
                 await session.commit()
 
     async def remove_member(self, member: Member) -> None:
         async with self._session() as session:
             async with session.begin():
                 statement = delete(GamePoolEntry).filter(
-                    GamePoolEntry.guild_id == self._guild_id, GamePoolEntry.user_id == member.id)
+                    GamePoolEntry.guild_id == self._guild_id, GamePoolEntry.user_id == member.id,
+                    GamePoolEntry.status == EntryStatus.ELIGIBLE.value
+                )
                 await session.execute(statement)
                 await session.commit()
 
-    async def size(self) -> int:
+    async def size(self, status: EntryStatus) -> int:
         async with self._session() as session:
-            stmt = select(func.count()).filter(GamePoolEntry.guild_id == self._guild_id)
+            stmt = select(func.count()).filter(GamePoolEntry.guild_id == self._guild_id,
+                                               GamePoolEntry.status == status.value)
             return await session.scalar(stmt)
 
     async def is_open(self) -> bool:
@@ -106,11 +147,12 @@ class MemberPool:
             result = (await session.execute(statement)).scalars().one_or_none()
             return result or False
 
-    async def members(self) -> List[int]:
-        statement = select(GamePoolEntry.user_id).filter(GamePoolEntry.guild_id == self._guild_id)
+    async def members(self, status: EntryStatus) -> List[int]:
+        statement = select(GamePoolEntry.user_id).filter(GamePoolEntry.guild_id == self._guild_id,
+                                                         GamePoolEntry.status == status.value)
         async with self._session() as session:
-            result = (await session.execute(statement)).scalars().all()
-            return result
+            data = await session.execute(statement)
+            return [row.user_id for row in data]
 
     async def title(self) -> str:
         statement = select(GamePool.title).filter(GamePool.guild_id == self._guild_id)
