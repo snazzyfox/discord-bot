@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 
 def _base_command():
-    print(get_mod_permissions())
     return dict(
         base='game',
         base_permissions=get_mod_permissions(),

@@ -2,7 +2,7 @@ import logging.config
 from collections import ChainMap
 from functools import cache
 from pathlib import Path
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Set
 
 import yaml
 from discord_slash.model import SlashCommandPermissionType
@@ -21,6 +21,7 @@ class CommonGuildConfig(BaseModel):
     """Configs used across all cogs."""
     guild_id: int
     mod_roles: List[int] = []
+    no_ping_users: Set[int] = []
 
 
 class GameCodeConfig(BaseModel):

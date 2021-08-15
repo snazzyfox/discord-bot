@@ -1,6 +1,9 @@
 common:
   # List of role IDs who can use mod-level commands.
   mod_roles: []
+
+  # List of role IDs where pings in text commands are suppressed.
+  no_ping_users: []
 game_code:
   # List of role IDs that may join the game and their relative weight of being selected.
   # Each user's chances of being selected is the highest weight they have based on their roles.
