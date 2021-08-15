@@ -1,4 +1,4 @@
-from random import randint, random, choice
+from random import betavariate, random, choice, randint
 
 from discord import User
 from discord.ext.commands import Bot, Cog
@@ -18,7 +18,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
     async def tuch(self, ctx: SlashContext) -> None:
         if random() < 0.95:
-            await ctx.send(f'{ctx.author.mention} tuches {randint(0, 999)} butts. So much floof!')
+            number = int(betavariate(2, 4) * ctx.guild.member_count)
+            await ctx.send(f'{ctx.author.mention} tuches {number} butts. So much floof!')
         else:
             await ctx.send(f"{ctx.author.mention} tuches {self._mention(ctx, choice(ctx.channel.members))}'s butt, OwO")
 
@@ -165,9 +166,29 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def dingomata(self, ctx: SlashContext) -> None:
         await ctx.reply('https://www.youtube.com/watch?v=yMbSiF-6FBs')
 
-    @cog_slash(name='neo', description='Such a cutie', guild_ids=get_guilds())
-    async def neo(self, ctx: SlashContext) -> None:
-        await ctx.reply("Aww, Look at Neo... He's such a cutie! :-3")
+    @cog_slash(name='cute', description="So cute!", guild_ids=get_guilds(),
+               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+               )
+    async def cute(self, ctx: SlashContext, user: User) -> None:
+        await ctx.reply(f"Aww, Look at {self._mention(ctx, user)}... Such a cutie! :-3")
+
+    @cog_slash(name='roll', description="Roll a die.", guild_ids=get_guilds(),
+               options=[create_option(name='sides', description='Number of sides (default 6)', option_type=int,
+                                      required=False)],
+               )
+    async def roll(self, ctx: SlashContext, sides: int = 6) -> None:
+        if sides <= 1:
+            await ctx.reply(f"I tried to roll a {sides}-sided die, but created a black hole instead, because it can't "
+                            f"possibly exist. ")
+        else:
+            await ctx.reply(f"I rolled a {randint(1, sides)} on a d{sides}.")
+
+    @cog_slash(name='flip', description="Flip a coin.", guild_ids=get_guilds())
+    async def flip(self, ctx: SlashContext) -> None:
+        if random() < 0.98:
+            await ctx.reply(f"It's {choice(['heads', 'tails'])}.")
+        else:
+            await ctx.reply(f"It's... hecc, it went under the couch.")
 
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
