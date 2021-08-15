@@ -135,12 +135,12 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             raise DingomataUserError(f'You have to pick at least one user.')
 
         pool = self._pool_for_guild(ctx.guild.id)
+        size = await pool.size(EntryStatus.ELIGIBLE)
         picked_users = [self._bot.get_user(user) for user in await pool.pick(count)]
         log.info(f'Picked users: {", ".join(str(user) for user in picked_users)}')
         embed = Embed(title=get_guild_config(ctx.guild.id).game_code.message_picked_announce.format(
             title=await pool.title()),
-            description=f'Total entries: {await pool.size(EntryStatus.ELIGIBLE)}\n'
-                        + '\n'.join(user.display_name for user in picked_users),
+            description=f'Total entries: {size}\n' + '\n'.join(user.display_name for user in picked_users),
             color=Color.blue())
         await ctx.send(embed=embed)
         for user in picked_users:

@@ -3,3 +3,5 @@ common:
   mod_roles: [869729094722543627]
 gamba:
   points_name: ched
+game_code:
+  exclude_selected: true
