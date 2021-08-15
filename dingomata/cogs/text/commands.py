@@ -165,6 +165,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def dingomata(self, ctx: SlashContext) -> None:
         await ctx.reply('https://www.youtube.com/watch?v=yMbSiF-6FBs')
 
+    @cog_slash(name='neo', description='Such a cutie', guild_ids=get_guilds())
+    async def neo(self, ctx: SlashContext) -> None:
+        await ctx.reply("Aww, Look at Neo... He's such a cutie! :-3")
+
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
         """Return a user's mention string, or display name if they're in the no-ping list"""
