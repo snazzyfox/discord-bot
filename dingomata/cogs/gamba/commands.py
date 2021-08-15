@@ -99,7 +99,7 @@ class GambaCog(Cog, name='GAMBA'):
                     raise GambaUserError(
                         f"There's already a gamba running in {self._bot.get_channel(existing.channel_id)} right now: "
                         f"{existing.title}. You must pay it out or refund it before starting another one.")
-                end_time = datetime.now() + timedelta(minutes=timeout)
+                end_time = datetime.utcnow() + timedelta(minutes=timeout)
                 game = GambaGame(guild_id=ctx.guild.id, channel_id=ctx.channel.id, title=title, option_a=believe,
                                  option_b=doubt, open_until=end_time, is_open=True, creator_user_id=ctx.author.id)
                 _log.debug(f"New gamba: server {game.guild_id} channel {game.channel_id} open until {end_time}")
@@ -113,7 +113,7 @@ class GambaCog(Cog, name='GAMBA'):
     @tasks.loop(seconds=2)
     async def gamba_message_updater(self):
         # Find all open gambas
-        now = datetime.now()
+        now = datetime.utcnow()
         async with self._session() as session:
             async with session.begin():
                 stmt = select(GambaGame).filter(GambaGame.is_open.is_(True), GambaGame.message_id.isnot(None))
@@ -155,7 +155,7 @@ class GambaCog(Cog, name='GAMBA'):
                 elif status == GameStatus.COMPLETE:
                     color = Color.blue()
                 elif game.is_open:
-                    time_left = relativedelta(game.open_until, datetime.now()).normalized()
+                    time_left = relativedelta(game.open_until, datetime.utcnow()).normalized()
                     description = 'Place your bets using the `/gamba believe` and `/gamba doubt` commands.\n'
                     description += f'{time_left.minutes} minutes {time_left.seconds} seconds left...'
                     color = Color.green()
@@ -431,7 +431,7 @@ class GambaCog(Cog, name='GAMBA'):
                 user = (await session.execute(stmt)).scalar()
                 if not user:
                     user = GambaUser(guild_id=ctx.guild.id, user_id=ctx.author.id, balance=0)
-                now = datetime.now()
+                now = datetime.utcnow()
                 if not user.last_claim or user.last_claim < now - timedelta(days=1):
                     user.balance += get_guild_config(ctx.guild.id).gamba.daily_points
                     user.last_claim = now

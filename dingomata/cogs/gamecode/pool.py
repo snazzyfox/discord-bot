@@ -34,7 +34,6 @@ class MemberPool:
         pool = GamePool(guild_id=self._guild_id, is_open=True, title=title)
         async with self._session() as session:
             async with session.begin():
-                await self._finalize_pick()
                 await session.merge(pool)
                 await session.commit()
 
@@ -71,6 +70,7 @@ class MemberPool:
         await self._close()
         async with self._session() as session:
             async with session.begin():
+                await self._finalize_pick()
                 statement = select(GamePoolEntry.user_id, GamePoolEntry.weight).filter(
                     GamePoolEntry.guild_id == self._guild_id, GamePoolEntry.status == EntryStatus.ELIGIBLE.value)
                 members = (await session.execute(statement)).all()
@@ -120,10 +120,10 @@ class MemberPool:
             async with session.begin():
                 try:
                     session.add(entry)
-                except IntegrityError:
+                    await session.commit()
+                except IntegrityError as exc:
                     raise MemberPoolStateError(f"You can't join this pool. You've either already joined, or have "
-                                               f"been selected already.")
-                await session.commit()
+                                               f"been selected already.") from exc
 
     async def remove_member(self, member: Member) -> None:
         async with self._session() as session:

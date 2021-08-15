@@ -161,9 +161,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def banger(self, ctx: SlashContext) -> None:
         await ctx.send('⚠🎶 Banger Alert! 🎶⚠')
 
-    @cog_slash(name='neo', description='The red and black wolf', guild_ids=get_guilds())
-    async def neo(self, ctx: SlashContext) -> None:
-        await ctx.send('Neo is *so* cute, awwwwww!')
+    @cog_slash(name='dingomata', description='I better see some /banger', guild_ids=get_guilds())
+    async def dingomata(self, ctx: SlashContext) -> None:
+        await ctx.reply('https://www.youtube.com/watch?v=yMbSiF-6FBs')
 
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:

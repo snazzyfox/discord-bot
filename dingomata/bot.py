@@ -5,7 +5,7 @@ import discord
 from discord import Intents
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError, CheckFailure
-from discord_slash import SlashContext
+from discord_slash import SlashContext, ComponentContext
 from discord_slash.client import SlashCommand
 from discord_slash.error import CheckFailure as SlashCheckFailure
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -63,6 +63,11 @@ async def on_slash_command(ctx: SlashContext):
 
 
 @bot.event
+async def on_component_callback(ctx: ComponentContext):
+    log.info(f'Received component callback from {ctx.author} at {ctx.channel}')
+
+
+@bot.event
 async def on_slash_command_error(ctx: SlashContext, exc: Exception):
     if isinstance(exc, (CheckFailure, SlashCheckFailure)):
         log.warning(f'Ignored a message from {ctx.author} in guild {ctx.guild or "DM"} '
@@ -70,6 +75,15 @@ async def on_slash_command_error(ctx: SlashContext, exc: Exception):
         return
     if isinstance(exc, CommandInvokeError):
         exc = exc.original
+    if isinstance(exc, DingomataUserError):
+        await ctx.reply(f"You can't do that. {exc}", hidden=True)
+        log.warning(f'{exc.__class__.__name__}: {exc}')
+    else:
+        log.exception(exc)
+
+
+@bot.event
+async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
     if isinstance(exc, DingomataUserError):
         await ctx.reply(f"You can't do that. {exc}", hidden=True)
         log.warning(f'{exc.__class__.__name__}: {exc}')

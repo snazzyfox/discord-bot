@@ -174,8 +174,12 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             await ctx.reply(f'Failed to DM {user}. You may want to resend the message. {e}', hidden=True)
             log.exception(e)
 
-    @cog_subcommand(name='clear', description='Clear the current pool.', **_base_command())
-    async def clear_pool(self, ctx: SlashContext) -> None:
+    @cog_subcommand(
+        name='clear',
+        description='Clear the current pool.',
+        **_base_command(),
+    )
+    async def clear(self, ctx: SlashContext) -> None:
         await self._pool_for_guild(ctx.guild.id).clear(EntryStatus.SELECTED)
         await ctx.reply('All done!', hidden=True)
 
