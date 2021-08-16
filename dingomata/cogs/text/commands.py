@@ -156,7 +156,14 @@ class TextCommandsCog(Cog, name='Text Commands'):
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     async def tacklehug(self, ctx: SlashContext, user: User) -> None:
-        await ctx.send(f'{ctx.author.display_name} tacklehugs {self._mention(ctx, user)} to the ground!')
+        if user == ctx.author:
+            await ctx.send(f'{ctx.author.display_name} trips over and somehow tackles themselves. Oh wait, they tied '
+                           f'both their shoes together.')
+        else:
+            message = f'{ctx.author.display_name} tacklehugs {self._mention(ctx, user)} to the ground!'
+            if user.bot:
+                message += ' The bot lets out some sparks and burns their beans.'
+            await ctx.send(message)
 
     @cog_slash(name='scream', description='AAAAA', guild_ids=get_guilds())
     async def scream(self, ctx: SlashContext) -> None:
