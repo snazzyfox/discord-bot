@@ -107,8 +107,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
             location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'paws', 'beans',
                                'ears', 'you-know-what'])
             adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'friendly', 'warm', 'wet'])
-            await ctx.send(
-                f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} smooch on the {location}.')
+            message = f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} smooch on the {location}.'
+            if user == self._bot.user:
+                message += ' Bzzzt. A shocking experience.'
+            await ctx.send(message)
 
     @cog_slash(
         name='smooth',
