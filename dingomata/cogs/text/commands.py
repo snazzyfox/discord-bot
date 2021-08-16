@@ -36,8 +36,13 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def hug(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} is lonely and can't stop hugging themselves.")
+        elif random() < 0.98:
+            adj = choice(['great big', 'giant', 'big bear', 'friendly', 'loving', 'nice warm', 'floofy', 'free',
+                          'suplex and a'])
+            await ctx.send(f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} hug!')
         else:
-            await ctx.send(f'{ctx.author.display_name} gives {self._mention(ctx, user)} a great big hug!')
+            await ctx.send(f'{ctx.author.display_name} wants to give {self._mention(ctx, user)} a hug, but then '
+                           f'remembers social distancing is still a thing.')
 
     @cog_slash(
         name='pat',
@@ -92,7 +97,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} walkes into a glass door and end up booping themselves.")
         else:
-            await ctx.send(f"{ctx.author.display_name} gently boops {self._mention(ctx, user)}'s snoot. Aaaaaa!")
+            adv = choice(['lightly', 'gently', 'lovingly', 'aggressively', 'kindly', 'tenderly'])
+            await ctx.send(f"{ctx.author.display_name} {adv} boops {self._mention(ctx, user)}'s snoot. Aaaaaa!")
 
     @cog_slash(
         name='smooch',
@@ -160,14 +166,17 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} trips over and somehow tackles themselves. Oh wait, they tied '
                            f'both their shoes together.')
         else:
-            message = f'{ctx.author.display_name} tacklehugs {self._mention(ctx, user)} to the ground!'
+            ending = choice(['to the ground!', 'to the floor!', 'off a cliff. Oops!', 'into a tree. *Thud*',
+                             'into the grass.', 'into a lake. *splash*', ])
+            message = f'{ctx.author.display_name} tacklehugs {self._mention(ctx, user)} {ending}'
             if user.bot:
                 message += ' The bot lets out some sparks and burns their beans.'
             await ctx.send(message)
 
     @cog_slash(name='scream', description='AAAAA', guild_ids=get_guilds())
     async def scream(self, ctx: SlashContext) -> None:
-        await ctx.send('A' * randint(1, 35) + '!')
+        char = choice(['A'] * 20 + ['🅰', '🇦'])
+        await ctx.send(char * randint(1, 35) + '!')
 
     @cog_slash(name='banger', description='Such a jam!', guild_ids=get_guilds())
     async def banger(self, ctx: SlashContext) -> None:
@@ -200,18 +209,21 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if sides <= 1:
             await ctx.reply(f"{ctx.author.display_name} tries to roll a {sides}-sided die, but created a black hole "
                             f"instead, because it can't possibly exist. ")
+        elif random() < 0.01:
+            await ctx.reply(f"{ctx.author.display_name} rolls a... darn it. It bounced down the stairs into the "
+                            f"dungeon.")
         else:
             await ctx.reply(f"{ctx.author.display_name} rolls a {randint(1, sides)} on a d{sides}.")
 
     @cog_slash(name='flip', description="Flip a coin.", guild_ids=get_guilds())
     async def flip(self, ctx: SlashContext) -> None:
-        if random() < 0.98:
+        if random() < 0.99:
             await ctx.reply(f"It's {choice(['heads', 'tails'])}.")
         else:
             await ctx.reply(f"It's... hecc, it went under the couch.")
 
     @cog_slash(name='whiskey', description="What does the Dingo say?", guild_ids=get_guilds())
-    async def flip(self, ctx: SlashContext) -> None:
+    async def whiskey(self, ctx: SlashContext) -> None:
         await ctx.reply(choice(self._quotes))
 
     @staticmethod
