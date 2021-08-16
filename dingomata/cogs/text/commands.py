@@ -184,7 +184,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     @cog_slash(name='sip', description='Sip on a drink!', guild_ids=get_guilds())
     async def sip(self, ctx: SlashContext) -> None:
-        await ctx.send((' glug' * randint(2, 8)).strip().capitalize() + '.')
+        if random() < 0.5:
+            await ctx.send((' glug' * randint(2, 8)).strip().capitalize() + '.')
+        else:
+            await ctx.send('Slu' + 'r' * randint(1, 20) + 'p.')
 
     @cog_slash(name='dingomata', description='I better see some /banger', guild_ids=get_guilds())
     async def dingomata(self, ctx: SlashContext) -> None:
