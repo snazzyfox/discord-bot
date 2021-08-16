@@ -185,7 +185,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
     async def cute(self, ctx: SlashContext, user: User) -> None:
-        await ctx.reply(f"Aww, Look at {self._mention(ctx, user)}... Such a cutie! :-3")
+        phrase = choice(['Such a cutie! :-3', 'How cute!', "I can't get over how cute they are!",
+                         "I can't believe they're so cute!", "Why are they so cute?", "*melts to their cuteness*"])
+        await ctx.reply(f"Aww, Look at {self._mention(ctx, user)}... {phrase}")
 
     @cog_slash(name='roll', description="Roll a die.", guild_ids=get_guilds(),
                options=[create_option(name='sides', description='Number of sides (default 6)', option_type=int,
