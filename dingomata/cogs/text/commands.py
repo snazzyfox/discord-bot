@@ -143,7 +143,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f'{ctx.author.display_name} gets into bed and rolls up into a cozy burrito.')
         elif user.bot:
-            await ctx.send(f'{ctx.author.display_name} rolls {self._mention(ctx, user)} up in a blanked. The bot '
+            await ctx.send(f'{ctx.author.display_name} rolls {self._mention(ctx, user)} up in a blanket. The bot '
                            f'overheats.')
         else:
             await ctx.send(f'{ctx.author.display_name} takes a blanket and rolls {self._mention(ctx, user)} into a '
