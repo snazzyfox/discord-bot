@@ -21,7 +21,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
     async def tuch(self, ctx: SlashContext) -> None:
         if random() < 0.95:
-            number = int(betavariate(2, 7) * ctx.guild.member_count)
+            number = int(betavariate(1.5, 3) * ctx.guild.member_count)
             await ctx.send(f'{ctx.author.display_name} tuches {number} butts. So much floof!')
         else:
             await ctx.send(f"{ctx.author.display_name} tuches {choice(ctx.channel.members).display_name}'s "
