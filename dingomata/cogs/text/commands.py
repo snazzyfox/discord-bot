@@ -152,8 +152,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} rolls {self._mention(ctx, user)} up in a blanket. The bot '
                            f'overheats.')
         else:
-            await ctx.send(f'{ctx.author.display_name} takes a blanket and rolls {self._mention(ctx, user)} into a '
-                           f'burrito before tucking them into bed. Sweet dreams!')
+            shell = choice(['cozy blanket', 'tortilla', 'pancake', 'comforter', 'piece of toast', 'beach towel'])
+            product = choice(['burrito', 'purrito', 'tasty snacc', 'hotdog', 'crepe', 'swiss roll'])
+            await ctx.send(f'{ctx.author.display_name} takes a {shell} and rolls {self._mention(ctx, user)} into a '
+                           f'{product} before tucking them into bed. Sweet dreams!')
 
     @cog_slash(
         name='tacklehug',
