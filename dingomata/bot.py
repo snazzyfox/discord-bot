@@ -2,12 +2,13 @@ import asyncio
 import logging
 
 import discord
-from discord import Intents
+from discord import Intents, TextChannel
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError, CheckFailure
 from discord_slash import SlashContext, ComponentContext
 from discord_slash.client import SlashCommand
 from discord_slash.error import CheckFailure as SlashCheckFailure
+from discord_slash.utils.manage_commands import create_option
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from .cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands
@@ -89,3 +90,16 @@ async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
         log.exception(exc)
+
+
+@slash.slash(
+    guild_ids=[814653859838427136],
+    options=[
+        create_option(name='channel', option_type=str, description='Channel ID', required=True),
+        create_option(name='message', option_type=str, description='Message', required=True),
+    ]
+)
+async def echo(ctx: SlashContext, channel: str, message: str):
+    ch = bot.get_channel(int(channel))
+    await ch.send(message)
+    await ctx.reply('Done', hidden=True)
