@@ -82,14 +82,14 @@ class GambaCog(Cog, name='GAMBA'):
             create_option(name='title', description='Title for the prediction', option_type=str, required=True),
             create_option(name='believe', description='Name of the "believe" outcome', option_type=str, required=True),
             create_option(name='doubt', description='Name of the "doubt" outcome', option_type=str, required=True),
-            create_option(name='timeout', description='Number of minutes to take bets (up to 30); defaults to 1.',
+            create_option(name='timeout', description='Number of minutes to take bets (up to 10); defaults to 1.',
                           option_type=int, required=False)
         ],
         **_base_mod_command(),
     )
-    async def start(self, ctx: SlashContext, title: str, believe: str, doubt: str, timeout: int = 1):
-        if not 0 < timeout <= 30:
-            raise GambaUserError(f"Timeout must between 1 and 30 minutes.")
+    async def start(self, ctx: SlashContext, title: str, believe: str, doubt: str, timeout: int = 2):
+        if not 0 < timeout <= 10:
+            raise GambaUserError(f"Timeout must between 1 and 10 minutes.")
         async with self._session() as session:
             async with session.begin():
                 stmt = select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id)
