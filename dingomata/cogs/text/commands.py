@@ -231,6 +231,38 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def whiskey(self, ctx: SlashContext) -> None:
         await ctx.reply(choice(self._quotes))
 
+    @cog_slash(name='snipe', description="It's bloody murderrrr", guild_ids=get_guilds(),
+               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+               )
+    async def snipe(self, ctx: SlashContext, user: User) -> None:
+        if prob := random() < 0.50:
+            reason = choice([
+                'they get distracted and went to chase a squirrel instead',
+                'they only have a knife in the gun fight',
+                'they watched the Dingomata while waiting and was heard',
+                'they fall out of the tree while waiting',
+                'the rifle turns out to be a water gun',
+                'they totally forget to shoot because they were browsing furry art',
+                'they spend all night awooing to a full moon',
+            ])
+            await ctx.reply(f"{ctx.author.display_name} tries to snipe {self._mention(ctx, user)}, but {reason}.")
+        elif prob < 0.96:
+            reason = choice([
+                'forgot gravity existed', 'failed to account for wind', "didn't clean the scope", 'got too tipsy',
+                "can't concentrate", "had too much coffee", "are pepega at shooting"
+            ])
+            action = choice(['misses completely', 'botches it', 'foxes it up', 'borks it', "it's a ruff shot"])
+            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)}, but they"
+                            f"{reason} and {action}. The bullet ricochets and scares {user.display_name} away.")
+        elif prob < 0.99:
+            location = choice(['bean', 'arm', 'leg', 'thigh', 'fingy', 'paw', 'shoulder'])
+            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)} and hits their "
+                            f"{location}. {user.display_name} runs away.")
+        else:
+            location = choice(['chest', 'head', 'tums'])
+            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)} and hits their "
+                            f"{location}. {user.display_name} is ded. F.")
+
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
         """Return a user's mention string, or display name if they're in the no-ping list"""
