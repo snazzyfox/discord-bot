@@ -252,7 +252,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 "can't concentrate", "had too much coffee", "are pepega at shooting"
             ])
             action = choice(['misses completely', 'botches it', 'foxes it up', 'borks it', "it's a ruff shot"])
-            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)}, but they"
+            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)}, but they "
                             f"{reason} and {action}. The bullet ricochets and scares {user.display_name} away.")
         elif prob < 0.99:
             location = choice(['bean', 'arm', 'leg', 'thigh', 'fingy', 'paw', 'shoulder'])
