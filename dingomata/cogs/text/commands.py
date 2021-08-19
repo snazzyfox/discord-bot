@@ -282,7 +282,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 'they spend all night awooing to a full moon',
             ])
             await ctx.reply(f"{ctx.author.display_name} tries to snipe {self._mention(ctx, user)}, but {reason}.")
-        elif prob < 0.96:
+        elif prob < 0.92:
             reason = choice([
                 'forgot gravity existed', 'failed to account for wind', "didn't clean the scope", 'got too tipsy',
                 "can't concentrate", "had too much coffee", "are pepega at shooting"
@@ -290,7 +290,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             action = choice(['misses completely', 'botches it', 'foxes it up', 'borks it', "it's a ruff shot"])
             await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)}, but they "
                             f"{reason} and {action}. The bullet ricochets and scares {user.display_name} away.")
-        elif prob < 0.99:
+        elif prob < 0.98:
             location = choice(['bean', 'arm', 'leg', 'thigh', 'fingy', 'paw', 'shoulder'])
             await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)} and hits their "
                             f"{location}. {user.display_name} runs away.")
