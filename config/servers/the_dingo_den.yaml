@@ -1,6 +1,6 @@
 common:
   guild_id: 178042794386915328
-  mod_roles: [492485748071727129]  # Moderators
+  mod_roles: [492485748071727129, 552399444105232384]  # Moderators
   no_ping_users: [178041504508542976]  # Dingo
 game_code:
   exclude_selected: true

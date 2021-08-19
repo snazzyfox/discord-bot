@@ -36,17 +36,8 @@ class GambaUserError(DingomataUserError):
 
 
 # These really should just be a one-time dict but the slash library mutates input dicts...
-def _base_mod_command():
-    return dict(
-        base='gamble',
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
-        guild_ids=get_guilds(),
-    )
-
-
-def _base_user_command():
-    return dict(base='gamba', guild_ids=get_guilds())
+_BASE_MOD_COMMAND = dict(base='gamble', guild_ids=get_guilds(), base_default_permission=False)
+_BASE_USER_COMMAND = dict(base='gamba', guild_ids=get_guilds())
 
 
 class GameStatus(Enum):
@@ -75,6 +66,7 @@ class GambaCog(Cog, name='GAMBA'):
     def cog_unload(self):
         self.gamba_message_updater.stop()
 
+    # ### MOD COMMANDS ###
     @cog_subcommand(
         name='start',
         description='Start a new gamba.',
@@ -85,7 +77,8 @@ class GambaCog(Cog, name='GAMBA'):
             create_option(name='timeout', description='Number of minutes to take bets (up to 10); defaults to 1.',
                           option_type=int, required=False)
         ],
-        **_base_mod_command(),
+        base_permissions=get_mod_permissions(),
+        **_BASE_MOD_COMMAND,
     )
     async def start(self, ctx: SlashContext, title: str, believe: str, doubt: str, timeout: int = 2):
         if not 0 < timeout <= 10:
@@ -181,7 +174,7 @@ class GambaCog(Cog, name='GAMBA'):
         options=[create_option(
             name='outcome', description='Select the outcome that won', option_type=str, required=True, choices=_CHOICES,
         )],
-        **_base_mod_command(),
+        **_BASE_MOD_COMMAND,
     )
     async def payout(self, ctx: SlashContext, outcome: str):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name
@@ -269,7 +262,7 @@ class GambaCog(Cog, name='GAMBA'):
     @cog_subcommand(
         name='refund',
         description='Cancel the current gamba and refund all points to users.',
-        **_base_mod_command(),
+        **_BASE_MOD_COMMAND,
     )
     async def refund(self, ctx: SlashContext):
         async with self._session() as session:
@@ -292,7 +285,7 @@ class GambaCog(Cog, name='GAMBA'):
     @cog_subcommand(
         name='leaderboard',
         description="Post a message with the top users by credits.",
-        **_base_mod_command(),
+        **_BASE_MOD_COMMAND,
     )
     async def mod_leaderboard(self, ctx: SlashContext):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name
@@ -311,7 +304,7 @@ class GambaCog(Cog, name='GAMBA'):
         options=[
             create_option(name='user', description='Amount of points to bet', option_type=User, required=True),
         ],
-        **_base_mod_command(),
+        **_BASE_MOD_COMMAND,
     )
     async def mod_balance(self, ctx: SlashContext, user: User):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name
@@ -325,7 +318,7 @@ class GambaCog(Cog, name='GAMBA'):
             create_option(name='user', description='Whose points to modify.', option_type=User, required=True),
             create_option(name='amount', description='Amount of points to add.', option_type=int, required=True),
         ],
-        **_base_mod_command(),
+        **_BASE_MOD_COMMAND,
     )
     async def mod_add(self, ctx: SlashContext, user: User, amount: int):
         await self._mod_transact(ctx, user, amount, True)
@@ -337,7 +330,7 @@ class GambaCog(Cog, name='GAMBA'):
             create_option(name='user', description='Whose points to modify.', option_type=User, required=True),
             create_option(name='amount', description='Amount of points to deduct.', option_type=int, required=True),
         ],
-        **_base_mod_command(),
+        **_BASE_MOD_COMMAND,
     )
     async def mod_deduct(self, ctx: SlashContext, user: User, amount: int):
         await self._mod_transact(ctx, user, amount, False)
@@ -364,7 +357,7 @@ class GambaCog(Cog, name='GAMBA'):
         options=[
             create_option(name='amount', description='Amount of points to bet', option_type=int, required=True),
         ],
-        **_base_user_command(),
+        **_BASE_USER_COMMAND,
     )
     async def believe(self, ctx: SlashContext, amount: int):
         await self._make_bet(ctx, 'a', amount)
@@ -375,7 +368,7 @@ class GambaCog(Cog, name='GAMBA'):
         options=[
             create_option(name='amount', description='Amount of points to bet', option_type=int, required=True),
         ],
-        **_base_user_command(),
+        **_BASE_USER_COMMAND,
     )
     async def doubt(self, ctx: SlashContext, amount: int):
         await self._make_bet(ctx, 'b', amount)
@@ -411,7 +404,7 @@ class GambaCog(Cog, name='GAMBA'):
                 await ctx.reply(f"You've successfully made the bet. You've bet a total of "
                                 f"{bet.option_a or bet.option_b} {points_name}.", hidden=True)
 
-    @cog_subcommand(name='balance', description='Check your points balance.', **_base_user_command())
+    @cog_subcommand(name='balance', description='Check your points balance.', **_BASE_USER_COMMAND)
     async def user_balance(self, ctx: SlashContext):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name
         balance = await self._get_balance(ctx.guild.id, ctx.author.id)
@@ -422,7 +415,7 @@ class GambaCog(Cog, name='GAMBA'):
             await ctx.reply(f"You have {balance:,} {points_name}.", hidden=True)
         pass
 
-    @cog_subcommand(name='daily', description="Claim your daily points.", **_base_user_command())
+    @cog_subcommand(name='daily', description="Claim your daily points.", **_BASE_USER_COMMAND)
     async def daily(self, ctx: SlashContext):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name
         async with self._session() as session:
@@ -452,7 +445,7 @@ class GambaCog(Cog, name='GAMBA'):
             create_option(name='user', description='Who to give your points to', option_type=User, required=True),
             create_option(name='amount', description='Number of points to give', option_type=int, required=True),
         ],
-        **_base_user_command(),
+        **_BASE_USER_COMMAND,
     )
     async def give(self, ctx: SlashContext, user: User, amount: int):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name
@@ -466,7 +459,7 @@ class GambaCog(Cog, name='GAMBA'):
     @cog_subcommand(
         name='leaderboard',
         description="Show the top users and your position on the leaderboard",
-        **_base_user_command(),
+        **_BASE_USER_COMMAND,
     )
     async def user_leaderboard(self, ctx: SlashContext):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name

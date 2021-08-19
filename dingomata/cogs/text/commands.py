@@ -7,16 +7,27 @@ from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_slash
 from discord_slash.utils.manage_commands import create_option
+from sqlalchemy import func
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.orm import sessionmaker
 
-from ...config import get_guilds, get_guild_config
+from .models import TextModel, Quote
+from ...config import get_guilds, get_guild_config, get_mod_permissions
 
 
 class TextCommandsCog(Cog, name='Text Commands'):
     """Text commands."""
 
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
-        self._quotes = yaml.safe_load((Path(__file__).parent / 'quotes.yaml').open(encoding='utf-8'))
+        self._engine = engine
+        self._session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+
+    @Cog.listener()
+    async def on_ready(self):
+        async with self._engine.begin() as conn:
+            await conn.run_sync(TextModel.metadata.create_all)
 
     @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
     async def tuch(self, ctx: SlashContext) -> None:
@@ -229,7 +240,25 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     @cog_slash(name='whiskey', description="What does the Dingo say?", guild_ids=get_guilds())
     async def whiskey(self, ctx: SlashContext) -> None:
-        await ctx.reply(choice(self._quotes))
+        async with self._session() as session:
+            async with session.begin():
+                stmt = select(Quote.content).order_by(func.random()).limit(1)
+                quote = (await session.execute(stmt)).scalar()
+                if quote is None:
+                    await ctx.reply('There are no quotes.', hidden=True)
+                else:
+                    await ctx.reply(quote)
+
+    @cog_slash(name='whiskey_add', description="Add a new quote", guild_ids=get_guilds(),
+               permissions=get_mod_permissions(), default_permission=False,
+               options=[create_option(name='content', option_type=str, required=True, description='Quote content')])
+    async def whiskey_add(self, ctx: SlashContext, content: str) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                quote = Quote(content=content)
+                session.add(quote)
+                await session.commit()
+                await ctx.reply('Done', hidden=True)
 
     @cog_slash(name='snipe', description="It's bloody murderrrr", guild_ids=get_guilds(),
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],

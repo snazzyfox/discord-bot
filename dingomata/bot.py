@@ -30,7 +30,7 @@ engine = create_async_engine(bot_config.database_url.get_secret_value())
 bot.add_cog(GameCodeSenderCommands(bot, engine))
 bot.add_cog(BedtimeCog(bot, engine))
 bot.add_cog(GambaCog(bot, engine))
-bot.add_cog(TextCommandsCog(bot))
+bot.add_cog(TextCommandsCog(bot, engine))
 
 
 def run():

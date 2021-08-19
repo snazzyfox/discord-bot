@@ -19,13 +19,7 @@ from ...exceptions import DingomataUserError
 log = logging.getLogger(__name__)
 
 
-def _base_command():
-    return dict(
-        base='game',
-        base_permissions=get_mod_permissions(),
-        base_default_permission=False,
-        guild_ids=get_guilds(),
-    )
+_BASE_COMMAND = dict(base='game', guild_ids=get_guilds(), base_default_permission=False)
 
 
 class GameCodeSenderCommands(Cog, name='Game Code Sender'):
@@ -90,7 +84,8 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         options=[
             create_option(name='title', description='Name of the game to start', option_type=str, required=True),
         ],
-        **_base_command(),
+        **_BASE_COMMAND,
+        base_permissions=get_mod_permissions(),  # This can only be used once to work around dedupe issues in the lib
     )
     async def open(self, ctx: SlashContext, *, title: str = '') -> None:
         await self._pool_for_guild(ctx.guild.id).open(title)
@@ -103,7 +98,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         await ctx.send(embed=embed, components=[action_row])
         log.info(f'Pool opened with title: {title}')
 
-    @cog_subcommand(name='close', description='Close the open pool.', **_base_command())
+    @cog_subcommand(name='close', description='Close the open pool.', **_BASE_COMMAND)
     async def close(self, ctx: SlashContext) -> None:
         pool = self._pool_for_guild(ctx.guild.id)
         await pool.close()
@@ -121,7 +116,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             create_option(name='count', description='Number of users to pick', option_type=int, required=True),
             create_option(name='message', description='Message to DM to selected users', option_type=str, required=True)
         ],
-        **_base_command(),
+        **_BASE_COMMAND,
     )
     async def pick(self, ctx: SlashContext, count: int, *, message: str) -> None:
         """Randomly pick users from the pool and send them a DM.
@@ -153,7 +148,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         options=[
             create_option(name='message', description='Message to DM to selected users', option_type=str, required=True)
         ],
-        **_base_command(),
+        **_BASE_COMMAND,
     )
     async def resend(self, ctx: SlashContext, *, message: str) -> None:
         pool = self._pool_for_guild(ctx.guild.id)
@@ -177,7 +172,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
     @cog_subcommand(
         name='clear',
         description='Clear the current pool.',
-        **_base_command(),
+        **_BASE_COMMAND,
     )
     async def clear(self, ctx: SlashContext) -> None:
         await self._pool_for_guild(ctx.guild.id).clear(EntryStatus.SELECTED)
@@ -186,7 +181,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
     @cog_subcommand(
         name='clear_selected',
         description='Clear the list of people who were selected before so they become eligible again.',
-        **_base_command(),
+        **_BASE_COMMAND,
     )
     async def clear_selected(self, ctx: SlashContext) -> None:
         pool = self._pools.get(ctx.guild.id)
@@ -198,7 +193,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                     options=[
                         create_option(name='user', description='Who to ban', option_type=User, required=True),
                     ],
-                    **_base_command())
+                    **_BASE_COMMAND)
     async def clear_pool(self, ctx: SlashContext, user: User) -> None:
         await self._pool_for_guild(ctx.guild.id).ban_user(user)
         await ctx.reply('All done!', hidden=True)
