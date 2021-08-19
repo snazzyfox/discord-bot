@@ -317,7 +317,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         elif user == ctx.author:
             result = "BANG! The gun goes." if random() < 1 / 6 else "Whew, it's a blank."
             await ctx.reply(f"{ctx.author.display_name} plays Russian Roulette with a revolver. {result}")
-        elif prob := random() < 0.50:
+        elif (prob := random()) < 0.50:
             reason = choice([
                 'they get distracted and went to chase a squirrel instead',
                 'they only have a knife in the gun fight',
