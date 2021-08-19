@@ -147,7 +147,7 @@ class GambaCog(Cog, name='GAMBA'):
                     description = 'This gamba has been cancelled.'
                     color = Color.dark_grey()
                 elif status == GameStatus.COMPLETE:
-                    # description = ''
+                    description = ''
                     color = Color.blue()
                 elif game.is_open:
                     time_left = relativedelta(game.open_until, datetime.utcnow()).normalized()
