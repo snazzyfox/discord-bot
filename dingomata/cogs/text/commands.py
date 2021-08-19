@@ -235,7 +235,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         await ctx.send(char * randint(1, 35) + '!')
 
     @cog_slash(name='awoo', description='Howl!', guild_ids=get_guilds())
-    async def scream(self, ctx: SlashContext) -> None:
+    async def awoo(self, ctx: SlashContext) -> None:
         await ctx.send('Awoo' + 'o' * randint(0, 25) + '!')
 
     @cog_slash(name='banger', description='Such a jam!', guild_ids=get_guilds())
