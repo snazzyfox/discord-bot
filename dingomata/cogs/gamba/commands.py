@@ -147,11 +147,12 @@ class GambaCog(Cog, name='GAMBA'):
                     description = 'This gamba has been cancelled.'
                     color = Color.dark_grey()
                 elif status == GameStatus.COMPLETE:
+                    # description = ''
                     color = Color.blue()
                 elif game.is_open:
                     time_left = relativedelta(game.open_until, datetime.utcnow()).normalized()
                     description = 'Place your bets using the `/gamba believe` and `/gamba doubt` commands.\n'
-                    description += f'{time_left.minutes} minutes {time_left.seconds} seconds left...'
+                    description += f'{time_left.minutes}:{time_left.seconds} left to make your predictions...'
                     color = Color.green()
                 else:
                     description = 'All bets are in, waiting on results...'
@@ -190,6 +191,8 @@ class GambaCog(Cog, name='GAMBA'):
                                          f"do this instead. The mod who started the gamba can always pay out since "
                                          f"they cannot bet.")
                 game = (await session.execute(select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id))).scalar()
+                if not game:
+                    raise GambaUserError(f"There is no active gamba in this server.")
                 if game.is_open:
                     raise GambaUserError(f"Betting have not ended for this gamba yet.")
 
@@ -226,9 +229,12 @@ class GambaCog(Cog, name='GAMBA'):
                 )
 
                 # Update the embed and send a new embed
-                embed = await self._generate_gamba_embed(game, GameStatus.CANCELLED)
+                embed = await self._generate_gamba_embed(game, GameStatus.COMPLETE)
                 embed.description = f'{totals.amount_a + totals.amount_b} {points_name} goes to ' \
                                     f'{totals.count_a if outcome == "a" else totals.count_b} users.'
+                field_id = 1 if outcome == 'b' else 0
+                field = embed.fields[field_id]
+                embed.set_field_at(field_id, name='☑ ' + field.name, value=field.value, inline=field.inline)
                 message = self._bot.get_channel(game.channel_id).get_partial_message(game.message_id)
                 await message.edit(embed=embed)
                 await ctx.reply('Payout is complete. Users are being sent private updates about their bet results. '
@@ -269,6 +275,8 @@ class GambaCog(Cog, name='GAMBA'):
         async with self._session() as session:
             async with session.begin():
                 game = (await session.execute(select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id))).scalar()
+                if not game:
+                    raise GambaUserError(f"There is no gamba pending in this server.")
                 embed = await self._generate_gamba_embed(game, GameStatus.CANCELLED)
 
                 await session.execute(update(GambaUser).filter(

@@ -80,8 +80,7 @@ async def on_slash_command_error(ctx: SlashContext, exc: Exception):
         await ctx.reply(f"You can't do that. {exc}", hidden=True)
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
-        log.exception(exc)
-
+        log.exception(exc, exc_info=exc)
 
 @bot.event
 async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
@@ -89,7 +88,7 @@ async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
         await ctx.reply(f"You can't do that. {exc}", hidden=True)
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
-        log.exception(exc)
+        log.exception(exc, exc_info=exc)
 
 
 @slash.slash(
