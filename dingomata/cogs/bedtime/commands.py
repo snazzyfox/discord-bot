@@ -7,7 +7,7 @@ from dateutil.parser import parse as parse_datetime, ParserError
 from discord import Message, Forbidden
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_slash
+from discord_slash.cog_ext import cog_slash, cog_subcommand
 from discord_slash.utils.manage_commands import create_option
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -27,6 +27,7 @@ class BedtimeSpecificationError(DingomataUserError):
 
 class BedtimeCog(Cog, name='Bedtime'):
     """Remind users to go to bed."""
+    _BASE_COMMAND = dict(base='bedtime', guild_ids=get_guilds())
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -38,17 +39,17 @@ class BedtimeCog(Cog, name='Bedtime'):
         async with self._engine.begin() as conn:
             await conn.run_sync(BedtimeModel.metadata.create_all)
 
-    @cog_slash(
-        name='bedtime',
+    @cog_subcommand(
+        name='set',
         description='Set your own bed time.',
-        guild_ids=get_guilds(),
         options=[
             create_option(name='time', description='When do you go to sleep? e.g. 12:00am',
                           option_type=str, required=True),
             create_option(name='timezone', description='Time zone you are in', option_type=str, required=True),
-        ]
+        ],
+        **_BASE_COMMAND,
     )
-    async def set_bedtime(self, ctx: SlashContext, time: str, timezone: str) -> None:
+    async def bedtime_set(self, ctx: SlashContext, time: str, timezone: str) -> None:
         # Convert user timezone to UTC
         try:
             tzname = str(pytz.timezone(timezone))  # test if timezone is valid
@@ -68,10 +69,10 @@ class BedtimeCog(Cog, name='Bedtime'):
                 await session.commit()
         await ctx.reply(f"Done! I've saved your bedtime as {time_obj} {tzname}.", hidden=True)
 
-    @cog_slash(
-        name='bedtime_off',
+    @cog_subcommand(
+        name='off',
         description='Clears your bed time.',
-        guild_ids=get_guilds(),
+        **_BASE_COMMAND,
     )
     async def bedtime_off(self, ctx: SlashContext) -> None:
         async with self._session() as session:

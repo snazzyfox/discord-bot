@@ -487,7 +487,7 @@ class GambaCog(Cog, name='GAMBA'):
                     query = select(subquery).filter(subquery.c.rank.between(user_rank - 3, user_rank + 3))
                     data = (await session.execute(query))
                     table.add_row(('...', '...', '...'))
-                    table.add_rows(self._generate_leaderboard_rows(ctx.guild, data)._rows)
+                    self._generate_leaderboard_rows(ctx.guild, data, table)
                 await ctx.reply(f'**{points_name.title()} Holder Leaderboard**\n```{table}```', hidden=True)
 
     async def _get_balance(self, guild_id: int, user_id: str) -> int:
@@ -515,12 +515,13 @@ class GambaCog(Cog, name='GAMBA'):
                 return user.balance
 
     @staticmethod
-    def _generate_leaderboard_rows(guild: Guild, data: List) -> PrettyTable:
-        table = PrettyTable()
-        table.fields = ['Rank', 'User', 'Balance']
-        table.align['Rank'] = 'r'
-        table.align['User'] = 'l'
-        table.align['Balance'] = 'r'
+    def _generate_leaderboard_rows(guild: Guild, data: List, table: Optional[PrettyTable] = None) -> PrettyTable:
+        if not table:
+            table = PrettyTable()
+            table.field_names = ['Rank', 'User', 'Balance']
+            table.align['Rank'] = 'r'
+            table.align['User'] = 'l'
+            table.align['Balance'] = 'r'
         for row in data:
             user = guild.get_member(row.user_id)
             username = user.display_name if user else "Unknown User"
