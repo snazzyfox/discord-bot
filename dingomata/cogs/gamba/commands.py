@@ -418,7 +418,7 @@ class GambaCog(Cog, name='GAMBA'):
         points_name = get_guild_config(ctx.guild.id).gamba.points_name
         balance = await self._get_balance(ctx.guild.id, ctx.author.id)
         if not balance:
-            await ctx.reply(f"You have no {points_name} right now. If you haven't done so yet, use the `/daily` "
+            await ctx.reply(f"You have no {points_name} right now. If you haven't done so yet, use the `/gamba daily` "
                             f"command to claim your daily {points_name}.", hidden=True)
         else:
             await ctx.reply(f"You have {balance:,} {points_name}.", hidden=True)
