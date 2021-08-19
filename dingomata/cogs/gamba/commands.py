@@ -522,7 +522,7 @@ class GambaCog(Cog, name='GAMBA'):
         table.align['User'] = 'l'
         table.align['Balance'] = 'r'
         for row in data:
-            user = guild.get_user(row.user_id)
+            user = guild.get_member(row.user_id)
             username = user.display_name if user else "Unknown User"
             table.add_row((row.rank, username, f'{row.balance:,}'))
         return table
