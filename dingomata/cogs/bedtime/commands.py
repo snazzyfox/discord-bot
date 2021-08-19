@@ -52,7 +52,7 @@ class BedtimeCog(Cog, name='Bedtime'):
     async def bedtime_set(self, ctx: SlashContext, time: str, timezone: str) -> None:
         # Convert user timezone to UTC
         try:
-            tzname = str(pytz.timezone(timezone))  # test if timezone is valid
+            tzname = str(pytz.timezone(timezone.strip()))  # test if timezone is valid
         except pytz.UnknownTimeZoneError as e:
             raise BedtimeSpecificationError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
@@ -81,6 +81,17 @@ class BedtimeCog(Cog, name='Bedtime'):
                 await session.execute(statement)
                 await session.commit()
         await ctx.reply(f"Done! I've removed your bedtime preferences.", hidden=True)
+
+    @cog_subcommand(name='get', description='Get your current bed time.', **_BASE_COMMAND)
+    async def bedtime_get(self, ctx: SlashContext) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                stmt = select(Bedtime).filter(Bedtime.user == ctx.author.id)
+                bedtime = (await session.execute(stmt)).scalar()
+                if bedtime:
+                    await ctx.reply(f'Your current bedtime is {bedtime.bedtime} in {bedtime.timezone}', hidden=True)
+                else:
+                    await ctx.reply('You do not have a bedtime set.', hidden=True)
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
