@@ -4,12 +4,13 @@ from enum import Enum
 from typing import List, Optional
 
 from dateutil.relativedelta import relativedelta
-from discord import User, Embed, Color, Forbidden
+from discord import User, Embed, Color, Forbidden, Guild
 from discord.ext import tasks
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_subcommand
 from discord_slash.utils.manage_commands import create_option, create_choice
+from prettytable import PrettyTable
 from sqlalchemy import func, update, delete, and_
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.future import select
@@ -236,7 +237,7 @@ class GambaCog(Cog, name='GAMBA'):
                 # Send DMs to all participants
                 for bet in bets:
                     won_amount = bet.option_a if outcome == 'a' else bet.option_b
-                    user = self._bot.get_user(bet.user_id)
+                    user = ctx.guild.get_member(bet.user_id)
                     if not user:
                         _log.warning(f'Did not send a gamba result DM to {bet.user_id} because they do not seem '
                                      f'to be in the server anymore.')
@@ -295,7 +296,7 @@ class GambaCog(Cog, name='GAMBA'):
                               rank().over(order_by=GambaUser.balance.desc()).label('rank')).filter(
                     GambaUser.guild_id == ctx.guild.id).order_by(GambaUser.balance.desc()).limit(10)
                 users = await session.execute(stmt)
-                table = self._generate_leaderboard_table(users)
+                table = self._generate_leaderboard_rows(ctx.guild, users)
                 await ctx.reply(f'**{points_name.title()} Holder Leaderboard**\n```{table}```')
 
     @cog_subcommand(
@@ -476,16 +477,17 @@ class GambaCog(Cog, name='GAMBA'):
                     # Only print top 10
                     query = select(subquery).filter(subquery.c.rank < 15)
                     data = (await session.execute(query))
-                    table = self._generate_leaderboard_table(data)
+                    table = self._generate_leaderboard_rows(ctx.guild, data)
                 else:
                     # Print everyone near the top
                     query = select(subquery).limit(10)
                     data = (await session.execute(query))
-                    table = self._generate_leaderboard_table(data)
+                    table = self._generate_leaderboard_rows(ctx.guild, data)
                     # Plus everyone near the given user
                     query = select(subquery).filter(subquery.c.rank.between(user_rank - 3, user_rank + 3))
                     data = (await session.execute(query))
-                    table += '\n...\n' + self._generate_leaderboard_table(data)
+                    table.add_row(('...', '...', '...'))
+                    table.add_rows(self._generate_leaderboard_rows(ctx.guild, data)._rows)
                 await ctx.reply(f'**{points_name.title()} Holder Leaderboard**\n```{table}```', hidden=True)
 
     async def _get_balance(self, guild_id: int, user_id: str) -> int:
@@ -512,10 +514,15 @@ class GambaCog(Cog, name='GAMBA'):
                 await session.commit()
                 return user.balance
 
-    def _generate_leaderboard_table(self, data: List) -> str:
-        result = ''
+    @staticmethod
+    def _generate_leaderboard_rows(guild: Guild, data: List) -> PrettyTable:
+        table = PrettyTable()
+        table.fields = ['Rank', 'User', 'Balance']
+        table.align['Rank'] = 'r'
+        table.align['User'] = 'l'
+        table.align['Balance'] = 'r'
         for row in data:
-            user = self._bot.get_user(row.user_id)
+            user = guild.get_user(row.user_id)
             username = user.display_name if user else "Unknown User"
-            result += f'{row.rank:4} {username:24} {row.balance:,}\n'
-        return result
+            table.add_row((row.rank, username, f'{row.balance:,}'))
+        return table

@@ -7,12 +7,13 @@ from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_slash
 from discord_slash.utils.manage_commands import create_option
+from prettytable import PrettyTable
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
-from .models import TextModel, Quote
+from .models import TextModel, Quote, TuchLog
 from ...config import get_guilds, get_guild_config, get_mod_permissions
 
 
@@ -35,8 +36,50 @@ class TextCommandsCog(Cog, name='Text Commands'):
             number = int(betavariate(1.5, 3) * ctx.guild.member_count)
             await ctx.send(f'{ctx.author.display_name} tuches {number} butts. So much floof!')
         else:
+            number = 1
             await ctx.send(f"{ctx.author.display_name} tuches {choice(ctx.channel.members).display_name}'s "
                            f"butt, OwO")
+        async with self._session() as session:
+            async with session.begin():
+                stmt = select(TuchLog).filter(TuchLog.guild_id == ctx.guild.id, TuchLog.user_id == ctx.author.id)
+                tuch = (await session.execute(stmt)).scalar()
+                if not tuch:
+                    tuch = TuchLog(guild_id=ctx.guild.id, user_id=ctx.author.id, max_butts=number, total_butts=number,
+                                   total_tuchs=1)
+                else:
+                    tuch.max_butts = max(tuch.max_butts, number)
+                    tuch.total_butts += number
+                    tuch.total_tuchs += 1
+                await session.merge(tuch)
+                await session.commit()
+
+    @cog_slash(name='tuchboard', description='Statistics about tuches', guild_ids=get_guilds())
+    async def tuchboard(self, ctx: SlashContext) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                stmt = select(
+                    func.sum(TuchLog.total_tuchs).label('total_tuchs'),
+                    func.sum(TuchLog.total_butts).label('total_butts'),
+                ).filter(TuchLog.guild_id == ctx.guild.id)
+                master_stats = (await session.execute(stmt)).first()
+                message = (f'Total butts tuched: {master_stats.total_butts:,}\n'
+                           f'Total number of times tuch was used: {master_stats.total_tuchs:,}\n')
+                subquery = select(TuchLog.user_id, TuchLog.max_butts,
+                                  func.rank().over(order_by=TuchLog.max_butts.desc()).label('rank')).filter(
+                    TuchLog.guild_id == ctx.guild.id).subquery()
+                stmt = select(subquery.c.user_id, subquery.c.max_butts, subquery.c.rank).filter(subquery.c.rank <= 10)
+                data = await session.execute(stmt)
+                table = PrettyTable()
+                table.field_names = ('Rank', 'User', 'Max Butts Tuched')
+                table.align['Rank'] = 'r'
+                table.align['User'] = 'l'
+                table.align['Max Butts Tuched'] = 'r'
+                for row in data:
+                    user = ctx.guild.get_member(row.user_id)
+                    username = user.display_name if user else "Unknown User"
+                    table.add_row((row.rank, username, row.max_butts))
+                message += '```\n' + table.get_string() + '\n```'
+                await ctx.reply(message)
 
     @cog_slash(
         name='hug',
@@ -272,7 +315,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.reply(f"{ctx.author.display_name} dares to snipe {self._mention(ctx, user)}. The rifle explodes, "
                             f"taking their paws with it.")
         elif user == ctx.author:
-            result = "BANG! The gun goes." if random() < 1/6 else "Whew, it's a blank."
+            result = "BANG! The gun goes." if random() < 1 / 6 else "Whew, it's a blank."
             await ctx.reply(f"{ctx.author.display_name} plays Russian Roulette with a revolver. {result}")
         elif prob := random() < 0.50:
             reason = choice([

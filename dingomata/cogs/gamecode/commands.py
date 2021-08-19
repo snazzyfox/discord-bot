@@ -131,7 +131,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
 
         pool = self._pool_for_guild(ctx.guild.id)
         size = await pool.size(EntryStatus.ELIGIBLE)
-        picked_users = [self._bot.get_user(user) for user in await pool.pick(count)]
+        picked_users = [ctx.guild.get_member(user) for user in await pool.pick(count)]
         log.info(f'Picked users: {", ".join(str(user) for user in picked_users)}')
         embed = Embed(title=get_guild_config(ctx.guild.id).game_code.message_picked_announce.format(
             title=await pool.title()),
@@ -152,7 +152,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
     )
     async def resend(self, ctx: SlashContext, *, message: str) -> None:
         pool = self._pool_for_guild(ctx.guild.id)
-        users = [self._bot.get_user(user) for user in await pool.members(EntryStatus.SELECTED)]
+        users = [ctx.guild.get_member(user) for user in await pool.members(EntryStatus.SELECTED)]
         for user in users:
             await self._send_dm(ctx, message, user)
         await ctx.reply(f'All done!', hidden=True)
