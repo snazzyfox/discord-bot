@@ -268,7 +268,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
     async def snipe(self, ctx: SlashContext, user: User) -> None:
-        if prob := random() < 0.50:
+        if user == self._bot.user:
+            await ctx.reply(f"{ctx.author.display_name} dares to snipe {self._mention(ctx, user)}. The rifle explodes, "
+                            f"taking their paws with it.")
+        elif prob := random() < 0.50:
             reason = choice([
                 'they get distracted and went to chase a squirrel instead',
                 'they only have a knife in the gun fight',
