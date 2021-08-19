@@ -186,10 +186,14 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 message += ' The bot lets out some sparks and burns their beans.'
             await ctx.send(message)
 
-    @cog_slash(name='scream', description='AAAAA', guild_ids=get_guilds())
+    @cog_slash(name='scream', description='Scream!', guild_ids=get_guilds())
     async def scream(self, ctx: SlashContext) -> None:
-        char = choice(['A'] * 20 + ['🅰', '🇦'])
+        char = choice(['A'] * 20 + ['🅰', '🇦 '])
         await ctx.send(char * randint(1, 35) + '!')
+
+    @cog_slash(name='awoo', description='Howl!', guild_ids=get_guilds())
+    async def scream(self, ctx: SlashContext) -> None:
+        await ctx.send('Awoo' + 'o' * randint(0, 25) + '!')
 
     @cog_slash(name='banger', description='Such a jam!', guild_ids=get_guilds())
     async def banger(self, ctx: SlashContext) -> None:
