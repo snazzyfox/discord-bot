@@ -271,6 +271,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if user == self._bot.user:
             await ctx.reply(f"{ctx.author.display_name} dares to snipe {self._mention(ctx, user)}. The rifle explodes, "
                             f"taking their paws with it.")
+        elif user == ctx.author:
+            result = "BANG! The gun goes." if random() < 1/6 else "Whew, it's a blank."
+            await ctx.reply(f"{ctx.author.display_name} plays Russian Roulette with a revolver. {result}")
         elif prob := random() < 0.50:
             reason = choice([
                 'they get distracted and went to chase a squirrel instead',
