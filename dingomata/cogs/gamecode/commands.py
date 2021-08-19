@@ -179,14 +179,14 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         await ctx.reply('All done!', hidden=True)
 
     @cog_subcommand(
-        name='clear_selected',
+        name='clear_played',
         description='Clear the list of people who were selected before so they become eligible again.',
         **_BASE_COMMAND,
     )
-    async def clear_selected(self, ctx: SlashContext) -> None:
+    async def clear_played(self, ctx: SlashContext) -> None:
         pool = self._pools.get(ctx.guild.id)
         if pool:
-            await pool.clear(EntryStatus.SELECTED)
+            await pool.clear(EntryStatus.PLAYED)
         await ctx.reply('All done!', hidden=True)
 
     @cog_subcommand(name='ban', description='Ban a user from joining.',
