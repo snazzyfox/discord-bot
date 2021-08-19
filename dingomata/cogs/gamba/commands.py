@@ -152,7 +152,7 @@ class GambaCog(Cog, name='GAMBA'):
                 elif game.is_open:
                     time_left = relativedelta(game.open_until, datetime.utcnow()).normalized()
                     description = 'Place your bets using the `/gamba believe` and `/gamba doubt` commands.\n'
-                    description += f'{time_left.minutes}:{time_left.seconds} left to make your predictions...'
+                    description += f'{time_left.minutes}:{time_left.seconds:02} left to make your predictions...'
                     color = Color.green()
                 else:
                     description = 'All bets are in, waiting on results...'
