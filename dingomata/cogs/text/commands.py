@@ -64,20 +64,22 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 master_stats = (await session.execute(stmt)).first()
                 message = (f'Total butts tuched: {master_stats.total_butts:,}\n'
                            f'Total number of times tuch was used: {master_stats.total_tuchs:,}\n')
-                subquery = select(TuchLog.user_id, TuchLog.max_butts,
+                subquery = select(TuchLog.user_id, TuchLog.max_butts, TuchLog.total_butts,
                                   func.rank().over(order_by=TuchLog.max_butts.desc()).label('rank')).filter(
                     TuchLog.guild_id == ctx.guild.id).subquery()
-                stmt = select(subquery.c.user_id, subquery.c.max_butts, subquery.c.rank).filter(subquery.c.rank <= 10)
+                stmt = select(subquery.c.user_id, subquery.c.max_butts, subquery.c.rank, subquery.c.total_butts,
+                              ).filter(subquery.c.rank <= 10)
                 data = await session.execute(stmt)
                 table = PrettyTable()
-                table.field_names = ('Rank', 'User', 'Max Butts Tuched')
+                table.field_names = ('Rank', 'User', 'Max Butts', 'Total Butts')
                 table.align['Rank'] = 'r'
                 table.align['User'] = 'l'
-                table.align['Max Butts Tuched'] = 'r'
+                table.align['Max Butts'] = 'r'
+                table.align['Total Butts'] = 'r'
                 for row in data:
                     user = ctx.guild.get_member(row.user_id)
                     username = user.display_name if user else "Unknown User"
-                    table.add_row((row.rank, username, row.max_butts))
+                    table.add_row((row.rank, username, row.max_butts, row.total_butts))
                 message += '```\n' + table.get_string() + '\n```'
                 await ctx.reply(message)
 
