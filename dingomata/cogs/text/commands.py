@@ -302,7 +302,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if quote is None:
             await ctx.reply('There are no quotes for this user.', hidden=True)
         else:
-            await ctx.reply('>>> ' + quote)
+            await ctx.reply(f'{user.display_name} said: \n>>> ' + quote)
 
     async def _get_quote(self, user_id: int) -> Optional[str]:
         async with self._session() as session:
