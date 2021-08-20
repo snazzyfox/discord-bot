@@ -82,6 +82,7 @@ async def on_slash_command_error(ctx: SlashContext, exc: Exception):
     else:
         log.exception(exc, exc_info=exc)
 
+
 @bot.event
 async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
     if isinstance(exc, DingomataUserError):
@@ -100,5 +101,8 @@ async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
 )
 async def echo(ctx: SlashContext, channel: str, message: str):
     ch = bot.get_channel(int(channel))
-    await ch.send(message)
-    await ctx.reply('Done', hidden=True)
+    if not ch:
+        await ctx.reply('Channel ID invalid.', hidden=True)
+    else:
+        await ch.send(message)
+        await ctx.reply('Done', hidden=True)

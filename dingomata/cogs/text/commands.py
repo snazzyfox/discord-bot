@@ -290,7 +290,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cog_slash(name='lycanmike', description="What does the lycan say?", guild_ids=get_guilds())
     async def lycanmike(self, ctx: SlashContext) -> None:
         text = choice([
-            'Salutations and hello there!', 'Oh woof.', 'I am a meme.', 'Good grief.', 'Fare the well.',
+            'Salutations and hello there!', 'Oh woof.', 'I am a meme.', 'Good grief.', 'Fare thee well.',
             "I am but a mere potato streamer.", 'Huzzah!', 'I love the howls guys.', "Howl's it going?",
             'Get noms and buy Bairen ice cream.', 'I do wear pants.', 'That would make for a wild wedding night.',
             'Hey Now!', 'But soft, what light through yonder Windows breaks?',
