@@ -8,6 +8,7 @@ class Quote(TextModel):
     __tablename__ = "quote"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    user = Column(BigInteger, index=True, nullable=False)
     content = Column(String, nullable=False)
 
 

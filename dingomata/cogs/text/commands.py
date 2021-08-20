@@ -1,5 +1,6 @@
 from pathlib import Path
 from random import betavariate, random, choice, randint
+from typing import Optional
 
 import yaml
 from discord import User
@@ -287,35 +288,39 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.reply(f"It's... hecc, it went under the couch.")
 
-    @cog_slash(name='lycanmike', description="What does the lycan say?", guild_ids=get_guilds())
-    async def lycanmike(self, ctx: SlashContext) -> None:
-        text = choice([
-            'Salutations and hello there!', 'Oh woof.', 'I am a meme.', 'Good grief.', 'Fare thee well.',
-            "I am but a mere potato streamer.", 'Huzzah!', 'I love the howls guys.', "Howl's it going?",
-            'Get noms and buy Bairen ice cream.', 'I do wear pants.', 'That would make for a wild wedding night.',
-            'Hey Now!', 'But soft, what light through yonder Windows breaks?',
-            "Joke's on you, I always believe! It’s why I lose...", "Covalent Bond, Ionic Bond, James Bond, you got it.",
-        ])
-        await ctx.send(text)
-
     @cog_slash(name='whiskey', description="What does the Dingo say?", guild_ids=get_guilds())
     async def whiskey(self, ctx: SlashContext) -> None:
-        async with self._session() as session:
-            async with session.begin():
-                stmt = select(Quote.content).order_by(func.random()).limit(1)
-                quote = (await session.execute(stmt)).scalar()
-                if quote is None:
-                    await ctx.reply('There are no quotes.', hidden=True)
-                else:
-                    await ctx.reply(quote)
+        quote = await self._get_quote(178041504508542976)
+        if quote is None:
+            await ctx.reply('There are no quotes for this user.', hidden=True)
+        else:
+            await ctx.reply(quote)
 
-    @cog_slash(name='whiskey_add', description="Add a new quote", guild_ids=get_guilds(),
-               permissions=get_mod_permissions(), default_permission=False,
-               options=[create_option(name='content', option_type=str, required=True, description='Quote content')])
-    async def whiskey_add(self, ctx: SlashContext, content: str) -> None:
+    @cog_slash(name='quote', description="Get a quote from a user", guild_ids=get_guilds())
+    async def quote(self, ctx: SlashContext, user: User) -> None:
+        quote = await self._get_quote(user.id)
+        if quote is None:
+            await ctx.reply('There are no quotes for this user.', hidden=True)
+        else:
+            await ctx.reply('>>> ' + quote)
+
+    async def _get_quote(self, user_id: int) -> Optional[str]:
         async with self._session() as session:
             async with session.begin():
-                quote = Quote(content=content)
+                stmt = select(Quote.content).filter(Quote.user == user_id).order_by(func.random()).limit(1)
+                quote = (await session.execute(stmt)).scalar()
+                return quote
+
+    @cog_slash(name='quoteadd', description="Add a new quote", guild_ids=get_guilds(),
+               permissions=get_mod_permissions(), default_permission=False,
+               options=[
+                   create_option(name='user', option_type=User, required=True, description='Who said it?'),
+                   create_option(name='content', option_type=str, required=True, description='What did they say?'),
+               ])
+    async def quote_add(self, ctx: SlashContext, user: User, content: str) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                quote = Quote(user=user.id, content=content)
                 session.add(quote)
                 await session.commit()
                 await ctx.reply('Done', hidden=True)
