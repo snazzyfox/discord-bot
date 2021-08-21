@@ -64,7 +64,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 ).filter(TuchLog.guild_id == ctx.guild.id)
                 master_stats = (await session.execute(stmt)).first()
                 message = (f'Total butts tuched: {master_stats.total_butts:,}\n'
-                           f'Total number of times tuch was used: {master_stats.total_tuchs:,}\n')
+                           f'Total number of times tuch was used: {master_stats.total_tuchs:,}\n'
+                           f'Total butts in server: {ctx.guild.member_count:,}\n')
                 subquery = select(TuchLog.user_id, TuchLog.max_butts, TuchLog.total_butts,
                                   func.rank().over(order_by=TuchLog.max_butts.desc()).label('rank')).filter(
                     TuchLog.guild_id == ctx.guild.id).subquery()
