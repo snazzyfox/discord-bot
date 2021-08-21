@@ -286,7 +286,9 @@ class GambaCog(Cog, name='GAMBA'):
                     GambaUser.guild_id == GambaBet.guild_id,
                     GambaUser.user_id == GambaBet.user_id,
                 ).values({
-                    GambaUser.balance: GambaUser.balance + GambaBet.option_a + GambaBet.option_b
+                    GambaUser.balance: GambaUser.balance
+                                       + func.coalesce(GambaBet.option_a, 0)
+                                       + func.coalesce(GambaBet.option_b, 0)
                 }).execution_options(synchronize_session="fetch"))
                 await session.execute(delete(GambaBet).filter(GambaBet.guild_id == ctx.guild.id))
                 await session.delete(game)
