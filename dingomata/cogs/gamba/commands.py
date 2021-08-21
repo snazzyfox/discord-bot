@@ -239,6 +239,8 @@ class GambaCog(Cog, name='GAMBA'):
                 await message.edit(embed=embed)
                 await ctx.reply('Payout is complete. Users are being sent private updates about their bet results. '
                                 'Please do not start a new gamba until this process is complete.', hidden=True)
+                # Send a second embed because the original message may have scrolled long past
+                await ctx.channel.send(embed=embed)
 
                 # Send DMs to all participants
                 for bet in bets:
