@@ -13,17 +13,8 @@ game_code:
     ~: 1
 
   # Whether to remember players have been selected in each pool and exclude them from future pools.
-  exclude_selected: false
+  exclude_played: false
 
-  # Message templates sent by the bot.
-  # {title} is a placeholder for the text input by a mod after the open command.
-  message_opened: The Dingomata is now accepting players for {title}!
-  message_opened_subtitle: Click on the button below for a chance to join the game! Make sure you allow DMs for this
-    server so you can receive the game code if you're selected.
-  message_closed: Submissions for {title} is now closed.
-  message_joined: You've successfully joined the pool for {title}. Good luck!
-  message_left: You've successfully left the pool for {title}.
-  message_picked_announce: Users have been picked. Check for your game code in DM's!
 bedtime:
   # Alert the same user no more than once every this many minutes
   cooldown: 30

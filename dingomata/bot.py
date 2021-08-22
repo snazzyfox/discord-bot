@@ -64,7 +64,7 @@ async def on_slash_command(ctx: SlashContext):
 
 
 @bot.event
-async def on_component_callback(ctx: ComponentContext):
+async def on_component_callback(ctx: ComponentContext, callback):
     log.info(f'Received component callback from {ctx.author} at {ctx.channel}')
 
 

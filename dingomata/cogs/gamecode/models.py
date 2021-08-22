@@ -10,7 +10,11 @@ class EntryStatus(Enum):
     ELIGIBLE = 1
     SELECTED = 2
     PLAYED = 3
-    BANNED = 4
+
+
+class GameMode(Enum):
+    NEW_PLAYERS_ONLY = 1
+    ANYONE = 2
 
 
 class GamePool(GamecodeModel):
@@ -19,6 +23,9 @@ class GamePool(GamecodeModel):
     guild_id = Column(BigInteger, primary_key=True)
     is_open = Column(Boolean, nullable=False, default=False)
     title = Column(String, nullable=False)
+    mode = Column(Integer, nullable=False)
+    channel_id = Column(BigInteger, nullable=True)
+    message_id = Column(BigInteger, nullable=True)
 
 
 class GamePoolEntry(GamecodeModel):

@@ -4,4 +4,4 @@ common:
 gamba:
   points_name: ched
 game_code:
-  exclude_selected: true
+  exclude_played: true

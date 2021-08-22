@@ -27,14 +27,7 @@ class CommonGuildConfig(BaseModel):
 class GameCodeConfig(BaseModel):
     """Config for random user selector"""
     player_roles: Dict[Optional[int], int]
-
-    exclude_selected: bool
-    message_opened: str
-    message_opened_subtitle: str
-    message_closed: str
-    message_joined: str
-    message_left: str
-    message_picked_announce: str
+    exclude_played: bool
 
 
 class BedtimeConfig(BaseModel):

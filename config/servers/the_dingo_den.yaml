@@ -3,6 +3,6 @@ common:
   mod_roles: [492485748071727129, 552399444105232384]  # Moderators
   no_ping_users: [178041504508542976]  # Dingo
 game_code:
-  exclude_selected: true
+  exclude_played: true
 gamba:
   points_name: cheddar
