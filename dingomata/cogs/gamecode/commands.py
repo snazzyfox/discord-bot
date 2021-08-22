@@ -1,13 +1,12 @@
 import logging
-from enum import Enum
-from typing import List, Set, Dict
+from typing import Dict
 
-from discord import Embed, Color, Member, Forbidden, HTTPException, User
+from discord import Embed, Color, Forbidden, HTTPException, User
 from discord.ext.commands import Cog, Bot
 from discord_slash import SlashContext, ComponentContext
 from discord_slash.cog_ext import cog_subcommand, cog_component
-from discord_slash.model import SlashCommandPermissionType, ButtonStyle
-from discord_slash.utils.manage_commands import create_option, create_permission, create_choice
+from discord_slash.model import ButtonStyle
+from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash.utils.manage_components import create_actionrow, create_button
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -96,6 +95,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                       )
         action_row = create_actionrow(
             create_button(label='Join', style=ButtonStyle.primary, custom_id=self._JOIN_BUTTON))
+        # noinspection PyArgumentList
         message = await ctx.channel.send(embed=embed, components=[action_row])
         log.debug(f"Sent interaction message {message.id}, saving message ID")
         await pool.set_message(ctx.channel.id, message.id)
@@ -112,6 +112,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             color=Color.dark_red())
         channel_id, message_id = await pool.get_message()
         message = self._bot.get_channel(channel_id).get_partial_message(message_id)
+        # noinspection PyArgumentList
         await message.edit(embed=embed, components=[])
         await ctx.reply('Pool has been closed.', hidden=True)
         log.info(f'Pool closed')

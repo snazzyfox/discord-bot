@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, Time, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, BigInteger, String, DateTime, Boolean
 from sqlalchemy.orm import declarative_base
 
 GambaModel = declarative_base()

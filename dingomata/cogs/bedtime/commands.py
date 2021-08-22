@@ -7,7 +7,7 @@ from dateutil.parser import parse as parse_datetime, ParserError
 from discord import Message, Forbidden
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_slash, cog_subcommand
+from discord_slash.cog_ext import cog_subcommand
 from discord_slash.utils.manage_commands import create_option
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -53,7 +53,7 @@ class BedtimeCog(Cog, name='Bedtime'):
         # Convert user timezone to UTC
         try:
             tzname = str(pytz.timezone(timezone.strip()))  # test if timezone is valid
-        except pytz.UnknownTimeZoneError as e:
+        except pytz.UnknownTimeZoneError:
             raise BedtimeSpecificationError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
                 f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones')

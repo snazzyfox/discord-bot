@@ -1,8 +1,6 @@
-from pathlib import Path
 from random import betavariate, random, choice, randint
 from typing import Optional
 
-import yaml
 from discord import User
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext

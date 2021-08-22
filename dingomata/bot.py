@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 import discord
-from discord import Intents, TextChannel
+from discord import Intents
 from discord.ext import commands
 from discord.ext.commands import CommandInvokeError, CheckFailure
 from discord_slash import SlashContext, ComponentContext

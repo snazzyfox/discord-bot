@@ -285,11 +285,10 @@ class GambaCog(Cog, name='GAMBA'):
                     GambaUser.guild_id == ctx.guild.id,
                     GambaUser.guild_id == GambaBet.guild_id,
                     GambaUser.user_id == GambaBet.user_id,
-                ).values({
-                    GambaUser.balance: GambaUser.balance
-                                       + func.coalesce(GambaBet.option_a, 0)
-                                       + func.coalesce(GambaBet.option_b, 0)
-                }).execution_options(synchronize_session="fetch"))
+                ).values({GambaUser.balance: GambaUser.balance
+                                             + func.coalesce(GambaBet.option_a, 0)
+                                             + func.coalesce(GambaBet.option_b, 0)
+                          }).execution_options(synchronize_session="fetch"))
                 await session.execute(delete(GambaBet).filter(GambaBet.guild_id == ctx.guild.id))
                 await session.delete(game)
                 await self._bot.get_channel(game.channel_id).get_partial_message(game.message_id).edit(embed=embed)
