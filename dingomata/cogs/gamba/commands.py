@@ -394,6 +394,8 @@ class GambaCog(Cog, name='GAMBA'):
                 game = (await session.execute(select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id))).scalar()
                 if not game:
                     raise GambaUserError(f"There's no gamba going on right now.")
+                if not game.is_open:
+                    raise GambaUserError(f"The gamba has closed already.")
                 if game.creator_user_id == ctx.author.id:
                     raise GambaUserError(f"You can't bet on a gamba you created. This is to ensure at least one "
                                          f"moderator can pay out the bet when it completes.")
