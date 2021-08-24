@@ -4,7 +4,7 @@ import logging
 import discord
 from discord import Intents
 from discord.ext import commands
-from discord.ext.commands import CommandInvokeError, CheckFailure
+from discord.ext.commands import CommandInvokeError, CheckFailure, CommandOnCooldown
 from discord_slash import SlashContext, ComponentContext
 from discord_slash.client import SlashCommand
 from discord_slash.error import CheckFailure as SlashCheckFailure
@@ -76,7 +76,7 @@ async def on_slash_command_error(ctx: SlashContext, exc: Exception):
         return
     if isinstance(exc, CommandInvokeError):
         exc = exc.original
-    if isinstance(exc, DingomataUserError):
+    if isinstance(exc, (DingomataUserError, CommandOnCooldown)):
         await ctx.reply(f"You can't do that. {exc}", hidden=True)
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:

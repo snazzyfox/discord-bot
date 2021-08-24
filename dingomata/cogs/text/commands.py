@@ -2,7 +2,8 @@ from random import betavariate, random, choice, randint
 from typing import Optional
 
 from discord import User, Guild
-from discord.ext.commands import Bot, Cog
+from discord.ext.commands import Bot, Cog, cooldown
+from discord.ext.commands.cooldowns import BucketType
 from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_slash
 from discord_slash.utils.manage_commands import create_option
@@ -30,6 +31,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await conn.run_sync(TextModel.metadata.create_all)
 
     @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
+    @cooldown(1, 10.0, BucketType.member)
     async def tuch(self, ctx: SlashContext) -> None:
         if random() < 0.95:
             number = int(betavariate(1.5, 3) * ctx.guild.member_count)
@@ -53,6 +55,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 await session.commit()
 
     @cog_slash(name='tuchboard', description='Statistics about tuches', guild_ids=get_guilds())
+    @cooldown(1, 30.0, BucketType.guild)
     async def tuchboard(self, ctx: SlashContext) -> None:
         async with self._session() as session:
             async with session.begin():
@@ -89,6 +92,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def hug(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} is lonely and can't stop hugging themselves.")
@@ -106,6 +110,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def pat(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f'{ctx.author.display_name} gives themselves a pat on the back!')
@@ -118,6 +123,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def bonk(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} tries to bonk themselves. They appear to really enjoy it.")
@@ -133,6 +139,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def bap(self, ctx: SlashContext, user: User) -> None:
         thing = choice(['magazine', 'newspaper', 'mousepad', 'phonebook', 'pancake', 'pillow'])
         if ctx.author == user:
@@ -149,6 +156,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def boop(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} walkes into a glass door and end up booping themselves.")
@@ -162,6 +170,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def smooch(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f'{ctx.author.display_name} tries to smooch themselves... How is that possible?')
@@ -174,17 +183,11 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 message += ' Bzzzt. A shocking experience.'
             await ctx.send(message)
 
-    @cog_slash(
-        name='smooth',
-        description="This was supposed to be smooch but I'm leaving it",
-        guild_ids=get_guilds())
-    async def smooth(self, ctx: SlashContext) -> None:
-        await ctx.send(f'{ctx.author.display_name} takes a sip of their drink. Smoooooth.')
-
     @cog_slash(name='cuddle', guild_ids=get_guilds(),
                description="Give a cutie some cuddles",
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
+    @cooldown(1, 10.0, BucketType.member)
     async def cuddle(self, ctx: SlashContext, user: User) -> None:
         await ctx.send(f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
 
@@ -192,6 +195,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                description="Give someone some snuggles",
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
+    @cooldown(1, 10.0, BucketType.member)
     async def snug(self, ctx: SlashContext, user: User) -> None:
         await ctx.send(f'{ctx.author.display_name} snuggles the heck out of {self._mention(ctx, user)}!')
 
@@ -201,6 +205,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def tuck(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f'{ctx.author.display_name} gets into bed and rolls up into a cozy burrito.')
@@ -219,6 +224,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         guild_ids=get_guilds(),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
+    @cooldown(1, 10.0, BucketType.member)
     async def tacklehug(self, ctx: SlashContext, user: User) -> None:
         if user == ctx.author:
             await ctx.send(f'{ctx.author.display_name} trips over and somehow tackles themselves. Oh wait, they tied '
@@ -232,32 +238,28 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(message)
 
     @cog_slash(name='scream', description='Scream!', guild_ids=get_guilds())
+    @cooldown(1, 5.0, BucketType.member)
     async def scream(self, ctx: SlashContext) -> None:
         char = choice(['A'] * 20 + ['🅰', '🇦 '])
         await ctx.send(char * randint(1, 35) + '!')
 
     @cog_slash(name='awoo', description='Howl!', guild_ids=get_guilds())
+    @cooldown(1, 5.0, BucketType.member)
     async def awoo(self, ctx: SlashContext) -> None:
         await ctx.send('Awoo' + 'o' * randint(0, 25) + '!')
 
-    @cog_slash(name='banger', description='Such a jam!', guild_ids=get_guilds())
-    async def banger(self, ctx: SlashContext) -> None:
-        await ctx.send('⚠🎶 Banger Alert! 🎶⚠')
-
     @cog_slash(name='sip', description='Sip on a drink!', guild_ids=get_guilds())
+    @cooldown(1, 5.0, BucketType.member)
     async def sip(self, ctx: SlashContext) -> None:
         if random() < 0.5:
             await ctx.send((' glug' * randint(2, 8)).strip().capitalize() + '.')
         else:
             await ctx.send('Slu' + 'r' * randint(1, 20) + 'p.')
 
-    @cog_slash(name='dingomata', description='I better see some /banger', guild_ids=get_guilds())
-    async def dingomata(self, ctx: SlashContext) -> None:
-        await ctx.reply('https://www.youtube.com/watch?v=yMbSiF-6FBs')
-
     @cog_slash(name='cute', description="So cute!", guild_ids=get_guilds(),
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
+    @cooldown(1, 20.0, BucketType.member)
     async def cute(self, ctx: SlashContext, user: User) -> None:
         if user == self._bot.user:
             await ctx.reply('No U.')
@@ -270,6 +272,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                options=[create_option(name='sides', description='Number of sides (default 6)', option_type=int,
                                       required=False)],
                )
+    @cooldown(1, 5.0, BucketType.member)
     async def roll(self, ctx: SlashContext, sides: int = 6) -> None:
         if sides <= 1:
             await ctx.reply(f"{ctx.author.display_name} tries to roll a {sides}-sided die, but created a black hole "
@@ -281,6 +284,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.reply(f"{ctx.author.display_name} rolls a {randint(1, sides)} on a d{sides}.")
 
     @cog_slash(name='flip', description="Flip a coin.", guild_ids=get_guilds())
+    @cooldown(1, 5.0, BucketType.member)
     async def flip(self, ctx: SlashContext) -> None:
         if random() < 0.99:
             await ctx.reply(f"It's {choice(['heads', 'tails'])}.")
@@ -288,6 +292,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.reply(f"It's... hecc, it went under the couch.")
 
     @cog_slash(name='whiskey', description="What does the Dingo say?", guild_ids=get_guilds())
+    @cooldown(1, 5.0, BucketType.member)
     async def whiskey(self, ctx: SlashContext) -> None:
         quote = await self._get_quote(178042794386915328, 178041504508542976)
         if quote is None:
@@ -296,6 +301,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.reply(quote)
 
     @cog_slash(name='quote', description="Get a quote from a user", guild_ids=get_guilds())
+    @cooldown(1, 5.0, BucketType.member)
     async def quote(self, ctx: SlashContext, user: User) -> None:
         quote = await self._get_quote(ctx.guild.id, user.id)
         if quote is None:
@@ -339,6 +345,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cog_slash(name='snipe', description="It's bloody murderrrr", guild_ids=get_guilds(),
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
+    @cooldown(1, 60.0, BucketType.member)
     async def snipe(self, ctx: SlashContext, user: User) -> None:
         if user == self._bot.user:
             await ctx.reply(f"{ctx.author.display_name} dares to snipe {self._mention(ctx, user)}. The rifle explodes, "
