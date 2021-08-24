@@ -317,12 +317,21 @@ class TextCommandsCog(Cog, name='Text Commands'):
                    create_option(name='content', option_type=str, required=True, description='What did they say?'),
                ])
     async def quote_add(self, ctx: SlashContext, user: User, content: str) -> None:
+        await self._quote_add(user, content)
+        await ctx.reply('Done', hidden=True)
+
+    # Commented out for now because permission support for context menu is incomplete in the lib.
+    # @cog_context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", guild_ids=get_guilds())
+    # async def quote_add_menu(self, ctx: MenuContext) -> None:
+    #     await self._quote_add(ctx.target_message.author, ctx.target_message.content)
+    #     await ctx.reply('Done', hidden=True)
+
+    async def _quote_add(self, user: User, content: str):
         async with self._session() as session:
             async with session.begin():
                 quote = Quote(user=user.id, content=content)
                 session.add(quote)
                 await session.commit()
-                await ctx.reply('Done', hidden=True)
 
     @cog_slash(name='snipe', description="It's bloody murderrrr", guild_ids=get_guilds(),
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],

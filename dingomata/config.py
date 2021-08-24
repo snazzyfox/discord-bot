@@ -21,6 +21,7 @@ class CommonGuildConfig(BaseModel):
     """Configs used across all cogs."""
     guild_id: int
     mod_roles: List[int] = []
+    mod_users: List[int] = []
     no_ping_users: Set[int] = []
 
 
@@ -94,7 +95,7 @@ def get_mod_permissions():
     return {guild_id: [
         create_permission(role, SlashCommandPermissionType.ROLE, True) for role in guild_config.common.mod_roles
     ] + [
-        create_permission(749862270129143880, SlashCommandPermissionType.USER, True)  # Bot owner
+        create_permission(user, SlashCommandPermissionType.USER, True) for user in guild_config.common.mod_users
     ] for guild_id, guild_config in _get_all_configs().items()}
 
 

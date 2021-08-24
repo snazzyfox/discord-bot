@@ -8,7 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.9"  # Required for random.sample with weights
 "discord.py" = "^1.7.3"
-discord-py-slash-command = "^2.4.2"
+discord-py-interactions = "^3.0.2"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 PyYAML = "^5.4.1"
 SQLAlchemy = {extras = ["asyncio"], version = "1.4.22"}

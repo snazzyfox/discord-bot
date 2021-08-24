@@ -2,6 +2,9 @@ common:
   # List of role IDs who can use mod-level commands.
   mod_roles: []
 
+  # List of user IDs who can use mod-level commands. These users do not have to have mod roles.
+  mod_users: [749862270129143880]
+
   # List of role IDs where pings in text commands are suppressed.
   no_ping_users: []
 game_code:
