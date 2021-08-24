@@ -1,7 +1,7 @@
 common:
   guild_id: 178042794386915328
-  mod_roles: [492485748071727129, 552399444105232384]  # Moderators
-  no_ping_users: [178041504508542976]  # Dingo
+  mod_roles: [552399444105232384, 492485748071727129]  # Dingo and Moderators
+  no_ping_roles: [552399444105232384, 492485748071727129]
 game_code:
   exclude_played: true
 gamba:

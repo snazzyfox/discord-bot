@@ -377,8 +377,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
         """Return a user's mention string, or display name if they're in the no-ping list"""
-        no_ping_users = get_guild_config(ctx.guild.id).common.no_ping_users
-        if user.id in no_ping_users:
+        no_ping_roles = get_guild_config(ctx.guild.id).common.no_ping_roles
+        member = ctx.guild.get_member(user.id)
+        if member and any(role.id in no_ping_roles for role in member.roles):
             return user.display_name
         else:
             return user.mention

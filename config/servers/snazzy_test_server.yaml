@@ -1,6 +1,7 @@
 common:
   guild_id: 814653859838427136
   mod_roles: [869729094722543627]
+  no_ping_roles: [869646833151004743]
 gamba:
   points_name: ched
 game_code:

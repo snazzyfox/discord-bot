@@ -22,7 +22,7 @@ class CommonGuildConfig(BaseModel):
     guild_id: int
     mod_roles: List[int] = []
     mod_users: List[int] = []
-    no_ping_users: Set[int] = []
+    no_ping_roles: Set[int] = []
 
 
 class GameCodeConfig(BaseModel):
