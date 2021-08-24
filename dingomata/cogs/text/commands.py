@@ -1,7 +1,7 @@
 from random import betavariate, random, choice, randint
 from typing import Optional
 
-from discord import User
+from discord import User, Guild
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
 from discord_slash.cog_ext import cog_slash
@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
-from .models import TextModel, Quote, TuchLog
+from .models import TextModel, TextQuote, TextTuchLog
 from ...config import get_guilds, get_guild_config, get_mod_permissions
 
 
@@ -40,11 +40,11 @@ class TextCommandsCog(Cog, name='Text Commands'):
                            f"butt, OwO")
         async with self._session() as session:
             async with session.begin():
-                stmt = select(TuchLog).filter(TuchLog.guild_id == ctx.guild.id, TuchLog.user_id == ctx.author.id)
+                stmt = select(TextTuchLog).filter(TextTuchLog.guild_id == ctx.guild.id, TextTuchLog.user_id == ctx.author.id)
                 tuch = (await session.execute(stmt)).scalar()
                 if not tuch:
-                    tuch = TuchLog(guild_id=ctx.guild.id, user_id=ctx.author.id, max_butts=number, total_butts=number,
-                                   total_tuchs=1)
+                    tuch = TextTuchLog(guild_id=ctx.guild.id, user_id=ctx.author.id, max_butts=number, total_butts=number,
+                                       total_tuchs=1)
                 else:
                     tuch.max_butts = max(tuch.max_butts, number)
                     tuch.total_butts += number
@@ -57,16 +57,16 @@ class TextCommandsCog(Cog, name='Text Commands'):
         async with self._session() as session:
             async with session.begin():
                 stmt = select(
-                    func.sum(TuchLog.total_tuchs).label('total_tuchs'),
-                    func.sum(TuchLog.total_butts).label('total_butts'),
-                ).filter(TuchLog.guild_id == ctx.guild.id)
+                    func.sum(TextTuchLog.total_tuchs).label('total_tuchs'),
+                    func.sum(TextTuchLog.total_butts).label('total_butts'),
+                ).filter(TextTuchLog.guild_id == ctx.guild.id)
                 master_stats = (await session.execute(stmt)).first()
                 message = (f'Total butts tuched: {master_stats.total_butts:,}\n'
                            f'Total number of times tuch was used: {master_stats.total_tuchs:,}\n'
                            f'Total butts in server: {ctx.guild.member_count:,}\n')
-                subquery = select(TuchLog.user_id, TuchLog.max_butts, TuchLog.total_butts,
-                                  func.rank().over(order_by=TuchLog.max_butts.desc()).label('rank')).filter(
-                    TuchLog.guild_id == ctx.guild.id).subquery()
+                subquery = select(TextTuchLog.user_id, TextTuchLog.max_butts, TextTuchLog.total_butts,
+                                  func.rank().over(order_by=TextTuchLog.max_butts.desc()).label('rank')).filter(
+                    TextTuchLog.guild_id == ctx.guild.id).subquery()
                 stmt = select(subquery.c.user_id, subquery.c.max_butts, subquery.c.rank, subquery.c.total_butts,
                               ).filter(subquery.c.rank <= 10)
                 data = await session.execute(stmt)
@@ -289,7 +289,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     @cog_slash(name='whiskey', description="What does the Dingo say?", guild_ids=get_guilds())
     async def whiskey(self, ctx: SlashContext) -> None:
-        quote = await self._get_quote(178041504508542976)
+        quote = await self._get_quote(178042794386915328, 178041504508542976)
         if quote is None:
             await ctx.reply('There are no quotes for this user.', hidden=True)
         else:
@@ -297,16 +297,19 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     @cog_slash(name='quote', description="Get a quote from a user", guild_ids=get_guilds())
     async def quote(self, ctx: SlashContext, user: User) -> None:
-        quote = await self._get_quote(user.id)
+        quote = await self._get_quote(ctx.guild.id, user.id)
         if quote is None:
             await ctx.reply('There are no quotes for this user.', hidden=True)
         else:
             await ctx.reply(f'{user.display_name} said: \n>>> ' + quote)
 
-    async def _get_quote(self, user_id: int) -> Optional[str]:
+    async def _get_quote(self, guild_id: int, user_id: int) -> Optional[str]:
         async with self._session() as session:
             async with session.begin():
-                stmt = select(Quote.content).filter(Quote.user == user_id).order_by(func.random()).limit(1)
+                stmt = select(TextQuote.content).filter(
+                    TextQuote.guild_id == guild_id,
+                    TextQuote.user_id == user_id
+                ).order_by(func.random()).limit(1)
                 quote = (await session.execute(stmt)).scalar()
                 return quote
 
@@ -317,7 +320,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                    create_option(name='content', option_type=str, required=True, description='What did they say?'),
                ])
     async def quote_add(self, ctx: SlashContext, user: User, content: str) -> None:
-        await self._quote_add(user, content)
+        await self._quote_add(ctx.guild, user, content)
         await ctx.reply('Done', hidden=True)
 
     # Commented out for now because permission support for context menu is incomplete in the lib.
@@ -326,10 +329,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
     #     await self._quote_add(ctx.target_message.author, ctx.target_message.content)
     #     await ctx.reply('Done', hidden=True)
 
-    async def _quote_add(self, user: User, content: str):
+    async def _quote_add(self, guild: Guild, user: User, content: str):
         async with self._session() as session:
             async with session.begin():
-                quote = Quote(user=user.id, content=content)
+                quote = TextQuote(guild_id=guild.id, user_id=user.id, content=content)
                 session.add(quote)
                 await session.commit()
 

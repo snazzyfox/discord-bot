@@ -22,7 +22,7 @@ class GambaGame(GambaModel):
     option_a = Column(String, nullable=False)
     option_b = Column(String, nullable=False)
     open_until = Column(DateTime, nullable=False)
-    is_open = Column(Boolean, nullable=False, default=True, index=True)
+    is_open = Column(Boolean, nullable=False, default=True)
     # Separate variable to track whether the game is open to account for bot message update delays
     message_id = Column(BigInteger, nullable=True)
     creator_user_id = Column(BigInteger, nullable=False)

@@ -62,7 +62,7 @@ class BedtimeCog(Cog, name='Bedtime'):
         except ParserError:
             raise BedtimeSpecificationError(
                 f"Can't interpret {time} as a valid time. Try using something like '11:00pm', '23:00', '11pm'")
-        bedtime = Bedtime(user=ctx.author.id, bedtime=time_obj, timezone=tzname)
+        bedtime = Bedtime(user_id=ctx.author.id, bedtime=time_obj, timezone=tzname)
         async with self._session() as session:
             async with session.begin():
                 await session.merge(bedtime)
@@ -77,7 +77,7 @@ class BedtimeCog(Cog, name='Bedtime'):
     async def bedtime_off(self, ctx: SlashContext) -> None:
         async with self._session() as session:
             async with session.begin():
-                statement = delete(Bedtime).filter(Bedtime.user == ctx.author.id)
+                statement = delete(Bedtime).filter(Bedtime.user_id == ctx.author.id)
                 await session.execute(statement)
                 await session.commit()
         await ctx.reply(f"Done! I've removed your bedtime preferences.", hidden=True)
@@ -86,7 +86,7 @@ class BedtimeCog(Cog, name='Bedtime'):
     async def bedtime_get(self, ctx: SlashContext) -> None:
         async with self._session() as session:
             async with session.begin():
-                stmt = select(Bedtime).filter(Bedtime.user == ctx.author.id)
+                stmt = select(Bedtime).filter(Bedtime.user_id == ctx.author.id)
                 bedtime = (await session.execute(stmt)).scalar()
                 if bedtime:
                     await ctx.reply(f'Your current bedtime is {bedtime.bedtime} in {bedtime.timezone}', hidden=True)
@@ -100,7 +100,7 @@ class BedtimeCog(Cog, name='Bedtime'):
         async with self._session() as session:
             async with session.begin():
                 # Grab the user's bedtime
-                statement = select(Bedtime).filter(Bedtime.user == message.author.id)
+                statement = select(Bedtime).filter(Bedtime.user_id == message.author.id)
                 result = (await session.execute(statement)).scalars().one_or_none()
 
                 # Do nothing if the user dont have a bedtime set or if they're in cooldown
