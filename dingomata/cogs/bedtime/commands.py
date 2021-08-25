@@ -125,7 +125,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
                 if bedtime > now_tz - timedelta(hours=sleep_hours):
                     try:
-                        if random() < 0.2:
+                        if random() < 0.05:
                             await message.channel.send(message.author.mention)
                             await message.channel.send("https://cdn.discordapp.com/attachments/178042794386915328/"
                                                        "875595133414961222/unknown-8.png")
