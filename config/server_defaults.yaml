@@ -30,3 +30,6 @@ gamba:
 
   # Number of daily gamba points to grant
   daily_points: 1000
+text:
+  # Who can use the "add quotes" context menu command
+  add_quote_menu_roles: [501533694209818625]

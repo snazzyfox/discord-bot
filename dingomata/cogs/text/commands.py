@@ -6,7 +6,8 @@ from discord.ext.commands import Bot, Cog, cooldown
 from discord.ext.commands.cooldowns import BucketType
 from discord_slash import SlashContext, ContextMenuType, MenuContext
 from discord_slash.cog_ext import cog_slash, cog_context_menu
-from discord_slash.utils.manage_commands import create_option
+from discord_slash.model import SlashCommandPermissionType
+from discord_slash.utils.manage_commands import create_option, create_permission
 from prettytable import PrettyTable
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -44,10 +45,12 @@ class TextCommandsCog(Cog, name='Text Commands'):
                            f"butt, OwO")
         async with self._session() as session:
             async with session.begin():
-                stmt = select(TextTuchLog).filter(TextTuchLog.guild_id == ctx.guild.id, TextTuchLog.user_id == ctx.author.id)
+                stmt = select(TextTuchLog).filter(TextTuchLog.guild_id == ctx.guild.id,
+                                                  TextTuchLog.user_id == ctx.author.id)
                 tuch = (await session.execute(stmt)).scalar()
                 if not tuch:
-                    tuch = TextTuchLog(guild_id=ctx.guild.id, user_id=ctx.author.id, max_butts=number, total_butts=number,
+                    tuch = TextTuchLog(guild_id=ctx.guild.id, user_id=ctx.author.id, max_butts=number,
+                                       total_butts=number,
                                        total_tuchs=1)
                 else:
                     tuch.max_butts = max(tuch.max_butts, number)
@@ -293,7 +296,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.reply(f"It's... hecc, it went under the couch.")
 
-    @cog_slash(name='whiskey', description="What does the Dingo say?", guild_ids=get_guilds())
+    @cog_slash(name='whiskey', description="What does the Dingo say?", guild_ids=[178042794386915328])
     @cooldown(1, 5.0, BucketType.member)
     async def whiskey(self, ctx: SlashContext) -> None:
         quote = await self._get_quote(178042794386915328, 178041504508542976)
@@ -331,7 +334,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
         await self._quote_add(ctx.guild, ctx.author, user, content)
         await ctx.reply('Quote has been added.', hidden=True)
 
-    @cog_context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", guild_ids=get_guilds())
+    @cog_context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", guild_ids=get_guilds(),
+                      default_permission=False, permissions={
+            guild: [create_permission(role, SlashCommandPermissionType.ROLE, True)
+                    for role in get_guild_config(guild).text.add_quote_menu_roles] for guild in get_guilds()})
     async def quote_add_menu(self, ctx: MenuContext) -> None:
         await self._quote_add(ctx.guild, ctx.author, ctx.target_message.author, ctx.target_message.content)
         await ctx.send('Quote has been added.', hidden=True)

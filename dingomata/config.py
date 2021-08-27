@@ -41,11 +41,16 @@ class GambaConfig(BaseModel):
     daily_points: int = 1000
 
 
+class TextConfig(BaseModel):
+    add_quote_menu_roles: List[int] = []
+
+
 class GuildConfig(BaseModel):
     common: CommonGuildConfig
     game_code: GameCodeConfig
     bedtime: BedtimeConfig
     gamba: GambaConfig
+    text: TextConfig
 
 
 class BotConfig(BaseSettings):
