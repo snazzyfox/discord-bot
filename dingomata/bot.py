@@ -77,7 +77,7 @@ async def on_slash_command_error(ctx: SlashContext, exc: Exception):
     if isinstance(exc, CommandInvokeError):
         exc = exc.original
     if isinstance(exc, (DingomataUserError, CommandOnCooldown)):
-        await ctx.reply(f"You can't do that. {exc}", hidden=True)
+        await ctx.reply(f"Error handling command: {exc}", hidden=True)
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
         log.exception(exc, exc_info=exc)
@@ -86,7 +86,7 @@ async def on_slash_command_error(ctx: SlashContext, exc: Exception):
 @bot.event
 async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
     if isinstance(exc, DingomataUserError):
-        await ctx.reply(f"You can't do that. {exc}", hidden=True)
+        await ctx.reply(f"Error handling command: {exc}", hidden=True)
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
         log.exception(exc, exc_info=exc)

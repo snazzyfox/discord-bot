@@ -53,15 +53,15 @@ class BedtimeCog(Cog, name='Bedtime'):
         # Convert user timezone to UTC
         try:
             tzname = str(pytz.timezone(timezone.strip()))  # test if timezone is valid
-        except pytz.UnknownTimeZoneError:
+        except pytz.UnknownTimeZoneError as e:
             raise BedtimeSpecificationError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
-                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones')
+                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones') from e
         try:
             time_obj = parse_datetime(time).time()
-        except ParserError:
+        except ParserError as e:
             raise BedtimeSpecificationError(
-                f"Can't interpret {time} as a valid time. Try using something like '11:00pm', '23:00', '11pm'")
+                f"Can't interpret {time} as a valid time. Try using something like '11:00pm', '23:00', '11pm'") from e
         bedtime = Bedtime(user_id=ctx.author.id, bedtime=time_obj, timezone=tzname)
         async with self._session() as session:
             async with session.begin():

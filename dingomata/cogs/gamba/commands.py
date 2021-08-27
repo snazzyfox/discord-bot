@@ -357,7 +357,8 @@ class GambaCog(Cog, name='GAMBA'):
         try:
             await self._change_point_amount(ctx.guild.id, user.id, amount if add else -amount)
         except InsufficientBalanceError as e:
-            raise InsufficientBalanceError(f"{user} doesn't have enough {points_name} for this. They have {e.args[0]}")
+            raise InsufficientBalanceError(
+                f"{user} doesn't have enough {points_name} for this. They have {e.args[0]}") from e
         if add:
             await ctx.reply(f"{ctx.author.mention} added {amount} {points_name} to {user.mention}.")
         else:

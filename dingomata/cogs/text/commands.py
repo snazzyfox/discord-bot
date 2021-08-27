@@ -4,17 +4,19 @@ from typing import Optional
 from discord import User, Guild
 from discord.ext.commands import Bot, Cog, cooldown
 from discord.ext.commands.cooldowns import BucketType
-from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_slash
+from discord_slash import SlashContext, ContextMenuType, MenuContext
+from discord_slash.cog_ext import cog_slash, cog_context_menu
 from discord_slash.utils.manage_commands import create_option
 from prettytable import PrettyTable
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
 from .models import TextModel, TextQuote, TextTuchLog
 from ...config import get_guilds, get_guild_config, get_mod_permissions
+from ...exceptions import DingomataUserError
 
 
 class TextCommandsCog(Cog, name='Text Commands'):
@@ -326,21 +328,26 @@ class TextCommandsCog(Cog, name='Text Commands'):
                    create_option(name='content', option_type=str, required=True, description='What did they say?'),
                ])
     async def quote_add(self, ctx: SlashContext, user: User, content: str) -> None:
-        await self._quote_add(ctx.guild, user, content)
-        await ctx.reply('Done', hidden=True)
+        await self._quote_add(ctx.guild, ctx.author, user, content)
+        await ctx.reply('Quote has been added.', hidden=True)
 
-    # Commented out for now because permission support for context menu is incomplete in the lib.
-    # @cog_context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", guild_ids=get_guilds())
-    # async def quote_add_menu(self, ctx: MenuContext) -> None:
-    #     await self._quote_add(ctx.target_message.author, ctx.target_message.content)
-    #     await ctx.reply('Done', hidden=True)
+    @cog_context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", guild_ids=get_guilds())
+    async def quote_add_menu(self, ctx: MenuContext) -> None:
+        await self._quote_add(ctx.guild, ctx.author, ctx.target_message.author, ctx.target_message.content)
+        await ctx.send('Quote has been added.', hidden=True)
 
-    async def _quote_add(self, guild: Guild, user: User, content: str):
+    async def _quote_add(self, guild: Guild, source_user: User, quoted_user: User, content: str):
+        if quoted_user == self._bot.user:
+            raise DingomataUserError("Don't quote me on that.")
         async with self._session() as session:
             async with session.begin():
-                quote = TextQuote(guild_id=guild.id, user_id=user.id, content=content)
-                session.add(quote)
-                await session.commit()
+                quote = TextQuote(guild_id=guild.id, user_id=quoted_user.id, content=content.strip(),
+                                  added_by=source_user.id)
+                try:
+                    session.add(quote)
+                    await session.commit()
+                except IntegrityError as e:
+                    raise DingomataUserError("This quote already exists.") from e
 
     @cog_slash(name='snipe', description="It's bloody murderrrr", guild_ids=get_guilds(),
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
