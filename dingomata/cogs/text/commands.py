@@ -34,7 +34,6 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await conn.run_sync(TextModel.metadata.create_all)
 
     @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
-    @cooldown(1, 10.0, BucketType.member)
     async def tuch(self, ctx: SlashContext) -> None:
         if random() < 0.95:
             number = int(betavariate(1.5, 3) * ctx.guild.member_count)
