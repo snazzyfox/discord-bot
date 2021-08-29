@@ -8,4 +8,4 @@ gamba:
   points_name: cheddar
 text:
   # Who can use the "add quotes" context menu command
-  add_quote_menu_roles: [501533694209818625]
+  add_quote_menu_roles: [552399444105232384, 492485748071727129]
