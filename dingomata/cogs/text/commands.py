@@ -252,14 +252,6 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def awoo(self, ctx: SlashContext) -> None:
         await ctx.send('Awoo' + 'o' * randint(0, 25) + '!')
 
-    @cog_slash(name='sip', description='Sip on a drink!', guild_ids=get_guilds())
-    @cooldown(1, 5.0, BucketType.member)
-    async def sip(self, ctx: SlashContext) -> None:
-        if random() < 0.5:
-            await ctx.send((' glug' * randint(2, 8)).strip().capitalize() + '.')
-        else:
-            await ctx.send('Slu' + 'r' * randint(1, 20) + 'p.')
-
     @cog_slash(name='cute', description="So cute!", guild_ids=get_guilds(),
                options=[create_option(name='user', description='Target user', option_type=User, required=True)],
                )
@@ -334,9 +326,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         await ctx.reply('Quote has been added.', hidden=True)
 
     @cog_context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", guild_ids=get_guilds(),
-                      default_permission=False, permissions={
-            guild: [create_permission(role, SlashCommandPermissionType.ROLE, True)
-                    for role in get_guild_config(guild).text.add_quote_menu_roles] for guild in get_guilds()})
+                      default_permission=False, permissions=get_mod_permissions())
     async def quote_add_menu(self, ctx: MenuContext) -> None:
         await self._quote_add(ctx.guild, ctx.author, ctx.target_message.author, ctx.target_message.content)
         await ctx.send('Quote has been added.', hidden=True)
