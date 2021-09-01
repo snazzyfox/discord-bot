@@ -110,18 +110,21 @@ class QuoteCog(Cog, name='Quotes'):
                 if search and (phrase := search.strip().lower()):
                     query = query.filter(func.lower(TextQuote.content).contains(phrase, autoescape=True))
                 results = (await session.execute(query)).scalars().all()
-                embed = Embed()
-                for quote in results[:10]:
-                    embed.add_field(
-                        name=f'[{quote.id}] {self._bot.get_user(quote.user_id).display_name}',
-                        value=quote.content, inline=False,
-                    )
+                if results:
+                    embed = Embed()
+                    for quote in results[:10]:
+                        embed.add_field(
+                            name=f'[{quote.id}] {self._bot.get_user(quote.user_id).display_name}',
+                            value=quote.content, inline=False,
+                        )
 
-                if len(results) > 10:
-                    embed.description = (
-                        'Only the first 10 quotes are displayed, but more are available. Enter a more specific search '
-                        'query to find more quotes.')
-        await ctx.send(embed=embed, hidden=True)
+                    if len(results) > 10:
+                        embed.description = (
+                            'Only the first 10 quotes are displayed, but more are available. Enter a more specific '
+                            'search query to find more quotes.')
+                    await ctx.send(embed=embed, hidden=True)
+                else:
+                    await ctx.send(f'{user.display_name} has no quotes.')
 
     @cog_subcommand(name='delete', description="Delete a quote by ID",
                     options=[
