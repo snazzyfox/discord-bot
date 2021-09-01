@@ -136,4 +136,4 @@ class QuoteCog(Cog, name='Quotes'):
                 stmt = delete(TextQuote).filter(TextQuote.guild_id == ctx.guild.id, TextQuote.id == id)
                 await session.execute(stmt)
                 await session.commit()
-        await ctx.reply(f'Deleted quote with ID {id}.')
+        await ctx.reply(f'Deleted quote with ID {id}.', hidden=True)
