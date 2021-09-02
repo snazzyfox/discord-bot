@@ -102,7 +102,7 @@ class GambaCog(Cog, name='GAMBA'):
                 game.message_id = message.id
                 session.add(game)
                 await session.commit()
-                await ctx.reply(f'A new gamba has been started!')
+                await ctx.reply(f'A new gamba has started!')
 
     @tasks.loop(seconds=2)
     async def gamba_message_updater(self):
