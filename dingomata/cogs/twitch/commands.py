@@ -74,10 +74,9 @@ class TwitchCog(Cog, name='Twitch Commands'):
         if download:
             # Write the sub data into a in-memory file
             with StringIO() as buffer:
-                writer = csv.DictWriter(buffer, fieldnames=['time', 'type', 'tier', 'user', 'count'],
-                                        delimiter='\t', lineterminator='\n')
-                writer.writeheader()
-                writer.writerows(row.dict() for row in sub_data)
+                writer = csv.writer(buffer, delimiter='\t', lineterminator='\n')
+                writer.writerow(('timestamp', 'type', 'tier', 'count', 'username'))
+                writer.writerows((row.time, row.type, row.tier, row.count, row.user) for row in sub_data)
                 buffer.seek(0)
                 file = File(buffer, filename='twitch_sublist.tsv')
                 await ctx.author.send(f"Here's the full sub data for {vod_url}.", file=file)
