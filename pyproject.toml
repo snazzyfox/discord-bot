@@ -18,6 +18,7 @@ async-cache = "^1.1.1"
 asyncpg = "^0.24.0"
 prettytable = "^2.2.0"
 discord-py-interactions = {git = "https://github.com/rutgerbeltman/discord-py-interactions.git", rev = "51a8420"}
+aiohttp = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.910"

@@ -402,7 +402,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"  # Required for random.sample with weights
-content-hash = "88a5ab51702bdda92c9884e6fb5aabaab8e09d46ac18ad501742ff0ab47d6ae7"
+content-hash = "607fe1ba2e49429eee0fa8ea79858b91bfa95a5a218d8c515b35cae945ec11e2"
 
 [metadata.files]
 aiohttp = [

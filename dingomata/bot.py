@@ -11,7 +11,7 @@ from discord_slash.error import CheckFailure as SlashCheckFailure
 from discord_slash.utils.manage_commands import create_option
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from .cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands, QuoteCog
+from .cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands, QuoteCog, TwitchCog
 from .config import BotConfig
 from .exceptions import DingomataUserError
 
@@ -32,6 +32,7 @@ bot.add_cog(BedtimeCog(bot, engine))
 bot.add_cog(GambaCog(bot, engine))
 bot.add_cog(TextCommandsCog(bot, engine))
 bot.add_cog(QuoteCog(bot, engine))
+bot.add_cog(TwitchCog(bot, engine))
 
 
 def run():
