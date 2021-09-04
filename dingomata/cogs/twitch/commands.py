@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import StringIO
 from typing import List, Dict, Literal, Optional
 from collections import Counter
@@ -21,12 +21,17 @@ _BASE_MOD_COMMAND = dict(base='twitch', guild_ids=get_guilds(), base_default_per
 
 
 class SubEvent(BaseModel):
-    time: datetime
+    real_time: datetime
+    video_timestamp: timedelta
     type: Literal['submysterygift', 'subgift', 'sub', 'resub']
     tier: Literal['Tier 1', 'Tier 2', 'Tier 3', 'Prime']
     user: str
     gift_id: Optional[str]
     count: int
+
+    @property
+    def sub_points(self) -> int:
+        return {'Tier 1': 1, 'Tier 2': 2, 'Tier 3': 6, 'Prime': 1}[self.tier] * self.count
 
 
 class TwitchCog(Cog, name='Twitch Commands'):
@@ -52,20 +57,19 @@ class TwitchCog(Cog, name='Twitch Commands'):
         await ctx.defer(hidden=True)
         sub_data = await self._get_sub_data(vod_url)
 
-        total_subs = sum(sub.count for sub in sub_data)
-        total_gifts = sum(sub.count for sub in sub_data if sub.type.endswith('gift'))
-        tier_counts = Counter()
-        gifters = Counter()
+        tier_counts, gifter_counts = Counter(), Counter()
         for sub in sub_data:
             tier_counts[sub.tier] += sub.count
             if sub.type in {'submysterygift', 'subgift'}:
-                gifters[sub.user] += sub.count
+                gifter_counts[sub.user] += sub.count
 
-        message = (f'This stream has {total_subs} new subs total, of which {total_gifts} are gifted.\n\n'
+        message = (f'Total subs: {sum(sub.count for sub in sub_data)}\n'
+                   f'Total sub points: {sum(sub.sub_points for sub in sub_data)}\n'
+                   f'Total gifted subs: {sum(sub.count for sub in sub_data if sub.type.endswith("gift"))}\n\n'
                    f'__Sub Tiers__\n'
                    + '\n'.join(f'{k}: {v}' for k, v in tier_counts.items()) + '\n\n'
                    + '__Top Gifters__\n'
-                   + '\n'.join(f'{k}: {v} gifteds' for k, v in gifters.most_common(5)) + '\n'
+                   + '\n'.join(f'{k}: {v} gifts' for k, v in gifter_counts.most_common(5)) + '\n'
                    )
 
         if download:
@@ -75,8 +79,10 @@ class TwitchCog(Cog, name='Twitch Commands'):
             # Write the sub data into a in-memory file
             with StringIO() as buffer:
                 writer = csv.writer(buffer, delimiter='\t', lineterminator='\n')
-                writer.writerow(('timestamp', 'type', 'tier', 'count', 'username'))
-                writer.writerows((row.time, row.type, row.tier, row.count, row.user) for row in sub_data)
+                writer.writerow(('date_time', 'video_time', 'type', 'tier', 'count', 'subpoints', 'username'))
+                writer.writerows((row.real_time, row.video_timestamp, row.type, row.tier, row.count, row.sub_points,
+                                  row.user)
+                                 for row in sub_data)
                 buffer.seek(0)
                 file = File(buffer, filename='twitch_sublist.tsv')
                 await ctx.author.send(f"Here's the full sub data for {vod_url}.", file=file)
@@ -114,7 +120,8 @@ class TwitchCog(Cog, name='Twitch Commands'):
     @staticmethod
     def _parse_sub_messages(messages: List[Dict]) -> List[SubEvent]:
         return [SubEvent(
-            time=parse(msg['created_at']),
+            real_time=parse(msg['created_at']),
+            video_timestamp=timedelta(seconds=msg['content_offset_seconds']),
             type=msg['message']['user_notice_params']['msg-id'],
             tier={'1000': 'Tier 1', '2000': 'Tier 2', '3000': 'Tier 3', 'Prime': 'Prime'}[
                 msg['message']['user_notice_params']['msg-param-sub-plan']],
