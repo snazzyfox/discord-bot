@@ -275,6 +275,32 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.reply(f"{ctx.author.display_name} rolls a {randint(1, sides)} on a d{sides}.")
 
+    @cog_slash(name='8ball', description="Shake a magic 8 ball.", guild_ids=get_guilds())
+    @cooldown(1, 5.0, BucketType.member)
+    async def eightball(self, ctx: SlashContext) -> None:
+        await ctx.reply(choice([
+            'As I see it, yes.',
+            'Ask again later.',
+            'Better not tell you now.',
+            'Cannot predict now.',
+            'Concentrate and ask again.',
+            "Don't count on it.",
+            'It is certain.',
+            'It is decidedly so.',
+            'Most likely.',
+            'My reply is no.',
+            'My sources say no.',
+            'Outlook good.',
+            'Outlook not so good.',
+            'Reply hazy, try again.',
+            'Signs point to yes.',
+            'Very doubtful.',
+            'Without a doubt.',
+            'Yes, definitely.',
+            'Yes.',
+            'You may rely on it.',
+        ]))
+
     @cog_slash(name='flip', description="Flip a coin.", guild_ids=get_guilds())
     @cooldown(1, 5.0, BucketType.member)
     async def flip(self, ctx: SlashContext) -> None:
