@@ -8,13 +8,15 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     environment: gcp-dingo-den-bots
     steps:
-      - name: trigger server restart
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          script: scripts/restart-discord-bot.sh
+      - uses: actions/checkout@v2
+      - uses: up9cloud/action-rsync@v1.3
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USERNAME }}
+          KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          TARGET: discord-dingomata/
+          ARGS_MORE: --exclude=/.env
+          POST_SCRIPT: scripts/restart-discord-bot.sh
