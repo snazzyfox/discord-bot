@@ -124,7 +124,25 @@ class QuoteCog(Cog, name='Quotes'):
                             'search query to find more quotes.')
                     await ctx.send(embed=embed, hidden=True)
                 else:
-                    await ctx.send(f'{user.display_name} has no quotes.')
+                    await ctx.send(f'{user.display_name} has no quotes.', hidden=True)
+
+    @cog_subcommand(name='get', description="Get a specific quote and post it publicly.",
+                    options=[
+                        create_option(name='quote_id', option_type=int, required=True,
+                                      description='ID of quote to post'),
+                    ],
+                    **_BASE_MOD_COMMAND,
+                    )
+    async def get(self, ctx: SlashContext, quote_id: int) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                query = select(TextQuote).filter(TextQuote.guild_id == ctx.guild.id, TextQuote.id == quote_id)
+                quote = (await session.execute(query)).scalar()
+                if quote:
+                    user = self._bot.get_user(quote.user_id)
+                    await ctx.send(f'{user.display_name} said:\n>>> {quote.content}')
+                else:
+                    await ctx.send(f'Quote ID {quote_id} does not exist.', hidden=True)
 
     @cog_subcommand(name='delete', description="Delete a quote by ID",
                     options=[
