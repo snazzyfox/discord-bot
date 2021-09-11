@@ -43,6 +43,16 @@ class QuoteCog(Cog, name='Quotes'):
         else:
             await ctx.reply(quote)
 
+    @slash(name='corgi', description="What does the Corgi say?",
+           guild_ids=service_config.get_command_guilds('corgi', False))
+    @cooldown(1, 5.0, BucketType.member)
+    async def whiskey(self, ctx: SlashContext) -> None:
+        quote = await self._get_quote(768208778780475447, 168916479306235914)
+        if quote is None:
+            await ctx.reply('There are no quotes for this user.', hidden=True)
+        else:
+            await ctx.reply(quote)
+
     @slash(name='quote', description="Get a quote from a user", guild_ids=_GUILDS)
     @cooldown(1, 5.0, BucketType.member)
     async def quote(self, ctx: SlashContext, user: User) -> None:

@@ -1,0 +1,13 @@
+servers:
+  # Discorg
+  768208778780475447:
+    common:
+      mod_roles: &mods [768232863043682314, 768233366889300028]
+    commands:
+      corgi: on
+    game_code:
+      exclude_played: true
+    gamba:
+      points_name: cheddar
+    text:
+      no_pings: *mods
