@@ -100,7 +100,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f"{ctx.author.display_name} is lonely and can't stop hugging themselves.")
         elif random() < 0.98:
             adj = choice(['great big', 'giant', 'big bear', 'friendly', 'loving', 'nice warm', 'floofy', 'free',
-                          'suplex and a'])
+                          'suplex and a', 'rambunctious', 'therapeutic', 'heavenly', 'tender', 'dazzling', 'tremendous',
+                          'joyous', 'remarkable', 'magical', 'kind', 'delightful', 'satisfying', 'cheerful'])
             await ctx.send(f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} hug!')
         else:
             await ctx.send(f'{ctx.author.display_name} wants to give {self._mention(ctx, user)} a hug, but then '
@@ -132,7 +133,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
         elif user == self._bot.user:
             await ctx.send(f"How dare you.")
         else:
-            adj = choice(['lightly', 'gently', 'aggressively'])
+            adj = choice(['lightly', 'gently', 'aggressively', 'frantically', 'twice', 'heavily', 'loudly',
+                          'deliberately', 'dutifully', 'mortally', 'politely', 'weakly', 'violently', 'noisily',
+                          'swiftly', 'repeatedly', 'fiercely', 'kiddingly', 'judgmentally', 'mockingly'])
             await ctx.send(f'{ctx.author.display_name} bonks {self._mention(ctx, user)} {adj} on the head. Bad!')
 
     @slash(
