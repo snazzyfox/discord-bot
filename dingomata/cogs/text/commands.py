@@ -143,7 +143,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     )
     @cooldown(1, 10.0, BucketType.member)
     async def bap(self, ctx: SlashContext, user: User) -> None:
-        thing = choice(['magazine', 'newspaper', 'mousepad', 'phonebook', 'pancake', 'pillow'])
+        thing = choice(['magazine', 'newspaper', 'mousepad', 'phonebook', 'pancake', 'pillow', 'pizza', 'towel'])
         if ctx.author == user:
             await ctx.send(f"Aw, don't be so rough on yourself.")
         elif user == self._bot.user:
@@ -161,7 +161,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cooldown(1, 10.0, BucketType.member)
     async def boop(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
-            await ctx.send(f"{ctx.author.display_name} walkes into a glass door and end up booping themselves.")
+            await ctx.send(f"{ctx.author.display_name} walks into a glass door and end up booping themselves.")
         else:
             adv = choice(['lightly', 'gently', 'lovingly', 'aggressively', 'kindly', 'tenderly'])
             await ctx.send(f"{ctx.author.display_name} {adv} boops {self._mention(ctx, user)}'s snoot. Aaaaaa!")
@@ -178,8 +178,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} tries to smooch themselves... How is that possible?')
         else:
             location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'paws', 'beans',
-                               'ears', 'you-know-what'])
-            adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'friendly', 'warm', 'wet'])
+                               'ears', 'tummy', 'shoulder', 'forehead', 'eyeball', 'arms', 'you-know-what'])
+            adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'friendly', 'warm', 'wet', 'loud'])
             message = f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} smooch on the {location}.'
             if user == self._bot.user:
                 message += ' Bzzzt. A shocking experience.'
