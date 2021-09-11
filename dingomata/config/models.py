@@ -4,4 +4,5 @@ from pydantic import BaseModel
 
 
 class CogConfig(BaseModel):
-    pass
+    class Config:
+        extra = 'forbid'

@@ -1,7 +1,7 @@
 import logging.config
 import os
-from functools import cached_property, cache
-from typing import Dict, Any, Set, List, Iterable
+from functools import cached_property
+from typing import Dict, Any, Set, List
 
 import yaml
 from discord_slash.model import SlashCommandPermissionType
@@ -41,6 +41,7 @@ class GuildConfig(BaseModel):
 
     class Config:
         keep_untouched = (cached_property,)
+        extra = 'forbid'
 
     @cached_property
     def mod_permissions(self) -> List[Dict]:
@@ -68,6 +69,7 @@ class ServiceConfig(BaseSettings):
         env_prefix = 'dingomata'
         env_file = os.environ.get('ENV_FILE', '.env')
         keep_untouched = (cached_property,)
+        extra = 'forbid'
 
     @cached_property
     def servers(self) -> Dict[int, GuildConfig]:
