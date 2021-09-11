@@ -105,7 +105,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                     _log.debug(f'User {message.author.id} does not have a bedtime set. Skipping.')
                     return
                 elif result.last_notified and datetime.utcnow() < result.last_notified + \
-                        timedelta(minutes=service_config.servers.servers[message.guild.id].bedtime.cooldown):
+                        timedelta(minutes=service_config.servers[message.guild.id].bedtime.cooldown):
                     _log.debug(f'User {message.author.id} was last notified at {result.last_notified}, still in '
                                f'cooldown. Skipping.')
                     return
