@@ -8,37 +8,31 @@ from discord.ext.commands import CommandInvokeError, CheckFailure, CommandOnCool
 from discord_slash import SlashContext, ComponentContext
 from discord_slash.client import SlashCommand
 from discord_slash.error import CheckFailure as SlashCheckFailure
-from discord_slash.utils.manage_commands import create_option
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from .cogs import BedtimeCog, GambaCog, TextCommandsCog, GameCodeSenderCommands, QuoteCog, TwitchCog
-from .config import BotConfig
+from .cogs import all_cogs
+from dingomata.config.config import service_config
 from .exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
 discord.VoiceClient.warn_nacl = False  # Disable warning for no voice support since it's a text bot
 
-bot_config = BotConfig()
 bot = commands.Bot(
-    command_prefix=bot_config.command_prefix,
+    command_prefix=service_config.command_prefix,
     intents=Intents(guilds=True, messages=True, dm_messages=True, members=True)
 )
 slash = SlashCommand(bot, sync_commands=True)
 
-engine = create_async_engine(bot_config.database_url.get_secret_value())
+engine = create_async_engine(service_config.database_url.get_secret_value())
 
-bot.add_cog(GameCodeSenderCommands(bot, engine))
-bot.add_cog(BedtimeCog(bot, engine))
-bot.add_cog(GambaCog(bot, engine))
-bot.add_cog(TextCommandsCog(bot, engine))
-bot.add_cog(QuoteCog(bot, engine))
-bot.add_cog(TwitchCog(bot, engine))
+for cog in all_cogs:
+    bot.add_cog(cog(bot, engine))
 
 
 def run():
     loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(bot.start(bot_config.token.get_secret_value()))
+        loop.run_until_complete(bot.start(service_config.token.get_secret_value()))
     except KeyboardInterrupt:
         loop.run_until_complete(bot.close())
     finally:
@@ -92,19 +86,3 @@ async def on_component_callback_error(ctx: ComponentContext, exc: Exception):
         log.warning(f'{exc.__class__.__name__}: {exc}')
     else:
         log.exception(exc, exc_info=exc)
-
-
-@slash.slash(
-    guild_ids=[814653859838427136],
-    options=[
-        create_option(name='channel', option_type=str, description='Channel ID', required=True),
-        create_option(name='message', option_type=str, description='Message', required=True),
-    ]
-)
-async def echo(ctx: SlashContext, channel: str, message: str):
-    ch = bot.get_channel(int(channel))
-    if not ch:
-        await ctx.reply('Channel ID invalid.', hidden=True)
-    else:
-        await ch.send(message)
-        await ctx.reply('Done', hidden=True)

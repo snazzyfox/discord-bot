@@ -9,7 +9,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
 from .models import GamePool, GamePoolEntry, EntryStatus, GameMode
-from ...config import get_guild_config
+from dingomata.config.config import service_config
 from ...exceptions import DingomataUserError
 
 _log = getLogger(__name__)
@@ -32,7 +32,7 @@ class NoGamePoolError(DingomataUserError):
 class MemberPool:
     def __init__(self, guild_id: int, session: sessionmaker, track_played: bool) -> None:
         self._guild_id = guild_id
-        self._player_roles = get_guild_config(guild_id).game_code.player_roles
+        self._player_roles = service_config.servers[guild_id].game_code.player_roles
         self._session = session
         self._track_played = track_played
         self._pool: Optional[GamePool] = None

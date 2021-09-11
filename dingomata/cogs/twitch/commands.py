@@ -14,10 +14,9 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from dingomata.config import get_guilds, get_mod_permissions
-from dingomata.exceptions import DingomataUserError
-
-_BASE_MOD_COMMAND = dict(base='twitch', guild_ids=get_guilds(), base_default_permission=False)
+from ...config import service_config
+from ...exceptions import DingomataUserError
+from ...decorators import subcommand
 
 
 class SubEvent(BaseModel):
@@ -36,13 +35,15 @@ class SubEvent(BaseModel):
 
 class TwitchCog(Cog, name='Twitch Commands'):
     """Commands relating to twitch."""
+    _BASE_COMMAND = dict(base='twitch', base_default_permission=False,
+                         guild_ids=service_config.get_command_guilds('twitch'))
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
         self._engine = engine
         self._session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
-    @cog_subcommand(
+    @subcommand(
         name='subdata',
         description='Get the list of all subs and gifted subs during a particular stream.',
         options=[
@@ -50,8 +51,8 @@ class TwitchCog(Cog, name='Twitch Commands'):
             create_option(name='download', description='If true, the full sub list will be sent via DM.',
                           option_type=bool, required=False),
         ],
-        base_permissions=get_mod_permissions(),
-        **_BASE_MOD_COMMAND,
+        base_permissions=service_config.mod_permissions,
+        **_BASE_COMMAND,
     )
     async def subdata(self, ctx: SlashContext, vod_url: str, download: bool = False) -> None:
         await ctx.defer(hidden=True)

@@ -4,7 +4,6 @@ from discord import User
 from discord.ext.commands import Bot, Cog, cooldown
 from discord.ext.commands.cooldowns import BucketType
 from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_slash
 from discord_slash.utils.manage_commands import create_option
 from prettytable import PrettyTable
 from sqlalchemy import func
@@ -13,7 +12,8 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
 from .models import TextModel, TextTuchLog
-from ...config import get_guilds, get_guild_config
+from ...decorators import slash
+from ...config import service_config
 
 
 class TextCommandsCog(Cog, name='Text Commands'):
@@ -29,7 +29,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
         async with self._engine.begin() as conn:
             await conn.run_sync(TextModel.metadata.create_all)
 
-    @cog_slash(name='tuch', description='Tuch some butts. You assume all risks.', guild_ids=get_guilds())
+    @slash(name='tuch', description='Tuch some butts. You assume all risks.',
+           guild_ids=service_config.get_command_guilds('tuch'))
     async def tuch(self, ctx: SlashContext) -> None:
         if random() < 0.95:
             number = int(betavariate(1.5, 3) * ctx.guild.member_count)
@@ -54,7 +55,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 await session.merge(tuch)
                 await session.commit()
 
-    @cog_slash(name='tuchboard', description='Statistics about tuches', guild_ids=get_guilds())
+    @slash(name='tuchboard', description='Statistics about tuches',
+           guild_ids=service_config.get_command_guilds('tuch'))
     @cooldown(1, 30.0, BucketType.guild)
     async def tuchboard(self, ctx: SlashContext) -> None:
         async with self._session() as session:
@@ -86,10 +88,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 message += '```\n' + table.get_string() + '\n```'
                 await ctx.reply(message)
 
-    @cog_slash(
+    @slash(
         name='hug',
         description='Give someone a hug!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('hug'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -104,10 +106,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} wants to give {self._mention(ctx, user)} a hug, but then '
                            f'remembers social distancing is still a thing.')
 
-    @cog_slash(
+    @slash(
         name='pat',
         description='Give someone pats!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('pat'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -117,10 +119,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.send(f'{ctx.author.display_name} gives {self._mention(ctx, user)} all the pats!')
 
-    @cog_slash(
+    @slash(
         name='bonk',
         description='Give someone bonks!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('bonk'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -133,10 +135,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
             adj = choice(['lightly', 'gently', 'aggressively'])
             await ctx.send(f'{ctx.author.display_name} bonks {self._mention(ctx, user)} {adj} on the head. Bad!')
 
-    @cog_slash(
+    @slash(
         name='bap',
         description='Give someone baps!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('bap'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -150,10 +152,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} rolls up a {thing} and baps {self._mention(ctx, user)} on '
                            f'the snoot.')
 
-    @cog_slash(
+    @slash(
         name='boop',
         description='Give someone a boop!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('boop'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -164,10 +166,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
             adv = choice(['lightly', 'gently', 'lovingly', 'aggressively', 'kindly', 'tenderly'])
             await ctx.send(f"{ctx.author.display_name} {adv} boops {self._mention(ctx, user)}'s snoot. Aaaaaa!")
 
-    @cog_slash(
+    @slash(
         name='smooch',
         description='Give someone a big smooch!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('smooch'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -183,26 +185,26 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 message += ' Bzzzt. A shocking experience.'
             await ctx.send(message)
 
-    @cog_slash(name='cuddle', guild_ids=get_guilds(),
-               description="Give a cutie some cuddles",
-               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
-               )
+    @slash(name='cuddle', guild_ids=service_config.get_command_guilds('cuddle'),
+           description="Give a cutie some cuddles",
+           options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+           )
     @cooldown(1, 10.0, BucketType.member)
     async def cuddle(self, ctx: SlashContext, user: User) -> None:
         await ctx.send(f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
 
-    @cog_slash(name='snug', guild_ids=get_guilds(),
-               description="Give someone some snuggles",
-               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
-               )
+    @slash(name='snug', guild_ids=service_config.get_command_guilds('snug'),
+           description="Give someone some snuggles",
+           options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+           )
     @cooldown(1, 10.0, BucketType.member)
     async def snug(self, ctx: SlashContext, user: User) -> None:
         await ctx.send(f'{ctx.author.display_name} snuggles the heck out of {self._mention(ctx, user)}!')
 
-    @cog_slash(
+    @slash(
         name='tuck',
         description='Tuck someone into bed!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('tuck'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -218,10 +220,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} takes a {shell} and rolls {self._mention(ctx, user)} into a '
                            f'{product} before tucking them into bed. Sweet dreams!')
 
-    @cog_slash(
+    @slash(
         name='tacklehug',
         description='Bam!',
-        guild_ids=get_guilds(),
+        guild_ids=service_config.get_command_guilds('tacklehug'),
         options=[create_option(name='user', description='Target user', option_type=User, required=True)],
     )
     @cooldown(1, 10.0, BucketType.member)
@@ -237,20 +239,20 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 message += ' The bot lets out some sparks and burns their beans.'
             await ctx.send(message)
 
-    @cog_slash(name='scream', description='Scream!', guild_ids=get_guilds())
+    @slash(name='scream', description='Scream!', guild_ids=service_config.get_command_guilds('scream'))
     @cooldown(1, 5.0, BucketType.member)
     async def scream(self, ctx: SlashContext) -> None:
         char = choice(['A'] * 20 + ['🅰', '🇦 '])
         await ctx.send(char * randint(1, 35) + '!')
 
-    @cog_slash(name='awoo', description='Howl!', guild_ids=get_guilds())
+    @slash(name='awoo', description='Howl!', guild_ids=service_config.get_command_guilds('awoo'))
     @cooldown(1, 5.0, BucketType.member)
     async def awoo(self, ctx: SlashContext) -> None:
         await ctx.send('Awoo' + 'o' * randint(0, 25) + '!')
 
-    @cog_slash(name='cute', description="So cute!", guild_ids=get_guilds(),
-               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
-               )
+    @slash(name='cute', description="So cute!", guild_ids=service_config.get_command_guilds('cute'),
+           options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+           )
     @cooldown(1, 20.0, BucketType.member)
     async def cute(self, ctx: SlashContext, user: User) -> None:
         if user == self._bot.user:
@@ -260,10 +262,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
                              "I can't believe they're so cute!", "Why are they so cute?", "*melts to their cuteness*"])
             await ctx.reply(f"Aww, Look at {self._mention(ctx, user)}... {phrase}")
 
-    @cog_slash(name='roll', description="Roll a die.", guild_ids=get_guilds(),
-               options=[create_option(name='sides', description='Number of sides (default 6)', option_type=int,
-                                      required=False)],
-               )
+    @slash(name='roll', description="Roll a die.", guild_ids=service_config.get_command_guilds('roll'),
+           options=[create_option(name='sides', description='Number of sides (default 6)', option_type=int,
+                                  required=False)],
+           )
     @cooldown(1, 5.0, BucketType.member)
     async def roll(self, ctx: SlashContext, sides: int = 6) -> None:
         if sides <= 1:
@@ -275,7 +277,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.reply(f"{ctx.author.display_name} rolls a {randint(1, sides)} on a d{sides}.")
 
-    @cog_slash(name='8ball', description="Shake a magic 8 ball.", guild_ids=get_guilds())
+    @slash(name='8ball', description="Shake a magic 8 ball.", guild_ids=service_config.get_command_guilds('8ball'))
     @cooldown(1, 5.0, BucketType.member)
     async def eightball(self, ctx: SlashContext) -> None:
         await ctx.reply(choice([
@@ -301,7 +303,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             'You may rely on it.',
         ]))
 
-    @cog_slash(name='flip', description="Flip a coin.", guild_ids=get_guilds())
+    @slash(name='flip', description="Flip a coin.", guild_ids=service_config.get_command_guilds('flip'))
     @cooldown(1, 5.0, BucketType.member)
     async def flip(self, ctx: SlashContext) -> None:
         if random() < 0.99:
@@ -309,9 +311,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.reply(f"It's... hecc, it went under the couch.")
 
-    @cog_slash(name='snipe', description="It's bloody murderrrr", guild_ids=get_guilds(),
-               options=[create_option(name='user', description='Target user', option_type=User, required=True)],
-               )
+    @slash(name='snipe', description="It's bloody murderrrr", guild_ids=service_config.get_command_guilds('snipe'),
+           options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+           )
     @cooldown(1, 60.0, BucketType.member)
     async def snipe(self, ctx: SlashContext, user: User) -> None:
         if user == self._bot.user:
@@ -351,9 +353,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
         """Return a user's mention string, or display name if they're in the no-ping list"""
-        no_ping_roles = get_guild_config(ctx.guild.id).common.no_ping_roles
+        no_pings = service_config.servers[ctx.guild.id].text.no_pings
         member = ctx.guild.get_member(user.id)
-        if member and any(role.id in no_ping_roles for role in member.roles):
+        if member and member.id in no_pings or any(role.id in no_pings for role in member.roles):
             return user.display_name
         else:
             return user.mention

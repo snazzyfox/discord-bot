@@ -1,8 +1,20 @@
-from .bedtime import BedtimeCog
-from .gamba import GambaCog
-from .gamecode import GameCodeSenderCommands
-from .text import TextCommandsCog
-from .quote import QuoteCog
-from .twitch import TwitchCog
+from .bedtime.commands import BedtimeCog
+from .botadmin.commands import BotAdmin
+from .gamba.commands import GambaCog
+from .game_code.commands import GameCodeCommands
+from .quote.commands import QuoteCog
+from .text.commands import TextCommandsCog
+from .twitch.commands import TwitchCog
 
-__all__ = ['GameCodeSenderCommands', 'BedtimeCog', 'GambaCog', 'TextCommandsCog', 'QuoteCog', 'TwitchCog']
+all_cogs = [BedtimeCog, BotAdmin, GambaCog, GameCodeCommands, QuoteCog, TextCommandsCog, TwitchCog]
+
+__all__ = [
+    'BedtimeCog',
+    'BotAdmin',
+    'GambaCog',
+    'GameCodeCommands',
+    'QuoteCog',
+    'TextCommandsCog',
+    'TwitchCog',
+    'all_cogs',
+]

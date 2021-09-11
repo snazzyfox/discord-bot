@@ -1,0 +1,6 @@
+servers:
+  # Test server
+  814653859838427136:
+    mod_roles: [869729094722543627]
+    commands:
+      echo: on

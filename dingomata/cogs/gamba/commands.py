@@ -8,7 +8,6 @@ from discord import User, Embed, Color, Forbidden, Guild
 from discord.ext import tasks
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_subcommand
 from discord_slash.utils.manage_commands import create_option, create_choice
 from prettytable import PrettyTable
 from sqlalchemy import func, update, delete, and_
@@ -18,7 +17,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.functions import rank
 
 from .models import GambaUser, GambaModel, GambaGame, GambaBet
-from ...config import get_guilds, get_mod_permissions, get_guild_config
+from ...config import service_config
+from ...decorators import subcommand
 from ...exceptions import DingomataUserError
 
 _log = logging.getLogger(__name__)
@@ -36,11 +36,6 @@ class GambaUserError(DingomataUserError):
     pass
 
 
-# These really should just be a one-time dict but the slash library mutates input dicts...
-_BASE_MOD_COMMAND = dict(base='gamble', guild_ids=get_guilds(), base_default_permission=False)
-_BASE_USER_COMMAND = dict(base='gamba', guild_ids=get_guilds())
-
-
 class GameStatus(Enum):
     CANCELLED = 1
     COMPLETE = 2
@@ -48,6 +43,10 @@ class GameStatus(Enum):
 
 class GambaCog(Cog, name='GAMBA'):
     """Gamble with server points."""
+    _BASE_USER_COMMAND = dict(base='gamba', guild_ids=service_config.get_command_guilds('gamba'))
+    _BASE_MOD_COMMAND = dict(base='gamble', guild_ids=service_config.get_command_guilds('gamba'),
+                             base_default_permission=False)
+
     _CHOICES = [
         create_choice(name='believe', value='a'),
         create_choice(name='doubt', value='b'),
@@ -68,7 +67,7 @@ class GambaCog(Cog, name='GAMBA'):
         self.gamba_message_updater.stop()
 
     # ### MOD COMMANDS ###
-    @cog_subcommand(
+    @subcommand(
         name='start',
         description='Start a new gamba.',
         options=[
@@ -78,7 +77,7 @@ class GambaCog(Cog, name='GAMBA'):
             create_option(name='timeout', description='Number of minutes to take bets (up to 10); defaults to 1.',
                           option_type=int, required=False)
         ],
-        base_permissions=get_mod_permissions(),
+        base_permissions=service_config.mod_permissions,
         **_BASE_MOD_COMMAND,
     )
     async def start(self, ctx: SlashContext, title: str, believe: str, doubt: str, timeout: int = 2):
@@ -121,7 +120,7 @@ class GambaCog(Cog, name='GAMBA'):
                     await message.edit(embed=embed)
 
     async def _generate_gamba_embed(self, game: GambaGame, status: Optional[GameStatus] = None) -> Embed:
-        points_name = get_guild_config(game.guild_id).gamba.points_name
+        points_name = service_config.servers[game.guild_id].gamba.points_name
         async with self._session() as session:
             async with session.begin():
                 # Get the amounts for each side
@@ -170,7 +169,7 @@ class GambaCog(Cog, name='GAMBA'):
                 )
         return embed
 
-    @cog_subcommand(
+    @subcommand(
         name='payout',
         description='Pay out the current gamba.',
         options=[create_option(
@@ -179,7 +178,7 @@ class GambaCog(Cog, name='GAMBA'):
         **_BASE_MOD_COMMAND,
     )
     async def payout(self, ctx: SlashContext, outcome: str):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         async with self._session() as session:
             async with session.begin():
                 # Check if the current user made a bet
@@ -268,7 +267,7 @@ class GambaCog(Cog, name='GAMBA'):
                 # Notify the mod
                 await ctx.reply('All members have been notified. You can start a new gamba now.', hidden=True)
 
-    @cog_subcommand(
+    @subcommand(
         name='refund',
         description='Cancel the current gamba and refund all points to users.',
         **_BASE_MOD_COMMAND,
@@ -294,13 +293,13 @@ class GambaCog(Cog, name='GAMBA'):
                 await self._bot.get_channel(game.channel_id).get_partial_message(game.message_id).edit(embed=embed)
                 await ctx.reply(f'The current gamba has been cancelled and all points are refunded.', hidden=True)
 
-    @cog_subcommand(
+    @subcommand(
         name='leaderboard',
         description="Post a message with the top users by credits.",
         **_BASE_MOD_COMMAND,
     )
     async def mod_leaderboard(self, ctx: SlashContext):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         async with self._session() as session:
             async with session.begin():
                 stmt = select(GambaUser.user_id, GambaUser.balance,
@@ -310,7 +309,7 @@ class GambaCog(Cog, name='GAMBA'):
                 table = self._generate_leaderboard_rows(ctx.guild, users)
                 await ctx.reply(f'**{points_name.title()} Holder Leaderboard**\n```{table}```')
 
-    @cog_subcommand(
+    @subcommand(
         name='balance',
         description="Check any user's balance.",
         options=[
@@ -319,11 +318,11 @@ class GambaCog(Cog, name='GAMBA'):
         **_BASE_MOD_COMMAND,
     )
     async def mod_balance(self, ctx: SlashContext, user: User):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         balance = await self._get_balance(ctx.guild.id, user.id)
         await ctx.reply(f'{user.mention} has {balance:,} {points_name}.', hidden=True)
 
-    @cog_subcommand(
+    @subcommand(
         name='add',
         description="Add to a user's point balance. This action generates a public message.",
         options=[
@@ -335,7 +334,7 @@ class GambaCog(Cog, name='GAMBA'):
     async def mod_add(self, ctx: SlashContext, user: User, amount: int):
         await self._mod_transact(ctx, user, amount, True)
 
-    @cog_subcommand(
+    @subcommand(
         name='deduct',
         description="Remove from a user's point balance. This action generates a public message.",
         options=[
@@ -348,7 +347,7 @@ class GambaCog(Cog, name='GAMBA'):
         await self._mod_transact(ctx, user, amount, False)
 
     async def _mod_transact(self, ctx: SlashContext, user: User, amount: int, add: bool):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         if amount <= 0:
             raise NonpositivePointsError(f"You need to specify a positive amount.")
         if user == ctx.author:
@@ -364,7 +363,7 @@ class GambaCog(Cog, name='GAMBA'):
         else:
             await ctx.reply(f"{ctx.author.mention} deducted {amount} {points_name} from {user.mention}.")
 
-    @cog_subcommand(
+    @subcommand(
         name='believe',
         description='Bet on believe.',
         options=[
@@ -375,7 +374,7 @@ class GambaCog(Cog, name='GAMBA'):
     async def believe(self, ctx: SlashContext, amount: int):
         await self._make_bet(ctx, 'a', amount)
 
-    @cog_subcommand(
+    @subcommand(
         name='doubt',
         description='Bet on doubt.',
         options=[
@@ -387,7 +386,7 @@ class GambaCog(Cog, name='GAMBA'):
         await self._make_bet(ctx, 'b', amount)
 
     async def _make_bet(self, ctx: SlashContext, option: str, amount: int):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         if amount < 1:
             raise GambaUserError(f"You need to bet at least 1 {points_name}.")
         async with self._session() as session:
@@ -419,9 +418,9 @@ class GambaCog(Cog, name='GAMBA'):
                 await ctx.reply(f"You've successfully made the bet. You've bet a total of "
                                 f"{bet.option_a or bet.option_b} {points_name}.", hidden=True)
 
-    @cog_subcommand(name='balance', description='Check your points balance.', **_BASE_USER_COMMAND)
+    @subcommand(name='balance', description='Check your points balance.', **_BASE_USER_COMMAND)
     async def user_balance(self, ctx: SlashContext):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         balance = await self._get_balance(ctx.guild.id, ctx.author.id)
         if not balance:
             await ctx.reply(f"You have no {points_name} right now. If you haven't done so yet, use the `/gamba daily` "
@@ -430,9 +429,9 @@ class GambaCog(Cog, name='GAMBA'):
             await ctx.reply(f"You have {balance:,} {points_name}.", hidden=True)
         pass
 
-    @cog_subcommand(name='daily', description="Claim your daily points.", **_BASE_USER_COMMAND)
+    @subcommand(name='daily', description="Claim your daily points.", **_BASE_USER_COMMAND)
     async def daily(self, ctx: SlashContext):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         async with self._session() as session:
             async with session.begin():
                 stmt = select(GambaUser).filter(GambaUser.guild_id == ctx.guild.id, GambaUser.user_id == ctx.author.id)
@@ -441,7 +440,7 @@ class GambaCog(Cog, name='GAMBA'):
                     user = GambaUser(guild_id=ctx.guild.id, user_id=ctx.author.id, balance=0)
                 now = datetime.utcnow()
                 if not user.last_claim or user.last_claim < now - timedelta(days=1):
-                    user.balance += get_guild_config(ctx.guild.id).gamba.daily_points
+                    user.balance += service_config.servers[ctx.guild.id].gamba.daily_points
                     user.last_claim = now
                     await session.merge(user)
                     await session.commit()
@@ -453,7 +452,7 @@ class GambaCog(Cog, name='GAMBA'):
                     await ctx.reply(f"You've claimed {points_name} already in the last 24 hours. You can claim again "
                                     f"in {time_remaining.hours} hours {time_remaining.minutes} minutes.", hidden=True)
 
-    @cog_subcommand(
+    @subcommand(
         name='give',
         description="Give some of your points to another user.",
         options=[
@@ -463,7 +462,7 @@ class GambaCog(Cog, name='GAMBA'):
         **_BASE_USER_COMMAND,
     )
     async def give(self, ctx: SlashContext, user: User, amount: int):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         if amount <= 0:
             raise NonpositivePointsError(f"Well that's just not nice, is it? You need to enter a positive number "
                                          f"of {points_name} to give.")
@@ -471,13 +470,13 @@ class GambaCog(Cog, name='GAMBA'):
         await self._change_point_amount(ctx.guild.id, user.id, amount)
         await ctx.reply(f"Success! You've given {amount} of your {points_name} to {user}.", hidden=True)
 
-    @cog_subcommand(
+    @subcommand(
         name='leaderboard',
         description="Show the top users and your position on the leaderboard",
         **_BASE_USER_COMMAND,
     )
     async def user_leaderboard(self, ctx: SlashContext):
-        points_name = get_guild_config(ctx.guild.id).gamba.points_name
+        points_name = service_config.servers[ctx.guild.id].gamba.points_name
         # First figure out where the user is on the leaderboard
         async with self._session() as session:
             async with session.begin():

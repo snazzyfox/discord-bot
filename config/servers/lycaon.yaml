@@ -1,8 +1,0 @@
-common:
-  guild_id: 351122293105229835
-  mod_roles: [858607225617776650]
-gamba:
-  points_name: lycoins
-text:
-  # Who can use the "add quotes" context menu command
-  add_quote_menu_roles: [858607225617776650]

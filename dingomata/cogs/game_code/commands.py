@@ -4,7 +4,7 @@ from typing import Dict
 from discord import Embed, Color, Forbidden, HTTPException, User
 from discord.ext.commands import Cog, Bot
 from discord_slash import SlashContext, ComponentContext
-from discord_slash.cog_ext import cog_subcommand, cog_component
+from discord_slash.cog_ext import cog_component
 from discord_slash.model import ButtonStyle
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash.utils.manage_components import create_actionrow, create_button
@@ -13,18 +13,19 @@ from sqlalchemy.orm import sessionmaker
 
 from .models import GamecodeModel, EntryStatus, GameMode
 from .pool import MemberPool, MemberRoleError
-from ...config import get_guild_config, get_guilds, get_mod_permissions
+from ...config import service_config
+from ...decorators import subcommand
 from ...exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
 
-_BASE_COMMAND = dict(base='game', guild_ids=get_guilds(), base_default_permission=False)
 
-
-class GameCodeSenderCommands(Cog, name='Game Code Sender'):
+class GameCodeCommands(Cog, name='Game Code Sender'):
     """RNG-based Game Code distributor."""
     _JOIN_BUTTON = 'game_join'
     _LEAVE_BUTTON = 'game_leave'
+    _GUILDS = service_config.get_command_guilds('game')
+    _BASE_COMMAND = dict(base='game', guild_ids=_GUILDS, base_default_permission=False)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         """Initialize application state."""
@@ -71,7 +72,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             await ctx.reply(f'The pool is currently closed. You have not been added.', hidden=True)
             log.info(f"Rejected leave request from {ctx.author}: pool closed")
 
-    @cog_subcommand(
+    @subcommand(
         name='open',
         description='Open a new game pool for people to join.',
         options=[
@@ -81,7 +82,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
                                    create_choice(name='new players only', value='new')])
         ],
         **_BASE_COMMAND,
-        base_permissions=get_mod_permissions(),  # This can only be used once to work around dedupe issues in the lib
+        base_permissions=service_config.mod_permissions,
     )
     async def open(self, ctx: SlashContext, *, title: str, allow: str = 'new') -> None:
         pool = self._pool_for_guild(ctx.guild.id)
@@ -102,7 +103,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         await ctx.reply('Pool is now open.', hidden=True)
         log.info(f'Game pool opened for: {title}')
 
-    @cog_subcommand(name='close', description='Close the open pool.', **_BASE_COMMAND)
+    @subcommand(name='close', description='Close the open pool.', **_BASE_COMMAND)
     async def close(self, ctx: SlashContext) -> None:
         pool = self._pool_for_guild(ctx.guild.id)
         await pool.close(True)
@@ -117,7 +118,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
         await ctx.reply('Pool has been closed.', hidden=True)
         log.info(f'Pool closed')
 
-    @cog_subcommand(
+    @subcommand(
         name='pick',
         description='Pick users randomly from the pool and send them a DM.',
         options=[
@@ -152,7 +153,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             await self._send_dm(ctx, message, user)
         await ctx.reply('All done!', hidden=True)
 
-    @cog_subcommand(
+    @subcommand(
         name='resend',
         description='Send a DM to all existing picked users.',
         options=[
@@ -180,7 +181,7 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
             await ctx.reply(f'Failed to DM {user}. You may want to resend the message. {e}', hidden=True)
             log.exception(e)
 
-    @cog_subcommand(
+    @subcommand(
         name='reset',
         description='Reset the list of people who were selected before so they can play again.',
         **_BASE_COMMAND,
@@ -193,6 +194,6 @@ class GameCodeSenderCommands(Cog, name='Game Code Sender'):
     def _pool_for_guild(self, guild_id: int) -> MemberPool:
         if guild_id not in self._pools:
             self._pools[guild_id] = MemberPool(
-                guild_id, self._session, track_played=get_guild_config(guild_id).game_code.exclude_played,
+                guild_id, self._session, track_played=service_config.servers[guild_id].game_code.exclude_played,
             )
         return self._pools[guild_id]

@@ -7,27 +7,28 @@ from dateutil.parser import parse as parse_datetime, ParserError
 from discord import Message, Forbidden
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_subcommand
 from discord_slash.utils.manage_commands import create_option
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
+from dingomata.config import service_config
 from .models import BedtimeModel, Bedtime
-from ...config import get_guilds, get_guild_config
+from ...decorators import subcommand
 from ...exceptions import DingomataUserError
 
 _log = logging.getLogger(__name__)
 
 
 class BedtimeSpecificationError(DingomataUserError):
-    """Error because the pool is in the wrong state (open/closed)"""
+    """Error specifying bedtime due to invalid time or zone"""
     pass
 
 
 class BedtimeCog(Cog, name='Bedtime'):
     """Remind users to go to bed."""
-    _BASE_COMMAND = dict(base='bedtime', guild_ids=get_guilds())
+    _GUILDS = service_config.get_command_guilds('bedtime')
+    _BASE_COMMAND = dict(base='bedtime', guild_ids=_GUILDS)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -39,7 +40,7 @@ class BedtimeCog(Cog, name='Bedtime'):
         async with self._engine.begin() as conn:
             await conn.run_sync(BedtimeModel.metadata.create_all)
 
-    @cog_subcommand(
+    @subcommand(
         name='set',
         description='Set your own bed time.',
         options=[
@@ -69,11 +70,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 await session.commit()
         await ctx.reply(f"Done! I've saved your bedtime as {time_obj} {tzname}.", hidden=True)
 
-    @cog_subcommand(
-        name='off',
-        description='Clears your bed time.',
-        **_BASE_COMMAND,
-    )
+    @subcommand(name='off', description='Clears your bed time.', **_BASE_COMMAND)
     async def bedtime_off(self, ctx: SlashContext) -> None:
         async with self._session() as session:
             async with session.begin():
@@ -82,7 +79,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 await session.commit()
         await ctx.reply(f"Done! I've removed your bedtime preferences.", hidden=True)
 
-    @cog_subcommand(name='get', description='Get your current bed time.', **_BASE_COMMAND)
+    @subcommand(name='get', description='Get your current bed time.', **_BASE_COMMAND)
     async def bedtime_get(self, ctx: SlashContext) -> None:
         async with self._session() as session:
             async with session.begin():
@@ -95,7 +92,7 @@ class BedtimeCog(Cog, name='Bedtime'):
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        if not message.guild or message.guild.id not in get_guilds():
+        if not message.guild or message.guild.id not in self._GUILDS:
             return
         async with self._session() as session:
             async with session.begin():
@@ -108,7 +105,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                     _log.debug(f'User {message.author.id} does not have a bedtime set. Skipping.')
                     return
                 elif result.last_notified and datetime.utcnow() < result.last_notified + \
-                        timedelta(minutes=get_guild_config(message.guild.id).bedtime.cooldown):
+                        timedelta(minutes=service_config.servers.servers[message.guild.id].bedtime.cooldown):
                     _log.debug(f'User {message.author.id} was last notified at {result.last_notified}, still in '
                                f'cooldown. Skipping.')
                     return
@@ -122,7 +119,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                     bedtime -= timedelta(days=1)
                 _log.debug(f'User {message.author.id} has bedtime {bedtime}; it is currently {now_tz}')
 
-                sleep_hours = get_guild_config(message.guild.id).bedtime.sleep_hours
+                sleep_hours = service_config.servers[message.guild.id].bedtime.sleep_hours
                 if bedtime > now_tz - timedelta(hours=sleep_hours):
                     try:
                         if random() < 0.05:

@@ -16,5 +16,7 @@ __pycache__
 *.pyo
 *.pyx
 
-*.env
+.env
+.env.*
+!.env.template
 *.db
