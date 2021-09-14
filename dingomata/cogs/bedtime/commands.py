@@ -1,10 +1,8 @@
 import logging
 from datetime import datetime, timedelta
-from random import random
-from typing import Optional
+from typing import Optional, Dict
 
 import pytz
-from cache import AsyncTTL
 from dateutil.parser import parse as parse_datetime, ParserError
 from discord import Message, Forbidden
 from discord.ext.commands import Bot, Cog
@@ -31,6 +29,7 @@ class BedtimeCog(Cog, name='Bedtime'):
     """Remind users to go to bed."""
     _GUILDS = service_config.get_command_guilds('bedtime')
     _BASE_COMMAND = dict(base='bedtime', guild_ids=_GUILDS)
+    _BEDTIME_CACHE: Dict[int, Bedtime] = {}
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -70,7 +69,7 @@ class BedtimeCog(Cog, name='Bedtime'):
             async with session.begin():
                 await session.merge(bedtime)
                 await session.commit()
-                self._bedtime_cache.ttl.pop(ctx.author.id, None)
+                self._BEDTIME_CACHE.pop(ctx.author.id, None)
         await ctx.reply(f"Done! I've saved your bedtime as {time_obj} {tzname}.", hidden=True)
 
     @subcommand(name='off', description='Clears your bed time.', **_BASE_COMMAND)
@@ -80,7 +79,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 statement = delete(Bedtime).filter(Bedtime.user_id == ctx.author.id)
                 await session.execute(statement)
                 await session.commit()
-                self._bedtime_cache.ttl.pop(ctx.author.id, None)
+                self._BEDTIME_CACHE.pop(ctx.author.id, None)
         await ctx.reply(f"Done! I've removed your bedtime preferences.", hidden=True)
 
     @subcommand(name='get', description='Get your current bed time.', **_BASE_COMMAND)
@@ -101,16 +100,16 @@ class BedtimeCog(Cog, name='Bedtime'):
         async with self._session() as session:
             async with session.begin():
                 # Grab the user's bedtime
-                result = await self.get_bedtime(session, message.author.id)
-
+                result = await self._get_bedtime(session, message.author.id)
+                utcnow = datetime.utcnow()
                 # Do nothing if the user dont have a bedtime set or if they're in cooldown
                 if not result:
-                    _log.debug(f'User {message.author.id} does not have a bedtime set. Skipping.')
+                    _log.debug(f'User {message.author.id} does not have a bedtime set.')
                     return
-                elif result.last_notified and datetime.utcnow() < result.last_notified + \
-                        timedelta(minutes=service_config.servers[message.guild.id].bedtime.cooldown):
+                elif result.last_notified and utcnow < result.last_notified + \
+                        timedelta(minutes=service_config.servers[message.guild.id].bedtime.cooldown_minutes):
                     _log.debug(f'User {message.author.id} was last notified at {result.last_notified}, still in '
-                               f'cooldown. Skipping.')
+                               f'cooldown.')
                     return
 
                 # Find the nearest bedtime before current time in user's timezone, either earlier today or yesterday.
@@ -125,24 +124,21 @@ class BedtimeCog(Cog, name='Bedtime'):
                 sleep_hours = service_config.servers[message.guild.id].bedtime.sleep_hours
                 if bedtime > now_tz - timedelta(hours=sleep_hours):
                     try:
-                        if random() < 0.05:
-                            await message.channel.send(message.author.mention)
-                            await message.channel.send("https://cdn.discordapp.com/attachments/178042794386915328/"
-                                                       "875595133414961222/unknown-8.png")
-                        else:
-                            await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your "
-                                                       f"bedtime now. ")
-                        result.last_notified = datetime.utcnow()
+                        await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your "
+                                                   f"bedtime now. ")
+                        result.last_notified = utcnow
                         await session.commit()
-                        self._bedtime_cache.ttl.pop(message.author.id, None)
+                        self._BEDTIME_CACHE.pop(message.author.id, None)
                         _log.info(f'Notified {message.author} about bedtime.')
                     except Forbidden:
                         _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
                                      f"bot doesn't have permissions to post there.")
 
-    _bedtime_cache = AsyncTTL(3600, maxsize=1000, skip_args=2)
-
-    @_bedtime_cache
-    async def get_bedtime(self, session, user_id: int) -> Optional[Bedtime]:
-        statement = select(Bedtime).filter(Bedtime.user_id == user_id)
-        return (await session.execute(statement)).scalar()
+    async def _get_bedtime(self, session, user_id: int) -> Optional[Bedtime]:
+        if user_id in self._BEDTIME_CACHE:
+            return self._BEDTIME_CACHE[user_id]
+        else:
+            statement = select(Bedtime).filter(Bedtime.user_id == user_id)
+            bedtime = (await session.execute(statement)).scalar()
+            self._BEDTIME_CACHE[user_id] = bedtime
+            return bedtime

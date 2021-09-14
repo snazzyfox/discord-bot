@@ -29,14 +29,6 @@ python-versions = ">=3.6"
 typing_extensions = ">=3.7.2"
 
 [[package]]
-name = "async-cache"
-version = "1.1.1"
-description = "An asyncio Cache"
-category = "main"
-optional = false
-python-versions = ">=3.3"
-
-[[package]]
 name = "async-timeout"
 version = "3.0.1"
 description = "Timeout context manager for asyncio programs"
@@ -402,7 +394,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"  # Required for random.sample with weights
-content-hash = "607fe1ba2e49429eee0fa8ea79858b91bfa95a5a218d8c515b35cae945ec11e2"
+content-hash = "060121ba4ae20dc00de773a03cc2ca1daf1cf7c691c44bda3d91bc1efc4b9e6d"
 
 [metadata.files]
 aiohttp = [
@@ -447,9 +439,6 @@ aiohttp = [
 aiosqlite = [
     {file = "aiosqlite-0.17.0-py3-none-any.whl", hash = "sha256:6c49dc6d3405929b1d08eeccc72306d3677503cc5e5e43771efc1e00232e8231"},
     {file = "aiosqlite-0.17.0.tar.gz", hash = "sha256:f0e6acc24bc4864149267ac82fb46dfb3be4455f99fe21df82609cc6e6baee51"},
-]
-async-cache = [
-    {file = "async-cache-1.1.1.tar.gz", hash = "sha256:81aa9ccd19fb06784aaf30bd5f2043dc0a23fc3e998b93d0c2c17d1af9803393"},
 ]
 async-timeout = [
     {file = "async-timeout-3.0.1.tar.gz", hash = "sha256:0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f"},
