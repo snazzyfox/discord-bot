@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from random import choice
 from typing import Optional, Dict
 
 import pytz
@@ -122,17 +123,37 @@ class BedtimeCog(Cog, name='Bedtime'):
                 _log.debug(f'User {message.author.id} has bedtime {bedtime}; it is currently {now_tz}')
 
                 sleep_hours = service_config.servers[message.guild.id].bedtime.sleep_hours
-                if bedtime > now_tz - timedelta(hours=sleep_hours):
-                    try:
-                        await message.channel.send(f"Hey {message.author.mention}, go to bed! It's past your "
-                                                   f"bedtime now. ")
+                try:
+                    if now_tz < bedtime + timedelta(hours=sleep_hours):
+                        if now_tz < bedtime + timedelta(hours=sleep_hours / 2):
+                            # First half of bed time interval
+                            text = choice([
+                                "go to bed! It's past your bedtime now.",
+                                "don't stay up too late. Good sleep is important for your health!",
+                                "go to sleep now, so you're not miserable in the morning.",
+                                "it's time to go to bed! Unless you're an owl, then go to sleep standing up.",
+                                "sleep! NOW!",
+                                "your eyes are getting very heavy. You are going into a deep slumber. **Now sleep.**",
+                                "go to sleep! Everyone will still be here tomorrow. You can talk to them then.",
+                                f"it's now {int((now_tz - bedtime).total_seconds() / 60)} minutes after your bedtime.",
+                            ])
+                        else:
+                            # Second half of bed time interval
+                            text = choice([
+                                "go back to bed! You're up way too early.",
+                                "aren't you awake early today. Maybe consider catching up on those sleep hours?",
+                                "you're awake! You were trying to cross the border...",
+                                "you're finally awake.... You were trying to sleep, right? Walked right into this "
+                                "discord server, same as us, and that furry over there.",
+                            ])
+                        await message.channel.send(f"Hey {message.author.mention}, {text}")
                         result.last_notified = utcnow
                         await session.commit()
                         self._BEDTIME_CACHE.pop(message.author.id, None)
                         _log.info(f'Notified {message.author} about bedtime.')
-                    except Forbidden:
-                        _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
-                                     f"bot doesn't have permissions to post there.")
+                except Forbidden:
+                    _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
+                                 f"bot doesn't have permissions to post there.")
 
     async def _get_bedtime(self, session, user_id: int) -> Optional[Bedtime]:
         if user_id in self._BEDTIME_CACHE:
