@@ -150,7 +150,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                         await message.channel.send(f"Hey {message.author.mention}, {text}")
                         result.last_notified = utcnow
                         await session.commit()
-                        self._BEDTIME_CACHE.pop(message.author.id, None)
+                        self._BEDTIME_CACHE[message.author.id] = result
                         _log.info(f'Notified {message.author} about bedtime.')
                 except Forbidden:
                     _log.warning(f'Failed to notify {message.author} in {message.guild} about bedtime. The '
