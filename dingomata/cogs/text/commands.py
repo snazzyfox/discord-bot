@@ -1,3 +1,4 @@
+from datetime import datetime
 from random import betavariate, random, choice, randint
 
 import pytz
@@ -376,7 +377,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             raise DingomataUserError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
                 f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones') from e
-        time_obj, status = _calendar.parseDT(time, tzinfo=tz)
+        time_obj, status = _calendar.parseDT(time, datetime.utcnow().astimezone(tz), tzinfo=tz)
         if status != 3:
             raise DingomataUserError(
                 f"Can't interpret {time} as a valid date/time. Try using something like `today 5pm`, or for a "
