@@ -197,6 +197,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "parsedatetime"
+version = "2.6"
+description = "Parse human-readable date/time text."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "prettytable"
 version = "2.2.0"
 description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
@@ -243,17 +251,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
-name = "python-dateutil"
-version = "2.8.2"
-description = "Extensions to the standard Python datetime module"
-category = "main"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-
-[package.dependencies]
-six = ">=1.5"
-
-[[package]]
 name = "python-dotenv"
 version = "0.19.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -279,14 +276,6 @@ description = "YAML parser and emitter for Python"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
-
-[[package]]
-name = "six"
-version = "1.16.0"
-description = "Python 2 and 3 compatibility utilities"
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "sqlalchemy"
@@ -340,14 +329,6 @@ optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
-name = "types-python-dateutil"
-version = "0.1.6"
-description = "Typing stubs for python-dateutil"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "types-pytz"
 version = "2021.1.2"
 description = "Typing stubs for pytz"
@@ -357,7 +338,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-pyyaml"
-version = "5.4.8"
+version = "5.4.10"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
@@ -365,7 +346,7 @@ python-versions = "*"
 
 [[package]]
 name = "typing-extensions"
-version = "3.10.0.0"
+version = "3.10.0.2"
 description = "Backported and Experimental Type Hints for Python 3.5+"
 category = "main"
 optional = false
@@ -394,7 +375,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"  # Required for random.sample with weights
-content-hash = "060121ba4ae20dc00de773a03cc2ca1daf1cf7c691c44bda3d91bc1efc4b9e6d"
+content-hash = "7d04734224fbff665e1ef380490e6ef7e5006f03dab86d6cb31fbc5d953c5749"
 
 [metadata.files]
 aiohttp = [
@@ -608,6 +589,10 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
+parsedatetime = [
+    {file = "parsedatetime-2.6-py3-none-any.whl", hash = "sha256:cb96edd7016872f58479e35879294258c71437195760746faffedb692aef000b"},
+    {file = "parsedatetime-2.6.tar.gz", hash = "sha256:4cb368fbb18a0b7231f4d76119165451c8d2e35951455dfee97c62a87b04d455"},
+]
 prettytable = [
     {file = "prettytable-2.2.0-py3-none-any.whl", hash = "sha256:b186f1db9c9377cb552cfa95a3b7a0feab6ec55d7cad7e0763bdcbea1e8f4687"},
     {file = "prettytable-2.2.0.tar.gz", hash = "sha256:bd81678c108e6c73d4f1e47cd4283de301faaa6ff6220bcd1d4022038c56b416"},
@@ -643,10 +628,6 @@ pydantic = [
 pyflakes = [
     {file = "pyflakes-2.3.1-py2.py3-none-any.whl", hash = "sha256:7893783d01b8a89811dd72d7dfd4d84ff098e5eed95cfa8905b22bbffe52efc3"},
     {file = "pyflakes-2.3.1.tar.gz", hash = "sha256:f5bc8ecabc05bb9d291eb5203d6810b49040f6ff446a756326104746cc00c1db"},
-]
-python-dateutil = [
-    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
-    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
 python-dotenv = [
     {file = "python-dotenv-0.19.0.tar.gz", hash = "sha256:f521bc2ac9a8e03c736f62911605c5d83970021e3fa95b37d769e2bbbe9b6172"},
@@ -686,10 +667,6 @@ pyyaml = [
     {file = "PyYAML-5.4.1-cp39-cp39-win32.whl", hash = "sha256:49d4cdd9065b9b6e206d0595fee27a96b5dd22618e7520c33204a4a3239d5b10"},
     {file = "PyYAML-5.4.1-cp39-cp39-win_amd64.whl", hash = "sha256:c20cfa2d49991c8b4147af39859b167664f2ad4561704ee74c1de03318e898db"},
     {file = "PyYAML-5.4.1.tar.gz", hash = "sha256:607774cbba28732bfa802b54baa7484215f530991055bb562efbed5b2f20a45e"},
-]
-six = [
-    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
-    {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
 sqlalchemy = [
     {file = "SQLAlchemy-1.4.22-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:488608953385d6c127d2dcbc4b11f8d7f2f30b89f6bd27c01b042253d985cc2f"},
@@ -731,22 +708,18 @@ toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
-types-python-dateutil = [
-    {file = "types-python-dateutil-0.1.6.tar.gz", hash = "sha256:b02de39a54ce6e3fadfdc7dba77d8519fbfb6ca049920e190b5f89c74d5f9de6"},
-    {file = "types_python_dateutil-0.1.6-py3-none-any.whl", hash = "sha256:5b6241ea9fca2d8878cc152017d9524da62a7a856b98e31006e68b02aab47442"},
-]
 types-pytz = [
     {file = "types-pytz-2021.1.2.tar.gz", hash = "sha256:448828a06f2aaa840e57364d866c661645a045e532f817e4f10c8c3ab2b66651"},
     {file = "types_pytz-2021.1.2-py3-none-any.whl", hash = "sha256:28fb1c0f77f59aebe9b792d073ebfbbbf7b329f9d4af6a6079713a618a1c0f31"},
 ]
 types-pyyaml = [
-    {file = "types-PyYAML-5.4.8.tar.gz", hash = "sha256:f00ad122a78a7d41b0ad4e3fa481751c2b9bc3f34b8f71ea35232211057dd50f"},
-    {file = "types_PyYAML-5.4.8-py3-none-any.whl", hash = "sha256:e084cfc878c8c8b1d4e89011ae5d65ea962fc5745c3d08b931df2aaaa665de96"},
+    {file = "types-PyYAML-5.4.10.tar.gz", hash = "sha256:1d9e431e9f1f78a65ea957c558535a3b15ad67ea4912bce48a6c1b613dcf81ad"},
+    {file = "types_PyYAML-5.4.10-py3-none-any.whl", hash = "sha256:f1d1357168988e45fa20c65aecb3911462246a84809015dd889ebf8b1db74124"},
 ]
 typing-extensions = [
-    {file = "typing_extensions-3.10.0.0-py2-none-any.whl", hash = "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497"},
-    {file = "typing_extensions-3.10.0.0-py3-none-any.whl", hash = "sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84"},
-    {file = "typing_extensions-3.10.0.0.tar.gz", hash = "sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342"},
+    {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
+    {file = "typing_extensions-3.10.0.2-py3-none-any.whl", hash = "sha256:f1d25edafde516b146ecd0613dabcc61409817af4766fbbcfb8d1ad4ec441a34"},
+    {file = "typing_extensions-3.10.0.2.tar.gz", hash = "sha256:49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},

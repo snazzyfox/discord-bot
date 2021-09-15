@@ -1,22 +1,21 @@
 import csv
+from collections import Counter
 from datetime import datetime, timedelta
 from io import StringIO
 from typing import List, Dict, Literal, Optional
-from collections import Counter
+
 import aiohttp
-from dateutil.parser import parse
 from discord import File
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
-from discord_slash.cog_ext import cog_subcommand
 from discord_slash.utils.manage_commands import create_option
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from ...config import service_config
-from ...exceptions import DingomataUserError
 from ...decorators import subcommand
+from ...exceptions import DingomataUserError
 
 
 class SubEvent(BaseModel):
@@ -119,9 +118,16 @@ class TwitchCog(Cog, name='Twitch Commands'):
         return sub_data
 
     @staticmethod
-    def _parse_sub_messages(messages: List[Dict]) -> List[SubEvent]:
+    def _parse_datetime(s: str) -> datetime:
+        try:
+            return datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%fZ')
+        except ValueError:
+            return datetime.strptime(s, '%Y-%m-%dT%H:%M:%SZ')
+
+    @classmethod
+    def _parse_sub_messages(cls, messages: List[Dict]) -> List[SubEvent]:
         return [SubEvent(
-            real_time=parse(msg['created_at']),
+            real_time=cls._parse_datetime(msg['created_at']),
             video_timestamp=timedelta(seconds=msg['content_offset_seconds']),
             type=msg['message']['user_notice_params']['msg-id'],
             tier={'1000': 'Tier 1', '2000': 'Tier 2', '3000': 'Tier 3', 'Prime': 'Prime'}[

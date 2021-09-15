@@ -4,7 +4,7 @@ from random import choice
 from typing import Optional, Dict
 
 import pytz
-from dateutil.parser import parse as parse_datetime, ParserError
+import parsedatetime
 from discord import Message, Forbidden
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
@@ -19,6 +19,7 @@ from ...decorators import subcommand
 from ...exceptions import DingomataUserError
 
 _log = logging.getLogger(__name__)
+_calendar = parsedatetime.Calendar()
 
 
 class BedtimeSpecificationError(DingomataUserError):
@@ -55,23 +56,23 @@ class BedtimeCog(Cog, name='Bedtime'):
     async def bedtime_set(self, ctx: SlashContext, time: str, timezone: str) -> None:
         # Convert user timezone to UTC
         try:
-            tzname = str(pytz.timezone(timezone.strip()))  # test if timezone is valid
+            tz = pytz.timezone(timezone.strip())  # test if timezone is valid
         except pytz.UnknownTimeZoneError as e:
             raise BedtimeSpecificationError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
                 f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones') from e
-        try:
-            time_obj = parse_datetime(time).time()
-        except ParserError as e:
+        datetime_obj, parse_status = _calendar.parseDT(time, tzinfo=tz)
+        if parse_status != 2:
             raise BedtimeSpecificationError(
-                f"Can't interpret {time} as a valid time. Try using something like '11:00pm', '23:00', '11pm'") from e
-        bedtime = Bedtime(user_id=ctx.author.id, bedtime=time_obj, timezone=tzname)
+                f"Can't interpret {time} as a valid time. Try using something like '11:00pm', '23:00', '11pm'")
+        time_obj = datetime_obj.time()
+        bedtime = Bedtime(user_id=ctx.author.id, bedtime=time_obj, timezone=str(tz))
         async with self._session() as session:
             async with session.begin():
                 await session.merge(bedtime)
                 await session.commit()
                 self._BEDTIME_CACHE.pop(ctx.author.id, None)
-        await ctx.reply(f"Done! I've saved your bedtime as {time_obj} {tzname}.", hidden=True)
+        await ctx.reply(f"Done! I've saved your bedtime as {time_obj} {tz}.", hidden=True)
 
     @subcommand(name='off', description='Clears your bed time.', **_BASE_COMMAND)
     async def bedtime_off(self, ctx: SlashContext) -> None:

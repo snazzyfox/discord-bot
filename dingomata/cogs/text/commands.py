@@ -1,7 +1,7 @@
 from random import betavariate, random, choice, randint
 
 import pytz
-from dateutil.parser import ParserError, parse as parse_datetime
+from parsedatetime import Calendar
 from discord import User, Embed
 from discord.ext.commands import Bot, Cog, cooldown
 from discord.ext.commands.cooldowns import BucketType
@@ -17,6 +17,9 @@ from .models import TextModel, TextTuchLog
 from ...decorators import slash
 from ...config import service_config
 from ...exceptions import DingomataUserError
+
+
+_calendar = Calendar()
 
 
 class TextCommandsCog(Cog, name='Text Commands'):
@@ -373,13 +376,12 @@ class TextCommandsCog(Cog, name='Text Commands'):
             raise DingomataUserError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
                 f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones') from e
-        try:
-            time_obj = parse_datetime(time)
-            time_tz = tz.localize(time_obj)
-        except ParserError as e:
+        time_obj, status = _calendar.parseDT(time, tzinfo=tz)
+        if status != 3:
             raise DingomataUserError(
-                f"Can't interpret {time} as a valid date/time. Try using something like `2021-12-20 01:23`") from e
-        embed = Embed(description=f'{time} in {tz} is your local time: ', timestamp=time_tz)
+                f"Can't interpret {time} as a valid date/time. Try using something like `today 5pm`, or for a "
+                f"full date, `2021-12-20 01:05`")
+        embed = Embed(description=f'{time} in {tz} is your local time: ', timestamp=time_obj)
         await ctx.reply(embed=embed)
 
     @staticmethod

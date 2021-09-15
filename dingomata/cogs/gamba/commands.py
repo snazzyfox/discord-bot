@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import List, Optional
 
-from dateutil.relativedelta import relativedelta
 from discord import User, Embed, Color, Forbidden, Guild
 from discord.ext import tasks
 from discord.ext.commands import Bot, Cog
@@ -149,9 +148,9 @@ class GambaCog(Cog, name='GAMBA'):
                     description = ''
                     color = Color.blue()
                 elif game.is_open:
-                    time_left = relativedelta(game.open_until, datetime.utcnow()).normalized()
+                    sec_left = int((game.open_until - datetime.utcnow()).total_seconds())
                     description = 'Place your bets using the `/gamba believe` and `/gamba doubt` commands.\n'
-                    description += f'{time_left.minutes}:{time_left.seconds:02} left to make your predictions...'
+                    description += f'{sec_left // 60}:{sec_left % 60:02} left to make your predictions...'
                     color = Color.green()
                 else:
                     description = 'All bets are in, waiting on results...'
@@ -448,9 +447,10 @@ class GambaCog(Cog, name='GAMBA'):
                                     hidden=True)
                 else:
                     _log.debug(f'Denied daily point for {ctx.author} because their last claim was {user.last_claim}')
-                    time_remaining = relativedelta(user.last_claim + timedelta(days=1), now).normalized()
+                    sec_remaining = int((user.last_claim + timedelta(days=1) - now).total_seconds())
                     await ctx.reply(f"You've claimed {points_name} already in the last 24 hours. You can claim again "
-                                    f"in {time_remaining.hours} hours {time_remaining.minutes} minutes.", hidden=True)
+                                    f"in {sec_remaining // 3600} hours {sec_remaining % 3600 // 60} minutes.",
+                                    hidden=True)
 
     @subcommand(
         name='give',
