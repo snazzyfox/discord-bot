@@ -17,3 +17,9 @@ servers:
     mod_roles: [858607225617776650]
     gamba:
       points_name: lycoins
+
+  # Test server
+  814653859838427136:
+    mod_users: [749862270129143880]
+    commands:
+      echo: on
