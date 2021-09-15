@@ -382,7 +382,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             raise DingomataUserError(
                 f"Can't interpret {time} as a valid date/time. Try using something like `today 5pm`, or for a "
                 f"full date, `2021-12-20 01:05`")
-        await ctx.reply(f'{time} in {tz} is your local time: <t:{int(time_obj.timestamp())}:f>')
+        await ctx.reply(f'{time} in {tz} is <t:{int(time_obj.timestamp())}:f> your local time.')
 
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
