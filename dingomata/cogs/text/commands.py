@@ -1,6 +1,8 @@
 from random import betavariate, random, choice, randint
 
-from discord import User
+import pytz
+from dateutil.parser import ParserError, parse as parse_datetime
+from discord import User, Embed
 from discord.ext.commands import Bot, Cog, cooldown
 from discord.ext.commands.cooldowns import BucketType
 from discord_slash import SlashContext
@@ -14,6 +16,7 @@ from sqlalchemy.orm import sessionmaker
 from .models import TextModel, TextTuchLog
 from ...decorators import slash
 from ...config import service_config
+from ...exceptions import DingomataUserError
 
 
 class TextCommandsCog(Cog, name='Text Commands'):
@@ -352,6 +355,32 @@ class TextCommandsCog(Cog, name='Text Commands'):
             location = choice(['chest', 'head', 'tums'])
             await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)} and hits their "
                             f"{location}. {user.display_name} is ded. F.")
+
+    @slash(
+        name='localtime',
+        description='Display a time you enter for everyone as their local time.',
+        guild_ids=service_config.get_command_guilds('localtime'),
+        options=[
+            create_option(name='time', description='A particular date and/or time, e.g. 2020/01/01 00:00:00',
+                          option_type=str, required=True),
+            create_option(name='timezone', description='Time zone you are in', option_type=str, required=True),
+        ],
+    )
+    async def localtime(self, ctx: SlashContext, time: str, timezone: str) -> None:
+        try:
+            tz = pytz.timezone(timezone.strip())
+        except pytz.UnknownTimeZoneError as e:
+            raise DingomataUserError(
+                f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
+                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones') from e
+        try:
+            time_obj = parse_datetime(time)
+            time_tz = tz.localize(time_obj)
+        except ParserError as e:
+            raise DingomataUserError(
+                f"Can't interpret {time} as a valid date/time. Try using something like `2021-12-20 01:23`") from e
+        embed = Embed(description=f'{time} in {tz} is your local time: ', timestamp=time_tz)
+        await ctx.reply(embed=embed)
 
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
