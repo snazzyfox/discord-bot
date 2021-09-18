@@ -188,7 +188,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} tries to smooch themselves... How is that possible?')
         else:
             location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'paws', 'beans',
-                               'ears', 'tummy', 'shoulder', 'forehead', 'eyeball', 'arms', 'you-know-what'])
+                               'ears', 'tummy', 'shoulder', 'forehead', 'eyeball', 'arms'])
             adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'friendly', 'warm', 'wet', 'loud'])
             message = f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} smooch on the {location}.'
             if user == self._bot.user:
