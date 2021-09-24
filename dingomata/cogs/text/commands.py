@@ -3,7 +3,7 @@ from random import betavariate, random, choice, randint
 
 import pytz
 from parsedatetime import Calendar
-from discord import User, Embed
+from discord import User, Embed, Message
 from discord.ext.commands import Bot, Cog, cooldown
 from discord.ext.commands.cooldowns import BucketType
 from discord_slash import SlashContext
@@ -383,6 +383,20 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 f"Can't interpret {time} as a valid date/time. Try using something like `today 5pm`, or for a "
                 f"full date, `2021-12-20 01:05`")
         await ctx.reply(f'{time} in {tz} is <t:{int(time_obj.timestamp())}:f> your local time.')
+
+    @Cog.listener()
+    async def on_message(self, message: Message) -> None:
+        if (not message.guild
+                or message.guild.id not in service_config.get_command_guilds('replies')
+                or self._bot.user not in message.mentions
+                or message.author == self._bot.user
+        ):
+            return
+        text = message.content.lower()
+        for keyword, reply in service_config.servers[message.guild.id].text.replies.items():
+            if keyword in text:
+                await message.reply(reply)
+                return
 
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
