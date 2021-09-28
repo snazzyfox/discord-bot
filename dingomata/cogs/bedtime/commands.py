@@ -32,6 +32,7 @@ class BedtimeCog(Cog, name='Bedtime'):
     _GUILDS = service_config.get_command_guilds('bedtime')
     _BASE_COMMAND = dict(base='bedtime', guild_ids=_GUILDS)
     _BEDTIME_CACHE: Dict[int, Bedtime] = {}
+    _BEDTIME_KWDS = {'bed', 'sleep', 'bye', 'cya', 'see y', 'night'}
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -97,7 +98,8 @@ class BedtimeCog(Cog, name='Bedtime'):
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        if not message.guild or message.guild.id not in self._GUILDS:
+        if not message.guild or message.guild.id not in self._GUILDS \
+                or any(kwd in message.content.lower() for kwd in self._BEDTIME_KWDS):
             return
         async with self._session() as session:
             async with session.begin():
