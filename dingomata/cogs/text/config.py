@@ -21,5 +21,5 @@ class TextConfig(CogConfig):
         'cute': 'No U.',
         'ur mom': "Surely you meant your mom? Because I don't have a mom.",
         'your mom': "Surely you meant your mom? Because I don't have a mom.",
-        "damn": "Bless your heart.",
+        "dam": "Bless your heart.",
     }

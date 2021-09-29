@@ -32,7 +32,7 @@ class BedtimeCog(Cog, name='Bedtime'):
     _GUILDS = service_config.get_command_guilds('bedtime')
     _BASE_COMMAND = dict(base='bedtime', guild_ids=_GUILDS)
     _BEDTIME_CACHE: Dict[int, Bedtime] = {}
-    _BEDTIME_KWDS = {'bed', 'sleep', 'bye', 'cya', 'see y', 'night'}
+    _BEDTIME_KWDS = {'bed', 'sleep', 'bye', 'cya', 'see y', 'night', 'nini', 'nite'}
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
