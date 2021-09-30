@@ -42,9 +42,9 @@ class GameStatus(Enum):
 
 class GambaCog(Cog, name='GAMBA'):
     """Gamble with server points."""
-    _BASE_USER_COMMAND = dict(base='gamba', guild_ids=service_config.get_command_guilds('gamba'))
-    _BASE_MOD_COMMAND = dict(base='gamble', guild_ids=service_config.get_command_guilds('gamba'),
-                             base_default_permission=False)
+    _GUILDS = service_config.get_command_guilds('gamba')
+    _BASE_USER_COMMAND = dict(base='gamba', guild_ids=_GUILDS)
+    _BASE_MOD_COMMAND = dict(base='gamble', guild_ids=_GUILDS, base_default_permission=False)
 
     _CHOICES = [
         create_choice(name='believe', value='a'),
@@ -96,11 +96,11 @@ class GambaCog(Cog, name='GAMBA'):
                                  option_b=doubt, open_until=end_time, is_open=True, creator_user_id=ctx.author.id)
                 _log.debug(f"New gamba: server {game.guild_id} channel {game.channel_id} open until {end_time}")
                 embed = await self._generate_gamba_embed(game)
+                await ctx.reply(f'A new gamba has started!')
                 message = await ctx.channel.send(embed=embed)
                 game.message_id = message.id
                 session.add(game)
                 await session.commit()
-                await ctx.reply(f'A new gamba has started!')
 
     @tasks.loop(seconds=2)
     async def gamba_message_updater(self):
@@ -108,15 +108,26 @@ class GambaCog(Cog, name='GAMBA'):
         now = datetime.utcnow()
         async with self._session() as session:
             async with session.begin():
-                stmt = select(GambaGame).filter(GambaGame.is_open.is_(True), GambaGame.message_id.isnot(None))
+                stmt = select(GambaGame).filter(
+                    GambaGame.is_open.is_(True),
+                    GambaGame.message_id.isnot(None),
+                    GambaGame.guild_id.in_(self._GUILDS),
+                )
                 games = (await session.execute(stmt)).scalars()
                 for game in games:
                     if game.open_until < now:
                         game.is_open = False
                         await session.commit()
-                    message = self._bot.get_channel(game.channel_id).get_partial_message(game.message_id)
                     embed = await self._generate_gamba_embed(game)
-                    await message.edit(embed=embed)
+                    channel = self._bot.get_channel(game.channel_id)
+                    message = channel.get_partial_message(game.message_id)
+                    if channel.last_message_id == game.message_id:
+                        await message.edit(embed=embed)
+                    else:
+                        new_message = await channel.send(embed=embed)
+                        game.message_id = new_message.id
+                        await session.merge(game)
+                        await message.delete()
 
     async def _generate_gamba_embed(self, game: GambaGame, status: Optional[GameStatus] = None) -> Embed:
         points_name = service_config.servers[game.guild_id].gamba.points_name
