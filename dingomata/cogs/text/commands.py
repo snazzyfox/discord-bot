@@ -213,7 +213,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cooldown(1, 10.0, BucketType.member)
     async def snug(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
-            await ctx.send(f"{ctx.author.display_name} can't find a hot wherewolf boyfriend to snuggle, so they decide to snuggles a daki with themselves on it.")
+            await ctx.send(f"{ctx.author.display_name} can't find a hot wherewolf boyfriend to snuggle, so they decide to snuggle a daki with themselves on it.")
         else:
             await ctx.send(f'{ctx.author.display_name} snuggles the heck out of {self._mention(ctx, user)}!')
 
