@@ -201,7 +201,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
            )
     @cooldown(1, 10.0, BucketType.member)
     async def cuddle(self, ctx: SlashContext, user: User) -> None:
-        await ctx.send(f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
+        if ctx.author == user:
+            await ctx.send(f"{ctx.author.display_name} can't find anyone to cuddle, so they decided to pull their tail in front and cuddles it instead.")
+        else:
+            await ctx.send(f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
 
     @slash(name='snug', guild_ids=service_config.get_command_guilds('snug'),
            description="Give someone some snuggles",
@@ -209,7 +212,10 @@ class TextCommandsCog(Cog, name='Text Commands'):
            )
     @cooldown(1, 10.0, BucketType.member)
     async def snug(self, ctx: SlashContext, user: User) -> None:
-        await ctx.send(f'{ctx.author.display_name} snuggles the heck out of {self._mention(ctx, user)}!')
+        if ctx.author == user:
+            await ctx.send(f"{ctx.author.display_name} can't find a hot wherewolf boyfriend to snuggle, so they decide to snuggle a daki with themselves on it.")
+        else:
+            await ctx.send(f'{ctx.author.display_name} snuggles the heck out of {self._mention(ctx, user)}!')
 
     @slash(
         name='tuck',
