@@ -202,7 +202,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cooldown(1, 10.0, BucketType.member)
     async def cuddle(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
-            await ctx.send(f"{ctx.author.display_name} can't find anyone to cuddle, so they decideed to pull their tail in front and cuddles it instaed.")
+            await ctx.send(f"{ctx.author.display_name} can't find anyone to cuddle, so they decided to pull their tail in front and cuddles it instaed.")
         else:
             await ctx.send(f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
 
