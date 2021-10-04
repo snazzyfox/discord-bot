@@ -65,7 +65,7 @@ class TextConfig(CogConfig):
             'No U.',
             'You are cuter!',
             "I'm just a bot, I can't be cute!",
-        )],
+        ]),
         'ur mom': choice([
             "Surely you meant your mom?",
             'My mom snazzy have nothing to do with this!',
