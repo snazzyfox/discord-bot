@@ -52,9 +52,9 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
             await ctx.send(f"You've successfully joined the pool for {await pool.title()}. Good luck!",
                            components=[action_row], hidden=True)
         except Forbidden:
-            await ctx.reply(f"Join request failed because I can't DM you. Please update your server privacy "
-                            f"settings to allow DMs, so that I can send you your secret message if you're "
-                            f"selected.", hidden=True)
+            await ctx.reply("Join request failed because I can't DM you. Please update your server privacy settings "
+                            "to allow DMs, so that I can send you your secret message if you're selected.",
+                            hidden=True)
         except MemberRoleError as e:
             await ctx.reply(str(e), hidden=True)
             log.warning(f"Rejected join request from {ctx.author}: missing roles.")
@@ -69,7 +69,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
                                   components=[])
             log.info(f"Member removed from pool: {ctx.author}")
         else:
-            await ctx.reply(f'The pool is currently closed. You have not been added.', hidden=True)
+            await ctx.reply('The pool is currently closed. You have not been added.', hidden=True)
             log.info(f"Rejected leave request from {ctx.author}: pool closed")
 
     @subcommand(
@@ -90,8 +90,8 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
         await pool.clear(EntryStatus.SELECTED)  # First clear off old players
         await pool.open(title, GameMode.ANYONE if allow == 'anyone' else GameMode.NEW_PLAYERS_ONLY)
         embed = Embed(title=f'Now accepting players for {title}!',
-                      description='Click on Join to get in the pool! Make sure you allow DMs on this server so you can '
-                                  "receive the game code if you're selected.",
+                      description="Click on Join to get in the pool! Make sure you allow DMs on this server so you "
+                                  "can receive the game code if you're selected.",
                       color=Color.gold(),
                       )
         action_row = create_actionrow(
@@ -116,14 +116,15 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
         # noinspection PyArgumentList
         await message.edit(embed=embed, components=[])
         await ctx.reply('Pool has been closed.', hidden=True)
-        log.info(f'Pool closed')
+        log.info('Pool closed')
 
     @subcommand(
         name='pick',
         description='Pick users randomly from the pool and send them a DM.',
         options=[
             create_option(name='count', description='Number of users to pick', option_type=int, required=True),
-            create_option(name='message', description='Message to DM to selected users', option_type=str, required=True)
+            create_option(name='message', description='Message to DM to selected users', option_type=str,
+                          required=True),
         ],
         **_BASE_COMMAND,
     )
@@ -136,7 +137,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
         list after they're picked.
         """
         if count < 1:
-            raise DingomataUserError(f'You have to pick at least one user.')
+            raise DingomataUserError('You have to pick at least one user.')
 
         await ctx.defer(hidden=True)
         pool = self._pool_for_guild(ctx.guild.id)
@@ -144,7 +145,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
         size = await pool.size(EntryStatus.ELIGIBLE)
         picked_users = [ctx.guild.get_member(user) for user in await pool.pick(count)]
         log.info(f'Picked users: {", ".join(str(user) for user in picked_users)}')
-        embed = Embed(title=f"Congratulations! Check for your game code in DM's!",
+        embed = Embed(title="Congratulations! Check for your game code in DM's!",
                       description=f'Total entries: {size}\n',
                       color=Color.blue())
         embed.add_field(name='Selected Users', value='\n'.join(user.display_name for user in picked_users))
@@ -157,7 +158,8 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
         name='resend',
         description='Send a DM to all existing picked users.',
         options=[
-            create_option(name='message', description='Message to DM to selected users', option_type=str, required=True)
+            create_option(name='message', description='Message to DM to selected users', option_type=str,
+                          required=True),
         ],
         **_BASE_COMMAND,
     )
@@ -167,7 +169,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
         users = [ctx.guild.get_member(user) for user in await pool.members(EntryStatus.SELECTED)]
         for user in users:
             await self._send_dm(ctx, message, user)
-        await ctx.reply(f'All done!', hidden=True)
+        await ctx.reply('All done!', hidden=True)
 
     async def _send_dm(self, ctx: SlashContext, message: str, user: User) -> None:
         try:

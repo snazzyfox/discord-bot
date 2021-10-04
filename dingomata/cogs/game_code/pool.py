@@ -124,7 +124,7 @@ class MemberPool:
     async def add_member(self, member: Member) -> None:
         weight = self._get_member_weight(member)
         if weight == 0:
-            raise MemberRoleError(f'You cannot join this pool because you do not have the necessary roles.')
+            raise MemberRoleError('You cannot join this pool because you do not have the necessary roles.')
         await self._require_pool_status(True)
         pool = await self._get_pool()
         entry = GamePoolEntry(guild_id=self._guild_id, user_id=member.id, weight=weight,
@@ -138,7 +138,7 @@ class MemberPool:
                         session.add(entry)
                         await session.commit()
                 except IntegrityError as exc:
-                    raise MemberPoolStateError(f"You're already in the pool or were in an earlier game.") from exc
+                    raise MemberPoolStateError("You're already in the pool or were in an earlier game.") from exc
 
     async def remove_member(self, member: Member) -> None:
         await self._require_pool_status(True)
@@ -163,7 +163,7 @@ class MemberPool:
                 statement = select(GamePool).filter(GamePool.guild_id == self._guild_id)
                 self._pool = (await session.execute(statement)).scalar()
         if not self._pool:
-            raise NoGamePoolError(f'There is no open game pool right now.')
+            raise NoGamePoolError('There is no open game pool right now.')
         return self._pool
 
     async def is_open(self) -> bool:

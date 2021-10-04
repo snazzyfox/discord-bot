@@ -92,8 +92,8 @@ class TwitchCog(Cog, name='Twitch Commands'):
         try:
             video_id = int(vod_url.rsplit('/', 1)[1])
         except (IndexError, ValueError):
-            raise DingomataUserError(f"That's not a valid VOD URL. It should look something like "
-                                     f"`https://www.twitch.tv/videos/1234567890`")
+            raise DingomataUserError("That's not a valid VOD URL. It should look something like "
+                                     "`https://www.twitch.tv/videos/1234567890`")
         headers = {'Accept': 'application/vnd.twitchtv.v5+json', 'client-id': "jzkbprff40iqj646a697cyrvl0zt2m6"}
         url = f'https://api.twitch.tv/v5/videos/{video_id}/comments'
         sub_data: List[SubEvent] = []
@@ -102,8 +102,8 @@ class TwitchCog(Cog, name='Twitch Commands'):
             while params:
                 async with session.get(url, params=params) as resp:
                     if not resp.ok:
-                        raise DingomataUserError(f"Failed to fetch chat logs from Twitch. The video URL may be "
-                                                 f"incorrect or chat log is not available for this video.")
+                        raise DingomataUserError('Failed to fetch chat logs from Twitch. The video URL may be '
+                                                 'incorrect or chat log is not available for this video.')
                     data = await resp.json()
                     sub_data += cls._parse_sub_messages(data['comments'])
                     if '_next' in data:
@@ -135,6 +135,7 @@ class TwitchCog(Cog, name='Twitch Commands'):
             user=msg['commenter']['name'],
             gift_id=msg['message']['user_notice_params'].get('msg-param-origin-id', ''),
             count=int(msg['message']['user_notice_params'].get('msg-param-mass-gift-count', 1)),
-        ) for msg in messages
-            if msg['message']['user_notice_params']
-               and msg['message']['user_notice_params']['msg-id'] in {'submysterygift', 'subgift', 'sub', 'resub'}]
+        ) for msg in messages if (
+                msg['message']['user_notice_params']
+                and msg['message']['user_notice_params']['msg-id'] in {'submysterygift', 'subgift', 'sub', 'resub'}
+        )]

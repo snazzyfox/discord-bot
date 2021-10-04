@@ -81,7 +81,7 @@ class GambaCog(Cog, name='GAMBA'):
     )
     async def start(self, ctx: SlashContext, title: str, believe: str, doubt: str, timeout: int = 2):
         if not 0 < timeout <= 10:
-            raise GambaUserError(f"Timeout must between 1 and 10 minutes.")
+            raise GambaUserError("Timeout must between 1 and 10 minutes.")
         async with self._session() as session:
             async with session.begin():
                 stmt = select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id)
@@ -96,7 +96,7 @@ class GambaCog(Cog, name='GAMBA'):
                                  option_b=doubt, open_until=end_time, is_open=True, creator_user_id=ctx.author.id)
                 _log.debug(f"New gamba: server {game.guild_id} channel {game.channel_id} open until {end_time}")
                 embed = await self._generate_gamba_embed(game)
-                await ctx.reply(f'A new gamba has started!')
+                await ctx.reply('A new gamba has started!')
                 message = await ctx.channel.send(embed=embed)
                 game.message_id = message.id
                 session.add(game)
@@ -183,7 +183,8 @@ class GambaCog(Cog, name='GAMBA'):
         name='payout',
         description='Pay out the current gamba.',
         options=[create_option(
-            name='outcome', description='Select the outcome that won', option_type=str, required=True, choices=_CHOICES,
+            name='outcome', description='Select the outcome that won', option_type=str, required=True,
+            choices=_CHOICES,
         )],
         **_BASE_MOD_COMMAND,
     )
@@ -196,14 +197,14 @@ class GambaCog(Cog, name='GAMBA'):
                     GambaBet.guild_id == ctx.guild.id, GambaBet.user_id == ctx.author.id)
                 )).scalar()
                 if user:
-                    raise GambaUserError(f"You can't pay out yourself after placing bets. Ask another mod to "
-                                         f"do this instead. The mod who started the gamba can always pay out since "
-                                         f"they cannot bet.")
+                    raise GambaUserError("You can't pay out yourself after placing bets. Ask another mod to "
+                                         "do this instead. The mod who started the gamba can always pay out since "
+                                         "they cannot bet.")
                 game = (await session.execute(select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id))).scalar()
                 if not game:
-                    raise GambaUserError(f"There is no active gamba in this server.")
+                    raise GambaUserError("There is no active gamba in this server.")
                 if game.is_open:
-                    raise GambaUserError(f"Betting have not ended for this gamba yet.")
+                    raise GambaUserError("Betting have not ended for this gamba yet.")
 
                 # Compute payout ratio
                 stmt = select(
@@ -287,21 +288,21 @@ class GambaCog(Cog, name='GAMBA'):
             async with session.begin():
                 game = (await session.execute(select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id))).scalar()
                 if not game:
-                    raise GambaUserError(f"There is no gamba pending in this server.")
+                    raise GambaUserError("There is no gamba pending in this server.")
                 embed = await self._generate_gamba_embed(game, GameStatus.CANCELLED)
 
                 await session.execute(update(GambaUser).filter(
                     GambaUser.guild_id == ctx.guild.id,
                     GambaUser.guild_id == GambaBet.guild_id,
                     GambaUser.user_id == GambaBet.user_id,
-                ).values({GambaUser.balance: GambaUser.balance
-                                             + func.coalesce(GambaBet.option_a, 0)
-                                             + func.coalesce(GambaBet.option_b, 0)
-                          }).execution_options(synchronize_session="fetch"))
+                ).values({
+                    GambaUser.balance:
+                        GambaUser.balance + func.coalesce(GambaBet.option_a, 0) + func.coalesce(GambaBet.option_b, 0)
+                }).execution_options(synchronize_session="fetch"))
                 await session.execute(delete(GambaBet).filter(GambaBet.guild_id == ctx.guild.id))
                 await session.delete(game)
                 await self._bot.get_channel(game.channel_id).get_partial_message(game.message_id).edit(embed=embed)
-                await ctx.reply(f'The current gamba has been cancelled and all points are refunded.', hidden=True)
+                await ctx.reply('The current gamba has been cancelled and all points are refunded.', hidden=True)
 
     @subcommand(
         name='leaderboard',
@@ -359,9 +360,9 @@ class GambaCog(Cog, name='GAMBA'):
     async def _mod_transact(self, ctx: SlashContext, user: User, amount: int, add: bool):
         points_name = service_config.servers[ctx.guild.id].gamba.points_name
         if amount <= 0:
-            raise NonpositivePointsError(f"You need to specify a positive amount.")
+            raise NonpositivePointsError("You need to specify a positive amount.")
         if user == ctx.author:
-            await ctx.reply(f"Now aren't you a sneaky little cutie. Go get another mod to do this for you.")
+            await ctx.reply("Now aren't you a sneaky little cutie. Go get another mod to do this for you.")
             return
         try:
             await self._change_point_amount(ctx.guild.id, user.id, amount if add else -amount)
@@ -403,18 +404,18 @@ class GambaCog(Cog, name='GAMBA'):
             async with session.begin():
                 game = (await session.execute(select(GambaGame).filter(GambaGame.guild_id == ctx.guild.id))).scalar()
                 if not game:
-                    raise GambaUserError(f"There's no gamba going on right now.")
+                    raise GambaUserError("There's no gamba going on right now.")
                 if not game.is_open:
-                    raise GambaUserError(f"The gamba has closed already.")
+                    raise GambaUserError("The gamba has closed already.")
                 if game.creator_user_id == ctx.author.id:
-                    raise GambaUserError(f"You can't bet on a gamba you created. This is to ensure at least one "
-                                         f"moderator can pay out the bet when it completes.")
+                    raise GambaUserError("You can't bet on a gamba you created. This is to ensure at least one "
+                                         "moderator can pay out the bet when it completes.")
                 stmt = select(GambaBet).filter(GambaBet.guild_id == ctx.guild.id, GambaBet.user_id == ctx.author.id)
                 bet = (await session.execute(stmt)).scalar()
                 if not bet:
                     bet = GambaBet(guild_id=ctx.guild.id, user_id=ctx.author.id, option_a=None, option_b=None)
                 if (option == 'a' and bet.option_b) or (option == 'b' and bet.option_a):
-                    raise GambaUserError(f"You've already bet on the other option.")
+                    raise GambaUserError("You've already bet on the other option.")
                 if option == 'a':
                     bet.option_a = (bet.option_a or 0) + amount
                 else:

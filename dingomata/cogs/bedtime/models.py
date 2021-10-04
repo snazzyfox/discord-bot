@@ -11,4 +11,3 @@ class Bedtime(BedtimeModel):
     bedtime = Column(Time, nullable=False)
     timezone = Column(String, nullable=False)
     last_notified = Column(DateTime, nullable=True)
-

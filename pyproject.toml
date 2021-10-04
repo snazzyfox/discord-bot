@@ -10,7 +10,7 @@ python = "^3.9"  # Required for random.sample with weights
 "discord.py" = "^1.7.3"
 pydantic = {extras = ["dotenv"], version = "^1.8.2"}
 PyYAML = "^5.4.1"
-SQLAlchemy = {extras = ["asyncio"], version = "1.4.22"}
+SQLAlchemy = {extras = ["asyncio"], version = "^1.4.22"}
 aiosqlite = "^0.17.0"
 pytz = "^2021.1"
 asyncpg = "^0.24.0"

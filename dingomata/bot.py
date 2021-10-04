@@ -46,12 +46,12 @@ async def _stop_bot():
 
 @bot.event
 async def on_ready():
-    log.info(f'Bot is now up and running.')
+    log.info('Bot is now up and running.')
 
 
 @bot.event
 async def on_disconnect():
-    log.info(f'Bot has disconnected.')
+    log.info('Bot has disconnected.')
 
 
 @bot.event

@@ -2,12 +2,12 @@ from datetime import datetime
 from random import betavariate, random, choice, randint
 
 import pytz
-from parsedatetime import Calendar
-from discord import User, Embed, Message
+from discord import User, Message
 from discord.ext.commands import Bot, Cog, cooldown
 from discord.ext.commands.cooldowns import BucketType
 from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
+from parsedatetime import Calendar
 from prettytable import PrettyTable
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -15,10 +15,9 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
 from .models import TextModel, TextTuchLog
-from ...decorators import slash
 from ...config import service_config
+from ...decorators import slash
 from ...exceptions import DingomataUserError
-
 
 _calendar = Calendar()
 
@@ -107,8 +106,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f"{ctx.author.display_name} is lonely and can't stop hugging themselves.")
         elif random() < 0.98:
             adj = choice(['great big', 'giant', 'big bear', 'friendly', 'loving', 'nice warm', 'floofy', 'free',
-                          'suplex and a', 'rambunctious', 'therapeutic', 'heavenly', 'tender', 'dazzling', 'tremendous',
-                          'joyous', 'remarkable', 'magical', 'kind', 'delightful', 'satisfying', 'cheerful'])
+                          'suplex and a', 'rambunctious', 'therapeutic', 'heavenly', 'tender', 'dazzling', 'joyous',
+                          'tremendous', 'remarkable', 'magical', 'kind', 'delightful', 'satisfying', 'cheerful'])
             await ctx.send(f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} hug!')
         else:
             await ctx.send(f'{ctx.author.display_name} wants to give {self._mention(ctx, user)} a hug, but then '
@@ -138,7 +137,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} tries to bonk themselves. They appear to really enjoy it.")
         elif user == self._bot.user:
-            await ctx.send(f"How dare you.")
+            await ctx.send("How dare you.")
         else:
             adj = choice(['lightly', 'gently', 'aggressively', 'frantically', 'twice', 'heavily', 'loudly',
                           'deliberately', 'dutifully', 'mortally', 'politely', 'weakly', 'violently', 'noisily',
@@ -155,7 +154,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def bap(self, ctx: SlashContext, user: User) -> None:
         thing = choice(['magazine', 'newspaper', 'mousepad', 'phonebook', 'pancake', 'pillow', 'pizza', 'towel'])
         if ctx.author == user:
-            await ctx.send(f"Aw, don't be so rough on yourself.")
+            await ctx.send("Aw, don't be so rough on yourself.")
         elif user == self._bot.user:
             await ctx.send(f"{user.mention} rolls up a {thing} and baps {ctx.author.mention} on the snoot.")
         else:
@@ -202,9 +201,12 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cooldown(1, 10.0, BucketType.member)
     async def cuddle(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
-            await ctx.send(f"{ctx.author.display_name} can't find anyone to cuddle, so they decided to pull their tail in front and cuddle it instead.")
+            await ctx.send(
+                f"{ctx.author.display_name} can't find anyone to cuddle, so they decided to pull their tail in front "
+                f"and cuddle it instead.")
         else:
-            await ctx.send(f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
+            await ctx.send(
+                f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
 
     @slash(name='snug', guild_ids=service_config.get_command_guilds('snug'),
            description="Give someone some snuggles",
@@ -213,7 +215,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cooldown(1, 10.0, BucketType.member)
     async def snug(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
-            await ctx.send(f"{ctx.author.display_name} can't find a hot werewolf boyfriend to snuggle, so they decide to snuggle a daki with themselves on it.")
+            await ctx.send(
+                f"{ctx.author.display_name} can't find a hot werewolf boyfriend to snuggle, so they decide to snuggle "
+                f"a daki with themselves on it.")
         else:
             await ctx.send(f'{ctx.author.display_name} snuggles the heck out of {self._mention(ctx, user)}!')
 
@@ -325,7 +329,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if random() < 0.99:
             await ctx.reply(f"It's {choice(['heads', 'tails'])}.")
         else:
-            await ctx.reply(f"It's... hecc, it went under the couch.")
+            await ctx.reply("It's... hecc, it went under the couch.")
 
     @slash(name='snipe', description="It's bloody murderrrr", guild_ids=service_config.get_command_guilds('snipe'),
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -333,8 +337,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @cooldown(1, 60.0, BucketType.member)
     async def snipe(self, ctx: SlashContext, user: User) -> None:
         if user == self._bot.user:
-            await ctx.reply(f"{ctx.author.display_name} dares to snipe {self._mention(ctx, user)}. The rifle explodes, "
-                            f"taking their paws with it.")
+            await ctx.reply(f"{ctx.author.display_name} dares to snipe {self._mention(ctx, user)}. The rifle "
+                            "explodes, taking their paws with it.")
         elif user == ctx.author:
             result = "BANG! The gun goes." if random() < 1 / 6 else "Whew, it's a blank."
             await ctx.reply(f"{ctx.author.display_name} plays Russian Roulette with a revolver. {result}")
@@ -382,7 +386,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
         except pytz.UnknownTimeZoneError as e:
             raise DingomataUserError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
-                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones') from e
+                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
+            ) from e
         time_obj, status = _calendar.parseDT(time, datetime.utcnow().astimezone(tz), tzinfo=tz)
         if status != 3:
             raise DingomataUserError(
@@ -395,8 +400,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if (not message.guild
                 or message.guild.id not in service_config.get_command_guilds('replies')
                 or self._bot.user not in message.mentions
-                or message.author == self._bot.user
-        ):
+                or message.author == self._bot.user):
             return
         text = message.content.lower()
         for keyword, reply in service_config.servers[message.guild.id].text.replies.items():

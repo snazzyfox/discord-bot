@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, BigInteger, Index
+from sqlalchemy import Column, Integer, BigInteger, Index
 from sqlalchemy.orm import declarative_base
 
 TextModel = declarative_base()

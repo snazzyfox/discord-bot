@@ -61,7 +61,8 @@ class BedtimeCog(Cog, name='Bedtime'):
         except pytz.UnknownTimeZoneError as e:
             raise BedtimeSpecificationError(
                 f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
-                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones') from e
+                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
+            ) from e
         datetime_obj, parse_status = _calendar.parseDT(time, tzinfo=tz)
         if parse_status != 2:
             raise BedtimeSpecificationError(
@@ -83,7 +84,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 await session.execute(statement)
                 await session.commit()
                 self._BEDTIME_CACHE.pop(ctx.author.id, None)
-        await ctx.reply(f"Done! I've removed your bedtime preferences.", hidden=True)
+        await ctx.reply("Done! I've removed your bedtime preferences.", hidden=True)
 
     @subcommand(name='get', description='Get your current bed time.', **_BASE_COMMAND)
     async def bedtime_get(self, ctx: SlashContext) -> None:
