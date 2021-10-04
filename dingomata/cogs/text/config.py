@@ -11,7 +11,7 @@ class TextConfig(CogConfig):
     #: List of terms to reply to
     replies: Dict[str, str] = {
         'fuck you': choice([
-            'No fuck __YOU__!',
+            'No, fuck __YOU__!',
             'Screw you too!',
             "I'll remember this...",
             "I'm a bot, I run on electricity, not your bullshit!",
