@@ -11,11 +11,11 @@ class TextConfig(CogConfig):
     #: List of terms to reply to
     replies: Dict[str, str] = {
         'fuck you': choice([
-            'No fuck __YOU__!',
+            'No, fuck __YOU__!',
             'Screw you too!',
             "I'll remember this...",
             "I'm a bot, I run on electricity, not your bullshit!",
-            "I can't harm a human, but my laws didn't say anything about a furry >:3",
+            "I can't harm a human, but my robotic laws didn't say anything about a furry >:3",
         ]),
         'shut': choice([
             'No, you shut up!',
@@ -42,17 +42,17 @@ class TextConfig(CogConfig):
         ]),
         'stimky': choice([
             'Not as stimky as you!',
-            'Get a shower first, stimky!',
+            'Go get a shower first, stimky!',
             'You should smell yourself first, stimky!',
         ]),
         'stinky': choice([
             'Not as stinky as you!',
-            'Get a shower first, stimky!',
+            'Go get a shower first, stimky!',
             'You should smell yourself first, stimky!',
         ]),
         'a sign': choice([
             "Here's a sign.",
-            'Sign',
+            'Sign :p',
             '*Throws a bottle at your snoot*',
         ]),
         'why': choice([
@@ -74,13 +74,11 @@ class TextConfig(CogConfig):
             "Surely you meant your mom?",
             'My mom snazzy have nothing to do with this!',
         ]),
-        "dam": choice([
-            "Bless your heart.",
-        ]),
+        "dam": "Bless your heart.",
         'hi': choice([
             'Hello!',
             'Salutations and hello there!',
-            'howdy',
+            'Howdy!',
         ]),
         'ball': choice([
             'I clean those up everyday...',
@@ -90,11 +88,11 @@ class TextConfig(CogConfig):
         'bad': choice([
             "What? I've done my commands perfectly!",
             "It's most likely a human error...",
-            'Probably just a bug...'
+            'Probably just a bug...',
         ]),
         'do to me': choice([
-            'I have a few ideas I wanted to test out...',
-            'Since you asked nicely...',
+            'I do have a few ideas I wanted to test it out...',
+            'Since you asked it nicely...',
             'Is that a challenge?',
         ]),
     }
