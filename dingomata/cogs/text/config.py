@@ -1,4 +1,5 @@
 from typing import Set, Dict
+from random import choice
 
 from dingomata.config import CogConfig
 
