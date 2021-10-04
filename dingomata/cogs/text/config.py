@@ -88,7 +88,7 @@ class TextConfig(CogConfig):
         'bad': choice([
             "What? I've done my commands perfectly!",
             "It's most likely a human error...",
-            'Probably just a bug...'
+            'Probably just a bug...',
         ]),
         'do to me': choice([
             'I do have a few ideas I wanted to test it out...',
