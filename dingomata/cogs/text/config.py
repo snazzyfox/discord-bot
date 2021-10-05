@@ -45,7 +45,7 @@ class TextConfig(CogConfig):
         TextReply(
             triggers=['hi', 'hello', 'hewwo','hey'],
             responses=['Hello!', 'Howdy!', 'Salutations and hello there!'],
-        ),
+            ),
         #: Piror of "love" check, making sure user intention is good
         TextReply(
             triggers=['i loves', ' i love', 'i likes', 'i like'], 
