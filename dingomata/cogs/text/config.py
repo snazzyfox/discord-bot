@@ -1,7 +1,9 @@
 from typing import Set, List
+
+
 from pydantic import BaseModel # type: ignore
 from dingomata.config import CogConfig
-import yaml
+import yaml # type: ignore
 
 
 no_pings: Set[int] = set()
@@ -16,6 +18,7 @@ class TextReply(BaseModel):
 
 class TextConfig(CogConfig):
     #: List of role or user IDs where unnecessary pings are suppressed.
+    no_pings: Set[int] = set()
 
     #: List of terms to reply to
     replies: List[TextReply] = [
@@ -195,18 +198,16 @@ class TextConfig(CogConfig):
             ]),
         TextReply(
             triggers=['dad','father'],
-            responses=[
-            'No.',
-            ],
-        ),
+            responses=['No.'],
+            ),
         TextReply(
             triggers=['dam','shit'],
             responses=["Bless your heart."],
-        ),
+            ),
         TextReply(
             triggers=['ball'],
             responses=['I clean those up everyday', "Don't throw that!", 'Hey! Bad!'],
-        ),
+            ),
         TextReply(
             triggers=['bad'],
             responses=[
@@ -254,6 +255,8 @@ class TextConfig(CogConfig):
         #: Secret list. To all our amazing friends (this is purly bias,
         #: please don't think dingomata doesn't like you, if you are watching this owo)
         #: There are many friends I don't know that well. I'm sorry if I cannot describe them better! ;w;
+        
+
         TextReply(
             triggers=['banana'],
             responses= list_friend.banana
@@ -264,14 +267,12 @@ class TextConfig(CogConfig):
             ),
         TextReply(
             triggers=['blueberry'],
-            responses=[
-                'Blueberry pie? yum yum! Our favorite, amazing and friendly blueberry wolf! Lycaon!',
-            ]),
+            responses=['Blueberry pie? yum yum! Our favorite, amazing and friendly blueberry wolf! Lycaon!'],
+            ),
         TextReply( 
             triggers=['snaz', 'snazzy'],
-            responses=[
-                'Our residential gentleman fox, very smart and creative! The one and only Snazzy!',
-            ]),
+            responses=['Our residential gentleman fox, very smart and creative! The one and only Snazzy!'],
+            ),
         TextReply(
             triggers=['lycan', 'mike', 'michael','werewolf'],
             responses=[
