@@ -1,7 +1,12 @@
 from typing import Set, List
-from pydantic import BaseModel
+from pydantic import BaseModel # type: ignore
 from dingomata.config import CogConfig
 
+import yaml 
+
+no_pings: Set[int] = set()
+file_friend = open("Friends.yaml", 'r')
+list_friend = yaml.load(file_friend)
 
 class TextReply(BaseModel):
     triggers: List[str]
@@ -10,7 +15,6 @@ class TextReply(BaseModel):
 
 class TextConfig(CogConfig):
     #: List of role or user IDs where unnecessary pings are suppressed.
-    no_pings: Set[int] = set()
 
     #: List of terms to reply to
     replies: List[TextReply] = [
@@ -252,15 +256,12 @@ class TextConfig(CogConfig):
         #: There are many friends I don't know that well. I'm sorry if I cannot describe them better! ;w;
         TextReply(
             triggers=['banana'],
-            responses=[
-                "Our favorite, cute and very athletic husky! To our husky that's full of love! Athlete!",
-            ]),
+            responses= list_friend.banana
+            ),
         TextReply(
             triggers=['shooting star'],
-            responses=[
-                '''"Here comes the shooting star!" And here comes brightest
-                star in the sky! To our amazing shiba star, Galex!''',
-            ]),
+            responses=list_friend.shooting_star
+            ),
         TextReply(
             triggers=['blueberry'],
             responses=[
