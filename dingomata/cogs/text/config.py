@@ -72,7 +72,7 @@ class TextConfig(CogConfig):
                 'Absolutely.',
                 'yes.',
             ]),
-            #Prior to "friend" to make sure friend is not checked first and it's good intention
+            #: Prior to "friend" to make sure friend is not checked first and it's good intention
         TextReply(
             triggers=['my friend'], 
             responses=[
@@ -89,7 +89,7 @@ class TextConfig(CogConfig):
                 'Yes... I will add you on **THE LIST**',
                 'I have many connections, there are ways to make you regret',
             ]),
-            #Prior to funny
+            #: Prior to funny
         TextReply(
             triggers=["isn't funny", "aren't funny", 'not funny'], 
             responses=[
