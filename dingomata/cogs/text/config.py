@@ -16,7 +16,7 @@ class TextConfig(CogConfig):
 
     #: List of terms to reply to
     replies: List[TextReply] = [
-        #HIGH/Ordered-priority responses
+        #: HIGH/Ordered-priority responses
         TextReply(
             triggers=['fuck you', 'frick you', 'you suck', 'hate you'],
             responses=[
@@ -46,7 +46,7 @@ class TextConfig(CogConfig):
             triggers=['hi', 'hello', 'hewwo','hey'],
             responses=['Hello!', 'Howdy!', 'Salutations and hello there!'],
         ),
-        #Piror of "love" check, making sure user intention is good
+        #: Piror of "love" check, making sure user intention is good
         TextReply(
             triggers=['i loves', ' i love', 'i likes', 'i like'], 
             responses=[
@@ -55,7 +55,7 @@ class TextConfig(CogConfig):
                 "You shouldn't have",
                 'Thank you!',
             ]),
-        #After of "i love" check, making sure user intention is not for good
+        #: After of "i love" check, making sure user intention is not for good
         TextReply(
             triggers=['loves you', 'love you', 'likes you', 'like you'],
             responses=[
@@ -64,7 +64,7 @@ class TextConfig(CogConfig):
                 "I tried hacking into your social media, but I was keep getting an error saying something like `null friend list`...",
                 "I feel no emotion, but I can't say the same thing about you... :wdingDEVIL:",
             ]),
-        #After all love check. A more general variation.
+        #: After all love check. A more general variation.
         TextReply(
             triggers=['love'],
             responses=[
@@ -81,7 +81,7 @@ class TextConfig(CogConfig):
                 'YAY!',
                 'FRIENDS!',
             ]),
-        #After "my friend" check instance, for example as "you have no friend etc" for bad intention
+        #: After "my friend" check instance, for example as "you have no friend etc" for bad intention
         TextReply(
             triggers=['friend'], 
             responses=[
@@ -98,7 +98,7 @@ class TextConfig(CogConfig):
                 'There are ways to make it funny.',
                 'Perhaps, but I think it is funny.',
             ]),
-        #After not funny
+        #: After not funny
         TextReply(
             triggers=['funny'], 
             responses=[
@@ -106,7 +106,7 @@ class TextConfig(CogConfig):
                 'At least someone appreciate my sense of humor.',
                 'I will update it into the database.',
             ]),
-        #MEDIUM/random-priority responses, Mid sentence check
+        #: MEDIUM/random-priority responses, Mid sentence check
         TextReply(
             triggers=['gay', 'homosexual', 'lewd', 'horni'],
             responses=[
@@ -216,7 +216,7 @@ class TextConfig(CogConfig):
                 'Since you asked it nicely...',
                 'Is that a challenge?',
             ]),
-        #LOW-priority responses, fail safe
+        #: LOW-priority responses, fail safe
         TextReply(
             triggers=['single pringle', 'single'],
             responses=[
@@ -247,8 +247,8 @@ class TextConfig(CogConfig):
                 "Maybe it's best that you ask someone else.",
                 'Maybe you should ask 8ball.',
             ]),
-        #Secret list. To all our amazing friends (this is purly bias, please don't think dingomata doesn't like you, if you are watching this owo)
-        #There are many friends I don't know that well. I'm sorry if I cannot describe them better! ;w;
+        #: Secret list. To all our amazing friends (this is purly bias, please don't think dingomata doesn't like you, if you are watching this owo)
+        #: There are many friends I don't know that well. I'm sorry if I cannot describe them better! ;w;
         TextReply(
             triggers=['banana'],
             responses=[
