@@ -1,7 +1,5 @@
 from typing import Set, List
-
 from pydantic import BaseModel
-
 from dingomata.config import CogConfig
 
 
@@ -45,7 +43,7 @@ class TextConfig(CogConfig):
         TextReply(
             triggers=['hi', 'hello', 'hewwo','hey'], 
             responses=['Hello!', 'Howdy!', 'Salutations and hello there!'],
-            ),
+            ), 
         #: Piror of "love" check, making sure user intention is good
         TextReply(
             triggers=['i loves', ' i love', 'i likes', 'i like'],
@@ -257,7 +255,8 @@ class TextConfig(CogConfig):
             responses=[
                 "Our favorite, cute and very athletic husky! To our husky that's full of love! Athlete!",
             ]),
-        triggers=['shooting star'],
+        TextReply(
+            triggers=['shooting star'],
             responses=[
                 '''"Here comes the shooting star!" And here comes brightest
                 star in the sky! To our amazing shiba star, Galex!''',
@@ -267,155 +266,184 @@ class TextConfig(CogConfig):
             responses=[
                 'Blueberry pie? yum yum! Our favorite, amazing and friendly blueberry wolf! Lycaon!',
             ]),
-            TextReply( 
-        triggers=['snaz', 'snazzy'],
+        TextReply( 
+            triggers=['snaz', 'snazzy'],
             responses=[
                 'Our residential gentleman fox, very smart and creative! The one and only Snazzy!',
             ]),
-        triggers=['lycan', 'mike', 'michael','werewolf'],
+        TextReply(
+            triggers=['lycan', 'mike', 'michael','werewolf'],
             responses=[
                 '''AWOO! Our favorite, one and only, rare find werewolf. To our 
                 werewolf friend, LycanMike! "Salutations and hello there!"''',
             ]),
-        triggers=['tail'],
+        TextReply(
+            triggers=['tail'],
             responses=[
                 '''"NO PUT THAT DOWN, YOU ARE NOT SUPPOSE TO HAVE THAT TAIL!"
                 To our amazing tail snatcher, DT!''',
             ]),
-        triggers=['short'],
+        TextReply(
+            triggers=['short'],
             responses=[
                 '''YES, I can make the dingomata call you short corgi, there 
                 is no stopping it now! To our amazing friend, Corgi!''',
             ]),
-        triggers=['maid outfit'],
+        TextReply(
+            triggers=['maid outfit'],
             responses=[
                 """oh god, no, now you made everyone even cuter! Thank you for all your 
                 amazing art, and I'm sure neo is appreciating them.  To our amazing artist, Luna!""",
             ]),
-        triggers=['fire'],
+        TextReply(
+            triggers=['fire'],
             responses=[
                 """.. and here he is, our fire wolf... He really should sto- wait,
                 no, stop, YOU CAN'T THROW ME INTO- ||To our fire keeper, Neo!||""",
             ]),
-        triggers=['doritos'],
+        TextReply(
+            triggers=['doritos'],
             responses=[
                 '''YUMMY DORITOS! wait. did you check if dogueritos is in there, 
                 galex? oh god. NOOOOOOOOOOO!!!!! To our wonderful loving bean, dogueritos!''',
             ]),
-        triggers=['coffee'],
+        TextReply(
+            triggers=['coffee'],
             responses=[
                 """Drink your daily starbucks, or you shoudn't call yourself a 
                 certified forklift driver! To our wonderful coffee bean, Forklift!""",
             ]),
-        triggers=['where is the wolf'],
+        TextReply(
+            triggers=['where is the wolf'],
             responses=[
                 """where? wolf? I don't see any wolf around, where is it again? 
                 AHH there he is! Our wonderful friend with incredible voice, wherewolf!""",
             ]),
-        triggers=['smol drag'],
+        TextReply(
+            triggers=['smol drag'],
             responses=[
                 """Oh, hold that with care! You don't want to drop her! She is
                 really talented and creative. To our small dragon, Gem!""",
             ]),
-        triggers=['sushi'],
+        TextReply(
+            triggers=['sushi'],
             responses=[
                 """OHHH shushi... hmm it tastes funny... what kind of fish did you use?
                 **SHARK MEAT?** IT'S NOT HONDA IS IT! GOD DAMN IT! EXOS! WIA- 
                 ||To our hyper fish, Honda!||""",
             ]),
-        triggers=['le chein'],
+        TextReply(
+            triggers=['le chein'],
             responses=[
                 '''Aww so cute! Shy and adorable friend, so loving and
                 amazing, "also incredibly gay". To our french dogo, Exos!''',
             ]),
-        triggers=['mango'],
+        TextReply(
+            triggers=['mango'],
             responses=[
                 '''YUMM! wait ohh you mean the other mango. To our amazing 
                 australia golden retriever, and an incredible friend , Mango!''',
             ]),
-        triggers=['dusty'],
+        TextReply(
+            triggers=['dusty'],
             responses=[
                 '''HOWDY PPARTNER, NEEDS SOME MOOD LIFTING? TO OUR AMAZINGLY 
                 CUTE LOVING HYPER FRIENDLY SOFT-HEARTED ARCANINE, GG!''',
             ]),
-        triggers=['daddy UwU'],
+        TextReply(
+            triggers=['daddy UwU'],
             responses=[
                 '''Amazing artist, friend, even if he is on the other side 
                 of the planet, he is still so amazing. To our amazing fluffy Ronzuko!''',
             ]),
-        triggers=['bear'],
+        TextReply(
+            triggers=['bear'],
             responses=[
                 """I'm sorry what? I thought thet maximun is 4? Wha- To our
                 extremely smart and talented, amazing friend, Koda!""",
             ]),
-        triggers=['cat'],
+        TextReply(
+            triggers=['cat'],
             responses=[
                 '''He is a cat? He is a husky? What is he? If he is a cat when
                 why his pfp is a husky? If he is a husky then why is his name 
                 cat? `ERROR LOGICAL MEMORY INSUFFICIENT`. To our amazingly computer
                 techi, Neko!''',
             ]),
-        triggers=['bunny'],
+        TextReply(
+            triggers=['bunny'],
             responses=[
                 '''Soft, gentle and must handle with care. Deserve all the loves and 
                 friends. To our amazing bunny JML!''',
             ]),
-        triggers=['roden'],
+        TextReply(
+            triggers=['roden'],
             responses=[
                 """*smoll squeak noise* Oh hello there! Didn't notice you before!
                 hullo smoll friend! To our amazing quiet and friendly bean, Rodney!""",
             ]),
-        triggers=['dingo'],
+        TextReply(
+            triggers=['dingo'],
             responses=[
                 '''OUR LORD AND SAVIOR. THE ONE. WHO IS INCREDIBLY FRIENDLY, WELCOMEING,
                 ENERGETIC, ||AND DARE I SAY CUTE|| DINGO, WHISKEY DINGO! THANK YOU FOR
                 CREATING SUCH PLACE FULL OF LOVE AND CARE AND FILLED WITH AMAZING PEOPLE.''',
             ]),
-        triggers=['white dude'],
+        TextReply(
+            triggers=['white dude'],
             responses=[
                 """*Bottom noise* Oh. Aren't you suppose to be somewhere else? Sh- To our
                 amazing, generous and exists in every stream possible. Our black wolf, Bairen!""",
             ]),
-        triggers=['lllllll'],
+        TextReply(
+            triggers=['lllllll'],
             responses=[
                 '''"lllllllllllleeeeeeeeeeeeepppppppppppppp" AAAAAAAAAAAAAAAAAAAAAAAAAAA.
                 To our chaotic, yet generous fox also full of love and care, Tomi!''',
             ]),
-        triggers=['critically acclaimed'],
+        TextReply(
+            triggers=['critically acclaimed'],
             responses=[
                 """Did you know that the critically acclaimed MMORPG Final Fantasy XIV
                 has a free trial, and includes the entirety of A Realm Reborn AND the
                 award-winning Heavensward expansion up to level 60 with no restrictions
                 on playtime? Sign up, and enjoy Eorzea today! To our amazing mod, Cyrcle!""",
             ]),
-        triggers=['drag'],
+        TextReply(
+            triggers=['drag'],
             responses=[
                 'Deep voiced and yet friendly beeg dragon! Our amazing friend derg!',
             ]),
-        triggers=['shepi'],
+        TextReply(
+            triggers=['shepi'],
             responses=[
                 '''Hey where is that arc-? Oh you have him? nvm, yea there he is, right
                 down there. To our lewd, cheeky and yet loving and care. Our amazing friend, Shep!''',
             ]),
-        triggers=['furret'],
+        TextReply(
+            triggers=['furret'],
             responses=[
                 'YOU MAD FERRET! WDAISDNWIAD. To our amazing, extremely generous ferret, Seth!',
             ]),
-        triggers=['trash panda'],
+        TextReply(
+            triggers=['trash panda'],
             responses=[
                 """Hey You aren't suppose to be in that trash can! Oh, awww look how cute you look...
                 Okie.. Maybe you can stay a bit longer in there.. To our amazing friend, Ramon!""",
             ]),
-        triggers=['stirr'],
+        TextReply(
+            triggers=['stirr'],
             responses=[
                 '''AHHHHHHHH, You huged dogueritos to death yet again!!! NOOOOOOOO! To our amazingly
                 wolf who loves tackle hugs everyone, Stirring!''',
             ]),
-        triggers=['nurse UwU'],
+        TextReply(
+            triggers=['nurse UwU'],
             responses=[
                 'UWU I HAVE A ITCH, nurse UWU. To our amazing friend who is being amazing, Sellsy!',
             ]),
-        triggers=['steel'],
+        TextReply(
+            triggers=['steel'],
             responses=[
                 'A gentle fox who is very gentle! Quiet but yet lovingly, our amazing friend, Steel!',
             ]),
