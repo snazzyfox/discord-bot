@@ -43,12 +43,12 @@ class TextConfig(CogConfig):
                 'Have you tried the 8Ball?',
             ]),
         TextReply(
-            triggers=['hi', 'hello', 'hewwo','hey'],
+            triggers=['hi', 'hello', 'hewwo','hey'], 
             responses=['Hello!', 'Howdy!', 'Salutations and hello there!'],
             ),
         #: Piror of "love" check, making sure user intention is good
         TextReply(
-            triggers=['i loves', ' i love', 'i likes', 'i like'], 
+            triggers=['i loves', ' i love', 'i likes', 'i like'],
             responses=[
                 'Aww',
                 'I appreciate it',
@@ -73,9 +73,9 @@ class TextConfig(CogConfig):
                 'Absolutely.',
                 'yes.',
             ]),
-            #: Prior to "friend" to make sure friend is not checked first and it's good intention
+        #: Prior to "friend" to make sure friend is not checked first and it's good intention
         TextReply(
-            triggers=['my friend'], 
+            triggers=['my friend'],
             responses=[
                 'Yes.',
                 'Only if you think me as one <3.',
@@ -84,15 +84,15 @@ class TextConfig(CogConfig):
             ]),
         #: After "my friend" check instance, for example as "you have no friend etc" for bad intention
         TextReply(
-            triggers=['friend'], 
+            triggers=['friend'],
             responses=[
                 'You should ask yourself that question.',
                 'Yes... I will add you on **THE LIST**',
                 'I have many connections, there are ways to make you regret',
             ]),
-            #: Prior to funny
+        #: Prior to funny
         TextReply(
-            triggers=["isn't funny", "aren't funny", 'not funny'], 
+            triggers=["isn't funny", "aren't funny", 'not funny'],
             responses=[
                 "It's funny... Not the way you thought of it.",
                 'Human logic confuses me.',
@@ -101,7 +101,7 @@ class TextConfig(CogConfig):
             ]),
         #: After not funny
         TextReply(
-            triggers=['funny'], 
+            triggers=['funny'],
             responses=[
                 'Thanks',
                 'At least someone appreciate my sense of humor.',
@@ -146,6 +146,7 @@ class TextConfig(CogConfig):
                 'Internet animals?'
                 "I needs to research them more... Will you volutneer?",
                 'You mean you?',
+            ]),
         TextReply(
             triggers=['sus', 'sussy'],
             responses=[
@@ -248,7 +249,8 @@ class TextConfig(CogConfig):
                 "Maybe it's best that you ask someone else.",
                 'Maybe you should ask 8ball.',
             ]),
-        #: Secret list. To all our amazing friends (this is purly bias, please don't think dingomata doesn't like you, if you are watching this owo)
+        #: Secret list. To all our amazing friends (this is purly bias,
+        #:please don't think dingomata doesn't like you, if you are watching this owo)
         #: There are many friends I don't know that well. I'm sorry if I cannot describe them better! ;w;
         TextReply(
             triggers=['banana'],
