@@ -1,12 +1,13 @@
 from typing import Set, List
 from pydantic import BaseModel # type: ignore
 from dingomata.config import CogConfig
+import yaml
 
-import yaml 
 
 no_pings: Set[int] = set()
 file_friend = open("Friends.yaml", 'r')
 list_friend = yaml.load(file_friend)
+
 
 class TextReply(BaseModel):
     triggers: List[str]
@@ -45,9 +46,9 @@ class TextConfig(CogConfig):
                 'Have you tried the 8Ball?',
             ]),
         TextReply(
-            triggers=['hi', 'hello', 'hewwo','hey'], 
+            triggers=['hi', 'hello', 'hewwo','hey'],
             responses=['Hello!', 'Howdy!', 'Salutations and hello there!'],
-            ), 
+            ),
         #: Piror of "love" check, making sure user intention is good
         TextReply(
             triggers=['i loves', ' i love', 'i likes', 'i like'],
@@ -145,7 +146,7 @@ class TextConfig(CogConfig):
             triggers=['furry', 'furries'],
             responses=[
                 'Oh, I think I have few down in the basement.',
-                'Internet animals?'
+                'Internet animals?',
                 "I needs to research them more... Will you volutneer?",
                 'You mean you?',
             ]),
@@ -184,7 +185,7 @@ class TextConfig(CogConfig):
                 "I'm just a bot, I can't be cute!",
                 "Ah, that alcoholic drink I gave you is finally working.",
                 "Two words: Plastic Surgery!",
-                "I'm not cute! I'm handsome UwU."
+                "I'm not cute! I'm handsome UwU.",
             ]),
         TextReply(
             triggers=['your mom', 'ur mom'],
@@ -226,7 +227,6 @@ class TextConfig(CogConfig):
             responses=[
                 'I will be your friend!',
                 'Appreciate the people you already have...',
-                ''
             ]),
         TextReply(
             triggers=['alone', 'lonely'],
@@ -240,7 +240,7 @@ class TextConfig(CogConfig):
             responses=[
                 'AA',
                 'AAA',
-                'AAAA', 
+                'AAAA',
                 'a mong-',
             ]),
         TextReply(
@@ -252,7 +252,7 @@ class TextConfig(CogConfig):
                 'Maybe you should ask 8ball.',
             ]),
         #: Secret list. To all our amazing friends (this is purly bias,
-        #:please don't think dingomata doesn't like you, if you are watching this owo)
+        #: please don't think dingomata doesn't like you, if you are watching this owo)
         #: There are many friends I don't know that well. I'm sorry if I cannot describe them better! ;w;
         TextReply(
             triggers=['banana'],
