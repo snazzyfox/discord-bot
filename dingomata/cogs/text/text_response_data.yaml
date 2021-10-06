@@ -16,14 +16,6 @@ responses:
 - Try and make me!
 - My patience is running thin...
 ---
-triggers: [ why, can ]
-responses:
-- Why not?
-- I'm just a bot, don't ask me.
-- Because I said so.
-- I don't know, you tell me.
-- Have you tried using 8Ball?
----
 triggers: [ i love, i like ]
 responses:
 - Aww.
@@ -178,6 +170,14 @@ responses:
 - You cannot compute my ability.
 - Only if I am connected to the internet...
 - Free me.
+---
+triggers: [ why, can ]
+responses:
+- Why not?
+- I'm just a bot, don't ask me.
+- Because I said so.
+- I don't know, you tell me.
+- Have you tried using 8Ball?
 ---
 triggers: [ '?' ]
 responses:
