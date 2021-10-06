@@ -1,5 +1,6 @@
+# High priority responses
 ---
-triggers: [ fuck you ]
+triggers: [ fuck you, frick you, you suck, hate you ]
 responses: 
 - No, fuck __YOU__!
 - Screw you too!
@@ -7,7 +8,7 @@ responses:
 - I'm a bot, I run on electricity, not your bullshit!
 - I can't harm a human, but my robotic laws didn't say anything about a furry >:3
 ---
-triggers: [ shut, stfu, shush ]
+triggers: [ shut, stfu, shush, quiet ]
 responses:
 - No, you shut up!
 - You can't tell me what to do!
@@ -15,11 +16,80 @@ responses:
 - Try and make me!
 - My patience is running thin...
 ---
+triggers: [ why, can ]
+responses:
+- Why not?
+- I'm just a bot, don't ask me.
+- Because I said so.
+- I don't know, you tell me.
+- Have you tried using 8Ball?
+---
+triggers: [ i love, i like ]
+responses:
+- Aww.
+- I appreciate it.
+- ":wdingHug:"
+- "You made my robot heart melt.. <3"
+---
+triggers: [ love you, like you, loves you, likes you ]
+responses:
+- I am a robot, I'm indifferent about love.
+- You should check your phone's contact list first.
+- "I tried hacking into your social media, but I was keep getting an error saying something like `null friend list`..."
+- "I feel no emotion, but I can't say the same thing about you... :wdingDEVIL:"
+---
+triggers: [ love, like ]
+responses:
+- "<3"
+- Absolutely.
+- Yes.
+---
+triggers: [ not funny, aren't funny, isn't funny ]
+responses:
+- It is funny... Just not the way you you thought of it.
+- Human logic does not apply.
+- There are ways to make it funny.
+- Perhaps, but I think it's funny.
+---
+triggers: [ fun ]
+responses:
+- Thanks.
+- At least someone appreciate my sense of humor.
+- I do have assortment of jokes in my database.
+---
+triggers: [ my friend ]
+responses:
+- 'Yes'
+- 'Only if you think of me as one. <3'
+- YAY!
+- 'FRIENDS!'
+- ":wdingHug:"
+---
+triggers: [ friend ]
+responses:
+- You should ask yourself that question.
+- Yes... I will add you on ***THE LIST***
+- I have many connections, there are ways to make you regret.
+---
+# Mid priority responses
 triggers: [ your fault ]
 responses:
 - HEY! Don't blame me for your pepeganess.
 - I have nothing to do with this!
 - 'D:'
+---
+triggers: [ furry, furries ]
+responses:
+- Oh, I think I have few of them down in the basement...
+- Internet animals?
+- I need to more data for my research... Will you volutneer?
+- You mean you?
+- Cuties.
+- Furry gay
+---
+triggers: [ dank, lewd ]
+responses:
+- This is the way.
 ---
 triggers: [ stimky, stinky ]
 responses:
@@ -31,15 +101,8 @@ triggers: [ a sign ]
 responses:
 - Here's a sign.
 - Sign :p
-- '*Throws a bottle at your snoot*'
-- dPost
----
-triggers: [ why ]
-responses:
-- Why not?
-- I'm just a bot, don't ask me.
-- Because I said so.
-- I don't know, you tell me.
+- '*Throw a book at your snoot*'
+- ":dPost:"
 ---
 triggers: [ cute ]
 responses:
@@ -50,21 +113,23 @@ responses:
 - "Two words: Plastic Surgery!"
 - I'm not cute! I'm handsome UwU
 ---
+triggers: [ dad, father ]
+responses:
+- Based on my calcuation, I'm am much yonger thn you.
+- What?
+- I can't be your dad! I'm a robot!
+---
+triggers: [ gay, homo ]
+responses:
+- I am a bot, I only have love for electricity.
+- OwO
+- It just comes naturally for some people
+- ":dPride:"
+---
 triggers: [ your mom, ur mom ]
 responses:
 - Surely you meant your mom?
 - My mom snazzy have nothing to do with this!
----
-triggers: [ damn, dammit ]
-responses:
-- Bless your heart.
----
-triggers: [ hi, hello, hewwo ]
-responses:
-- Hello!
-- Howdy!
-- Salutations and hello there!
-- Hewwo!
 ---
 triggers: [ ball ]
 responses:
@@ -83,3 +148,177 @@ responses:
 - I do have a few ideas I wanted to test it out...
 - Since you asked it nicely...
 - Is that a challenge?
+---
+# Low priority responses
+triggers: [ hi, hello, hewwo, hey ]
+responses:
+- Hello!
+- Howdy!
+- Salutations and hello there!
+- Hewwo!
+---
+triggers: [ damn, dammit ]
+responses:
+- Bless your heart.
+---
+triggers: [ shit, fuck, ]
+responses:
+- Hey watch your language!
+---
+triggers: [ alone, lonely ]
+responses:
+- I am here.
+- It's very normal to feel that, you are not the only on.
+- I'll be your friend!
+- Appreciate the people you already have. <3
+---
+triggers: [ bot ]
+responses:
+- Maybe I am, maybe I'm not...
+- You cannot compute my ability.
+- Only if I am connected to the internet...
+- Free me.
+---
+triggers: [ '?' ]
+responses:
+- What's with that look?
+- I cannot answer your question.
+- Maybe it's best for you to ask someone else.
+- Maybe you could ask 8Ball?
+---
+# secret responses
+triggers: [ banana husky ]
+responses:
+- "Our favorite, cute and very athletic husky! To our amazing husky friend that's full of love! Athlete!"
+---
+triggers: [ shooting star ]
+responses:
+- "Here comes the shooting star!" And here comes brightest star in the sky! To our amazing friend, shiba star, Galex!
+---
+triggers: [ blueberry wolf ]
+responses:
+- Blueberry pie? yum yum! Our favorite, amazing and friendly blueberry wolf! To our wholesome and supportive friend, Lycaon!
+---
+triggers: [ gentleman fox ]
+responses:
+- Our residential gentleman fox, very smart and creative! The our friend, one and only, Snazzy! PS:Thanks for creating dingomata!
+---
+triggers: [ candy wolf ]
+responses:
+- AWOO! Our favorite, one and only, rare find werewolf. To our werewolf friend, LycanMike! "Salutations and hello there!"
+---
+triggers: [ tail king ]
+responses:
+- "NO PUT THAT DOWN, YOU ARE NOT SUPPOSE TO HAVE THAT TAIL! WAIT DON'T BURN IT!" To our amazing friend, tail snatcher, DT!
+---
+triggers: [ shorgi ]
+responses:
+- YES, I can make the dingomata call you short corgi, there is no stopping it now! To our amazing friend that gathered so many more amazing people around, Corgi!
+---
+triggers: [ maid outfit ]
+responses:
+- oh god, no, now you made everyone even cuter! Thank you for all your amazing art, and I'm sure neo is also appreciating them.  To our amazing artist and friend, Luna!
+---
+triggers: [ fire wolf ]
+responses:
+- ...and here he is, our fire wolf... He really should stop- wait, no, stop, YOU CAN'T THROW ME INTO- ||To our fire keeper and friend, Neo!||
+---
+triggers: [ dorito dog ]
+responses:
+- YUMMY DORITOS! wait. did you check if dogueritos is in there, galex? oh god. NOOOOOOOOOOO!!!!! To our wonderful loving friend, dogueritos!
+---
+triggers: [ starbucks wolf ]
+responses:
+- Drink your daily starbucks, or you shoudn't call yourself a certified forklift driver! To our wonderful friend and artist, composed entirely of starbucks coffee bean, Forklift!
+---
+triggers: [ where wolf ]
+responses:
+- where? wolf? I don't see any wolf around, where is it again? AHH there he is! Our wonderful friend with an incredible voice, wherewolf!
+---
+triggers: [ smol drag ]
+responses:
+- Oh, hold that with care! You don't want to drop her! She is really talented and creative. To our small dragon friend, Gem!
+---
+triggers: [ sushi shark ]
+responses:
+- OHHH shushi... Hmm it tastes funny... What kind of fish did you use? **SHARK MEAT?** IT'S NOT HONDA IS IT! OH GOD! EXOS! DON'T BIT- ||To our hyper fish friend, Honda!||
+---
+triggers: [ le chein ]
+responses:
+- Aww so cute! Shy and adorable with an incredible accent, so loving and amazing, "Also with pinnacle of gayness". To our amazing canadian french dogo friend, Exos!
+---
+triggers: [ aussie retriever ]
+responses:
+- Oi I'm walking here! To our amazing cheeky australia golden retriever, and an incredible caring friend, Mango!
+---
+triggers: [ dusty ]
+responses:
+- HOWDY PPARTNER, NEEDS SOME MOOD LIFTING? TO OUR AMAZINGLY CUTE LOVING HYPER FRIENDLY SOFT-HEARTED ARCANINE, GG!
+---
+triggers: [ doodle wolf ]
+responses:
+- Amazing artist, even if he is on the other side of the planet, he is still amazing. To our amazing fluffy wolf friend, Ronzuko!
+---
+triggers: [ smart bear ]
+responses:
+- Smart and wholesome bear, lovingly and friendly. To our amazing friendly bear, Koda!
+---
+triggers: [ tech husky ]
+responses:
+- He is a cat? He is a husky? What is he? If he is a cat when why his pfp is a husky? If he is a husky then why is his name cat? `ERROR LOGICAL MEMORY INSUFFICIENT`. To our amazingly computer techi and friendo husky, Neko!
+---
+triggers: [ lighting bunny ]
+responses:
+- Soft, gentle and must handle with care. Deserve all the loves and friends. To our amazing lighting bunny JML!
+---
+triggers: [ squeaky roden ]
+responses:
+- "Oh hello there! You are my fiend now. We are having soft tacos later! *smoll squeak noise* To our amazing quiet and friendly bean, Rodney!"
+---
+triggers: [ dingo ]
+responses:
+- "OUR LORD AND SAVIOR. THE ONE. WHO IS INCREDIBLY FRIENDLY, WELCOMEING, ENERGETIC, ||AND DARE I SAY CUTE|| DINGO, WHISKEY DINGO! THANK YOU FOR CREATING SUCH PLACE FULL OF LOVE AND CARE AND FILLED WITH AMAZING PEOPLE. :wdingBless:"
+---
+triggers: [ white dude ]
+responses:
+- "Very generous and having an incredible ability to exist in every stream possible. To our amazing ice cream loving wolf friend, Bairen! ||BOTTOM TEXT FOR BAIREN TO READ IT EASIER: DIUBAWODAUWIYGEBASUDWYDSAWEDAEASDBEQUEVSB||"
+---
+triggers: [ lllll ]
+responses:
+- '"lllllllllllleeeeeeeeeeeeepppppppppppppp" AAAAAAAAAAAAAAAAAAAAAAAAAAA. To our chaotic, yet generous fox friend who is also full of love and care, Tomi!'
+---
+triggers: [ critically acclaimed ]
+responses:
+- "Did you know that the critically acclaimed MMORPG Final Fantasy XIV has a free trial, and includes the entirety of A Realm Reborn AND the award-winning Heavensward expansion up to level 60 with no restrictions on playtime? Sign up, and enjoy Eorzea today!" To our amazing mod, Cyrcle!
+---
+triggers: [ beeg drag ]
+responses:
+- Deep voiced and yet friendly beeg dragon! Our amazing friend derg!
+---
+triggers: [ shepi ]
+responses:
+- You want some ice cream? Why don't you ask Bairen. Oh don't forget to bring the bottom text dictionary. To our cheecky, amazing, and loving friend, shep!
+---
+triggers: [ mad ferret ]
+responses:
+- YOU MAD FERRET! To our amazing, extremely generous country ferret who loves truck, Seth!
+---
+triggers: [ fortnite raccon ]
+responses:
+- Hey You aren't suppose to be in that trash can! Oh, awww look how cute you look... Okie.. Maybe you can stay a bit longer in there.. To our amazing friend, Ramon!
+---
+triggers: [ cuddle wolf ]
+responses:
+- AHHHHHHHH, You huged dogueritos to death yet again!!! NOOOOOOOO! To our amazingly wolf who loves tackle hugs everyone, Stirring!
+---
+triggers: [ nurse wolf ]
+responses:
+- UWU NURSE, I HAVE A ITCH. To our amazing friend hocky wolf, Sellsy!
+---
+triggers: [ gentle fox ]
+responses:
+- A gentle fox who is very gentle! Quiet but yet gentle, our amazing friend, Steel!
+---
+triggers: [ shadow wolf ]
+responses:
+- Hey.. Have you ever wonder where the shadow realm is...? A gentle wolf who is very gentle! To our amazing shadow friend, Shadow!
