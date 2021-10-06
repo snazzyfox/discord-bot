@@ -532,7 +532,8 @@ class GambaCog(Cog, name='GAMBA'):
                     _log.debug(f"{user_id} is a new user, creating with zero balance.")
                     user = GambaUser(guild_id=guild_id, user_id=user_id, balance=0)
                 if user.balance + amount < 0:
-                    raise InsufficientBalanceError(user.balance)
+                    raise InsufficientBalanceError(f'You do not have enough points to do this. '
+                                                   f'You currently have {user.balance}.')
                 user.balance += amount
                 _log.debug(f"Changed point balance for {user_id} to {user.balance}")
                 await session.merge(user)

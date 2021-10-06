@@ -397,16 +397,14 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        if (not message.guild
-                or message.guild.id not in service_config.get_command_guilds('replies')
-                or self._bot.user not in message.mentions
-                or message.author == self._bot.user):
-            return
         text = message.content.lower()
-        for keyword, reply in service_config.servers[message.guild.id].text.replies.items():
-            if keyword in text:
-                await message.reply(reply)
-                return
+        if (message.guild and message.guild.id in service_config.get_command_guilds('replies')
+                and (self._bot.user in message.mentions or self._bot.user.display_name.lower() in text)
+                and message.author != self._bot.user):
+            for reply in service_config.servers[message.guild.id].text.replies:
+                if any(trigger in text for trigger in reply.triggers):
+                    await message.reply(choice(reply.responses))
+                    break  # Stop after first match
 
     @staticmethod
     def _mention(ctx: SlashContext, user: User) -> str:
