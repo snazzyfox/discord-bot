@@ -67,7 +67,7 @@ responses:
 - Hewwo!
 ---
 triggers: [ ball ]
-responses: [
+responses:
 - I clean those up everyday
 - Don't throw that!
 - Hey! Bad!
