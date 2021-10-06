@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from random import betavariate, random, choice, randint
 
@@ -29,11 +30,13 @@ class TextCommandsCog(Cog, name='Text Commands'):
         self._bot = bot
         self._engine = engine
         self._session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+        self._BOT_NAME_REGEX: re.Pattern = None
 
     @Cog.listener()
     async def on_ready(self):
         async with self._engine.begin() as conn:
             await conn.run_sync(TextModel.metadata.create_all)
+            self._BOT_NAME_REGEX = re.compile(f'\b{self._bot.user.display_name}\b', re.IGNORECASE)
 
     @slash(name='tuch', description='Tuch some butts. You assume all risks.',
            guild_ids=service_config.get_command_guilds('tuch'))
@@ -397,12 +400,11 @@ class TextCommandsCog(Cog, name='Text Commands'):
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        text = message.content.lower()
         if (message.guild and message.guild.id in service_config.get_command_guilds('replies')
-                and (self._bot.user in message.mentions or self._bot.user.display_name.lower() in text)
+                and (self._bot.user in message.mentions or self._BOT_NAME_REGEX.search(message.content))
                 and message.author != self._bot.user):
             for reply in service_config.servers[message.guild.id].text.replies:
-                if any(trigger in text for trigger in reply.triggers):
+                if reply.regex.search(message.content):
                     await message.reply(choice(reply.responses))
                     break  # Stop after first match
 
