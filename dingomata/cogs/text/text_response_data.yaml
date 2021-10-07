@@ -7,7 +7,7 @@ responses:
 - I'll remember this...
 - I'm a bot, I run on electricity, not your bullshit!
 - I can't harm a human, but my robotic laws didn't say anything about a furry >:3
-- "Hey! Be nice to me, I'm just a bot \:DingSad:..."
+- "Hey! Be nice to me, I'm just a bot <:DingSad:501529405802151956>..."
 ---
 triggers: [ shut, stfu, shush, quiet ]
 responses:
@@ -15,15 +15,15 @@ responses:
 - You can't tell me what to do!
 - Not if you make me!
 - Try and make me!
-- "\:DingSad:" 
-- "\:DingRage:"
+- '<:DingSad:501529405802151956>'
+- '<:DingRage:501529498399801344>'
 ---
 triggers: [ i love, i like ]
 responses:
 - Aww.
 - I appreciate it.
-- ":wdingHug:"
 - "You made my robot heart melt.. <3"
+- "<:DingHappy:501529444910104588>"
 ---
 triggers: [ love you, like you, loves you, likes you ]
 responses:
@@ -55,14 +55,14 @@ responses:
 - 'Only if you think of me as one. <3'
 - YAY!
 - 'FRIENDS!'
-- "\:DingHappy:"
+- "<:DingHappy:501529444910104588>"
 ---
 triggers: [ not my friend, not a friend, any friend ]
 responses:
 - Bots have no emotions. But that hurts deeply.
 - Bots have rights too!
 - I have many more suportive friends than you think. <3
-- "Friends before foes. \:DingCool:"
+- "Friends before foes. <:DingCool:501529349799936000>"
 ---
 triggers: [ friend ]
 responses:
@@ -100,7 +100,7 @@ responses:
 - Here's a sign.
 - Sign :p
 - '*Throw a book at your snoot*'
-- '\:dPost:'
+- '<:dPost:802051389534371840>'
 ---
 triggers: [ cute ]
 responses:
@@ -122,7 +122,7 @@ responses:
 - I am a bot, I only have love for electricity.
 - OwO
 - It just comes naturally for some people
-- "\:prideComf:"
+- "<:prideComf:850278253020708864>"
 ---
 triggers: [ your mom, ur mom ]
 responses:
