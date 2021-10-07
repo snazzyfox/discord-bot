@@ -7,6 +7,7 @@ responses:
 - I'll remember this...
 - I'm a bot, I run on electricity, not your bullshit!
 - I can't harm a human, but my robotic laws didn't say anything about a furry >:3
+- "Hey! Be nice to me, I'm just a bot \:DingSad:..."
 ---
 triggers: [ shut, stfu, shush, quiet ]
 responses:
@@ -14,7 +15,8 @@ responses:
 - You can't tell me what to do!
 - Not if you make me!
 - Try and make me!
-- My patience is running thin...
+- "\:DingSad:" 
+- "\:DingRage:"
 ---
 triggers: [ i love, i like ]
 responses:
@@ -26,9 +28,7 @@ responses:
 triggers: [ love you, like you, loves you, likes you ]
 responses:
 - I am a robot, I'm indifferent about love.
-- You should check your phone's contact list first.
-- "I tried hacking into your social media, but I was keep getting an error saying something like `null friend list`..."
-- "I feel no emotion, but I can't say the same thing about you... :wdingDEVIL:"
+- I feel no emotion. Your words means nothing to me.
 ---
 triggers: [ love, like ]
 responses:
@@ -55,13 +55,19 @@ responses:
 - 'Only if you think of me as one. <3'
 - YAY!
 - 'FRIENDS!'
-- ":wdingHug:"
+- "\:DingHappy:"
+---
+triggers: [ not my friend, not a friend, any friend ]
+responses:
+- Bots have no emotions. But that hurts deeply.
+- Bots have rights too!
+- I have many more suportive friends than you think. <3
+- "Friends before foes. \:DingCool:"
 ---
 triggers: [ friend ]
 responses:
-- You should ask yourself that question.
-- Yes... I will add you on ***THE LIST***
-- I have many connections, there are ways to make you regret.
+- Friends are important!
+- You are my friends now! We are haveing soft tacos later!
 ---
 # Mid priority responses
 triggers: [ your fault ]
@@ -94,7 +100,7 @@ responses:
 - Here's a sign.
 - Sign :p
 - '*Throw a book at your snoot*'
-- ":dPost:"
+- '\:dPost:'
 ---
 triggers: [ cute ]
 responses:
@@ -116,7 +122,7 @@ responses:
 - I am a bot, I only have love for electricity.
 - OwO
 - It just comes naturally for some people
-- ":dPride:"
+- "\:prideComf:"
 ---
 triggers: [ your mom, ur mom ]
 responses:
@@ -153,16 +159,17 @@ triggers: [ damn, dammit ]
 responses:
 - Bless your heart.
 ---
-triggers: [ shit, fuck, ]
+triggers: [ shit, fuck ]
 responses:
 - Hey watch your language!
+- I'll get the soap
 ---
 triggers: [ alone, lonely ]
 responses:
 - I am here.
 - It's very normal to feel that, you are not the only on.
 - I'll be your friend!
-- Appreciate the people you already have. <3
+- 'Appreciate the people you already have. <3'
 ---
 triggers: [ bot ]
 responses:
@@ -193,7 +200,7 @@ responses:
 ---
 triggers: [ shooting star ]
 responses:
-- "Here comes the shooting star!" And here comes brightest star in the sky! To our amazing friend, shiba star, Galex!
+- "\"Here comes the shooting star!\" And here comes brightest star in the sky! To our amazing friend, shiba star, Galex!"
 ---
 triggers: [ blueberry wolf ]
 responses:
@@ -205,11 +212,11 @@ responses:
 ---
 triggers: [ candy wolf ]
 responses:
-- AWOO! Our favorite, one and only, rare find werewolf. To our werewolf friend, LycanMike! "Salutations and hello there!"
+- "AWOOO! Our favorite, one and only, rare find werewolf. To our werewolf friend, LycanMike! \"Salutations and hello there!\" ||OH WOOF! GOSH DARNIT ALL THE HECK.||"
 ---
 triggers: [ tail king ]
 responses:
-- "NO PUT THAT DOWN, YOU ARE NOT SUPPOSE TO HAVE THAT TAIL! WAIT DON'T BURN IT!" To our amazing friend, tail snatcher, DT!
+- "\"NO PUT THAT DOWN, YOU ARE NOT SUPPOSE TO HAVE THAT TAIL! WAIT DON'T BURN IT!\" To our amazing friend, tail snatcher, DT!"
 ---
 triggers: [ shorgi ]
 responses:
@@ -245,7 +252,7 @@ responses:
 ---
 triggers: [ le chein ]
 responses:
-- Aww so cute! Shy and adorable with an incredible accent, so loving and amazing, "Also with pinnacle of gayness". To our amazing canadian french dogo friend, Exos!
+- "Aww so cute! Shy and adorable with an incredible accent, so loving and amazing, ||Also with pinnacle of gayness||. To our amazing canadian french dogo friend, Exos!"
 ---
 triggers: [ aussie retriever ]
 responses:
@@ -285,11 +292,11 @@ responses:
 ---
 triggers: [ lllll ]
 responses:
-- '"lllllllllllleeeeeeeeeeeeepppppppppppppp" AAAAAAAAAAAAAAAAAAAAAAAAAAA. To our chaotic, yet generous fox friend who is also full of love and care, Tomi!'
+- "\"lllllllllllleeeeeeeeeeeeepppppppppppppp\" AAAAAAAAAAAAAAAAAAAAAAAAAAA. To our chaotic, yet generous fox friend who is also full of love and care, Tomi!"
 ---
 triggers: [ critically acclaimed ]
 responses:
-- "Did you know that the critically acclaimed MMORPG Final Fantasy XIV has a free trial, and includes the entirety of A Realm Reborn AND the award-winning Heavensward expansion up to level 60 with no restrictions on playtime? Sign up, and enjoy Eorzea today!" To our amazing mod, Cyrcle!
+- "\"Did you know that the critically acclaimed MMORPG Final Fantasy XIV has a free trial, and includes the entirety of A Realm Reborn AND the award-winning Heavensward expansion up to level 60 with no restrictions on playtime? Sign up, and enjoy Eorzea today!\" To our amazing mod, Cyrcle!"
 ---
 triggers: [ beeg drag ]
 responses:
