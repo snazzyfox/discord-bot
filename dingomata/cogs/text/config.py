@@ -5,7 +5,6 @@ from typing import Set, List
 import yaml
 import re
 from pydantic import BaseModel
-
 from dingomata.config import CogConfig
 
 
