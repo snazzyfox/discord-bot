@@ -131,9 +131,10 @@ responses:
 ---
 triggers: [ ball ]
 responses:
-- I clean those up everyday
+- I pick those up everyday
 - Don't throw that!
 - Hey! Bad!
+- "<:Dingball:825302825047293953>"
 ---
 triggers: [ bad ]
 responses:
@@ -159,10 +160,11 @@ triggers: [ damn, dammit ]
 responses:
 - Bless your heart.
 ---
-triggers: [ shit, fuck ]
+triggers: [ shit, pop, darnit, heck ]
 responses:
 - Hey watch your language!
 - I'll get the soap
+- "<:wdingSoap:795890114819260467>"
 ---
 triggers: [ alone, lonely ]
 responses:
@@ -256,7 +258,7 @@ responses:
 ---
 triggers: [ aussie retriever ]
 responses:
-- Oi I'm walking here! To our amazing cheeky australia golden retriever, and an incredible caring friend, Mango!
+- Oi, I'm walking here! To our amazing cheeky australia golden retriever, and an incredible caring friend, Mango!
 ---
 triggers: [ dusty ]
 responses:
