@@ -188,7 +188,7 @@ responses:
 - I don't know, you tell me.
 - Have you tried using 8Ball?
 ---
-triggers: [ '?' ]
+triggers: [ '\?' ]
 responses:
 - What's with that look?
 - I cannot answer your question.

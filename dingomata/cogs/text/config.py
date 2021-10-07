@@ -17,7 +17,7 @@ class TextReply(BaseModel):
 
     @cached_property
     def regex(self) -> re.Pattern:
-        return re.compile('|'.join(rf'\b{t}\b' for t in self.triggers), re.IGNORECASE)
+        return re.compile('|'.join(rf'(?:^|\b|\s){t}(?:$|\b|\s)' for t in self.triggers), re.IGNORECASE)
 
 
 class TextConfig(CogConfig):
