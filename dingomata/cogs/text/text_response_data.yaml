@@ -49,6 +49,13 @@ responses:
 - At least someone appreciate my sense of humor.
 - I do have assortment of jokes in my database.
 ---
+triggers: [ not my friend, not a friend, any friend ]
+responses:
+- Bots have no emotions. But that hurts deeply.
+- Bots have rights too!
+- I have many more suportive friends than you think. <3
+- "Friends before foes. <:DingCool:501529349799936000>"
+---
 triggers: [ my friend ]
 responses:
 - 'Yes'
@@ -56,13 +63,6 @@ responses:
 - YAY!
 - 'FRIENDS!'
 - "<:DingHappy:501529444910104588>"
----
-triggers: [ not my friend, not a friend, any friend ]
-responses:
-- Bots have no emotions. But that hurts deeply.
-- Bots have rights too!
-- I have many more suportive friends than you think. <3
-- "Friends before foes. <:DingCool:501529349799936000>"
 ---
 triggers: [ friend ]
 responses:
