@@ -15,8 +15,8 @@ responses:
 - You can't tell me what to do!
 - Not if you make me!
 - Try and make me!
-- '<:DingSad:501529405802151956>'
-- '<:DingRage:501529498399801344>'
+- "<:DingSad:501529405802151956>"
+- "<:DingRage:501529498399801344>"
 ---
 triggers: [ i love, i like ]
 responses:
@@ -49,25 +49,25 @@ responses:
 - At least someone appreciate my sense of humor.
 - I do have assortment of jokes in my database.
 ---
-triggers: [ not my friend, not a friend, any friend ]
-responses:
-- Bots have no emotions. But that hurts deeply.
-- Bots have rights too!
-- I have many more suportive friends than you think. <3
-- "Friends before foes. <:DingCool:501529349799936000>"
----
-triggers: [ my friend ]
+triggers: [ friend?, friends? ]
 responses:
 - 'Yes'
-- 'Only if you think of me as one. <3'
+- You are my friends now! We are haveing soft tacos later!
 - YAY!
 - 'FRIENDS!'
-- "<:DingHappy:501529444910104588>"
+- "YES! <:DingHappy:501529444910104588>"
+---
+triggers: [ not my friend, not a friend, not friend ]
+responses:
+- "I thought we where...<:DingSad:501529405802151956>"
+- Bots have no emotions. But that hurts deeply.
+- Bots have rights too!
+- I have many more suportive friends than you think!
 ---
 triggers: [ friend ]
 responses:
 - Friends are important!
-- You are my friends now! We are haveing soft tacos later!
+- "Friends before foes. <:DingCool:501529349799936000>"
 ---
 # Mid priority responses
 triggers: [ your fault ]
