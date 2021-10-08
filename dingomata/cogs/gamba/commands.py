@@ -6,8 +6,11 @@ from typing import List, Optional
 from discord import User, Embed, Color, Forbidden, Guild
 from discord.ext import tasks
 from discord.ext.commands import Bot, Cog
-from discord_slash import SlashContext
+from discord_slash import SlashContext, ComponentContext, ButtonStyle
+from discord_slash.cog_ext import cog_component
+from discord_slash.context import InteractionContext
 from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_components import create_actionrow, create_button
 from prettytable import PrettyTable
 from sqlalchemy import func, update, delete, and_
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
@@ -45,7 +48,12 @@ class GambaCog(Cog, name='GAMBA'):
     _GUILDS = service_config.get_command_guilds('gamba')
     _BASE_USER_COMMAND = dict(base='gamba', guild_ids=_GUILDS)
     _BASE_MOD_COMMAND = dict(base='gamble', guild_ids=_GUILDS, base_default_permission=False)
-
+    _BELIEVE_BUTTON = 'gamba.believe100'
+    _DOUBT_BUTTON = 'gamba.doubt100'
+    _ACTION_ROW = create_actionrow(
+        create_button(label='Believe with 100', style=ButtonStyle.blue, custom_id=_BELIEVE_BUTTON),
+        create_button(label='Doubt with 100', style=ButtonStyle.red, custom_id=_DOUBT_BUTTON),
+    )
     _CHOICES = [
         create_choice(name='believe', value='a'),
         create_choice(name='doubt', value='b'),
@@ -97,7 +105,7 @@ class GambaCog(Cog, name='GAMBA'):
                 _log.debug(f"New gamba: server {game.guild_id} channel {game.channel_id} open until {end_time}")
                 embed = await self._generate_gamba_embed(game)
                 await ctx.reply('A new gamba has started!')
-                message = await ctx.channel.send(embed=embed)
+                message = await ctx.channel.send(embed=embed, components=[self._ACTION_ROW])
                 game.message_id = message.id
                 session.add(game)
                 await session.commit()
@@ -118,13 +126,16 @@ class GambaCog(Cog, name='GAMBA'):
                     if game.open_until < now:
                         game.is_open = False
                         await session.commit()
+                        components = []
+                    else:
+                        components = [self._ACTION_ROW]
                     embed = await self._generate_gamba_embed(game)
                     channel = self._bot.get_channel(game.channel_id)
                     message = channel.get_partial_message(game.message_id)
                     if channel.last_message_id == game.message_id:
-                        await message.edit(embed=embed)
+                        await message.edit(embed=embed, components=components)
                     else:
-                        new_message = await channel.send(embed=embed)
+                        new_message = await channel.send(embed=embed, components=components)
                         game.message_id = new_message.id
                         await session.merge(game)
                         await message.delete()
@@ -301,7 +312,8 @@ class GambaCog(Cog, name='GAMBA'):
                 }).execution_options(synchronize_session="fetch"))
                 await session.execute(delete(GambaBet).filter(GambaBet.guild_id == ctx.guild.id))
                 await session.delete(game)
-                await self._bot.get_channel(game.channel_id).get_partial_message(game.message_id).edit(embed=embed)
+                await self._bot.get_channel(game.channel_id).get_partial_message(game.message_id).edit(
+                    embed=embed, components=[])
                 await ctx.reply('The current gamba has been cancelled and all points are refunded.', hidden=True)
 
     @subcommand(
@@ -396,7 +408,15 @@ class GambaCog(Cog, name='GAMBA'):
     async def doubt(self, ctx: SlashContext, amount: int):
         await self._make_bet(ctx, 'b', amount)
 
-    async def _make_bet(self, ctx: SlashContext, option: str, amount: int):
+    @cog_component(components=_BELIEVE_BUTTON)
+    async def believe_button(self, ctx: ComponentContext):
+        await self._make_bet(ctx, 'a', 100)
+
+    @cog_component(components=_DOUBT_BUTTON)
+    async def doubt_button(self, ctx: ComponentContext):
+        await self._make_bet(ctx, 'b', 100)
+
+    async def _make_bet(self, ctx: InteractionContext, option: str, amount: int):
         points_name = service_config.servers[ctx.guild.id].gamba.points_name
         if amount < 1:
             raise GambaUserError(f"You need to bet at least 1 {points_name}.")
