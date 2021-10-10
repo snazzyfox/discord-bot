@@ -112,33 +112,36 @@ class GambaCog(Cog, name='GAMBA'):
 
     @tasks.loop(seconds=2)
     async def gamba_message_updater(self):
-        # Find all open gambas
-        now = datetime.utcnow()
-        async with self._session() as session:
-            async with session.begin():
-                stmt = select(GambaGame).filter(
-                    GambaGame.is_open.is_(True),
-                    GambaGame.message_id.isnot(None),
-                    GambaGame.guild_id.in_(self._GUILDS),
-                )
-                games = (await session.execute(stmt)).scalars()
-                for game in games:
-                    if game.open_until < now:
-                        game.is_open = False
-                        await session.commit()
-                        components = []
-                    else:
-                        components = [self._ACTION_ROW]
-                    embed = await self._generate_gamba_embed(game)
-                    channel = self._bot.get_channel(game.channel_id)
-                    message = channel.get_partial_message(game.message_id)
-                    if channel.last_message_id == game.message_id:
-                        await message.edit(embed=embed, components=components)
-                    else:
-                        new_message = await channel.send(embed=embed, components=components)
-                        game.message_id = new_message.id
-                        await session.merge(game)
-                        await message.delete()
+        try:
+            # Find all open gambas
+            now = datetime.utcnow()
+            async with self._session() as session:
+                async with session.begin():
+                    stmt = select(GambaGame).filter(
+                        GambaGame.is_open.is_(True),
+                        GambaGame.message_id.isnot(None),
+                        GambaGame.guild_id.in_(self._GUILDS),
+                    )
+                    games = (await session.execute(stmt)).scalars()
+                    for game in games:
+                        if game.open_until < now:
+                            game.is_open = False
+                            await session.commit()
+                            components = []
+                        else:
+                            components = [self._ACTION_ROW]
+                        embed = await self._generate_gamba_embed(game)
+                        channel = self._bot.get_channel(game.channel_id)
+                        message = channel.get_partial_message(game.message_id)
+                        if channel.last_message_id == game.message_id:
+                            await message.edit(embed=embed, components=components)
+                        else:
+                            new_message = await channel.send(embed=embed, components=components)
+                            game.message_id = new_message.id
+                            await session.merge(game)
+                            await message.delete()
+        except Exception as e:
+            _log.exception(e)
 
     async def _generate_gamba_embed(self, game: GambaGame, status: Optional[GameStatus] = None) -> Embed:
         points_name = service_config.servers[game.guild_id].gamba.points_name
@@ -157,12 +160,12 @@ class GambaCog(Cog, name='GAMBA'):
                 else:
                     amount_a, amount_b = points.amount_a, points.amount_b
                     count_a, count_b = points.count_a, points.count_b
-                    pct_a = round(amount_a / (amount_a + amount_b) * 100, 1)
-                    pct_b = round(100 - pct_a, 1)
+                    pct_a = amount_a / (amount_a + amount_b)
+                    pct_b = 1 - pct_a
                 if pct_a == 0 or pct_b == 0:
                     ratio_a = ratio_b = 1
                 else:
-                    ratio_a, ratio_b = round(100 / pct_a, 2), round(100 / pct_b, 2)
+                    ratio_a, ratio_b = round(1 / pct_a), round(1 / pct_b)
                 if status == GameStatus.CANCELLED:
                     description = 'This gamba has been cancelled.'
                     color = Color.dark_grey()
@@ -180,12 +183,12 @@ class GambaCog(Cog, name='GAMBA'):
                 embed = Embed(title=game.title, description=description, color=color)
                 embed.add_field(
                     name='[Believe] ' + game.option_a,
-                    value=f'**{pct_a}%**\n{amount_a:,} {points_name}\n{count_a:,} members\n1:{ratio_a:.2f}',
+                    value=f'**{pct_a:.1%}**\n{amount_a:,} {points_name}\n{count_a:,} members\n1:{ratio_a:.2f}',
                     inline=True
                 )
                 embed.add_field(
                     name='[Doubt] ' + game.option_b,
-                    value=f'**{pct_b}%**\n{amount_b:,} {points_name}\n{count_b:,} members\n1:{ratio_b:.2f}',
+                    value=f'**{pct_b:.1%}**\n{amount_b:,} {points_name}\n{count_b:,} members\n1:{ratio_b:.2f}',
                     inline=True
                 )
         return embed
