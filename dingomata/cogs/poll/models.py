@@ -18,6 +18,6 @@ class PollEntry(PollModel):
     __tablename__ = "poll_entry"
 
     guild_id = Column(BigInteger, primary_key=True)
-    channel_id = Column(BigInteger, nullable=False)
-    user_id = Column(BigInteger, nullable=False)
+    channel_id = Column(BigInteger, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
     option = Column(Integer, nullable=False)
