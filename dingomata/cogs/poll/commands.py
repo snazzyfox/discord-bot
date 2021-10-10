@@ -78,9 +78,10 @@ class PollCog(Cog, name='POLL'):
                     raise PollUserError(
                         "There's an open poll in this channel. Close it first before creating another one."
                     )
-                poll = Poll(guild_id=ctx.guild.id, channel_id=ctx.channel.id, title=title, options=json.dumps(options))
+                poll = Poll(guild_id=ctx.guild.id, channel_id=ctx.channel.id, title=title, options=json.dumps(options),
+                            is_open=True)
                 _log.debug(f"New poll: server {poll.guild_id} channel {poll.channel_id} ")
-                embed = await self._generate_embed(poll, options, True)
+                embed = await self._generate_embed(poll, options)
                 await ctx.reply('A new poll has started!')
                 message = await ctx.channel.send(
                     embed=embed, components=[create_actionrow(*self._BUTTONS[:len(options)])])
@@ -93,27 +94,32 @@ class PollCog(Cog, name='POLL'):
         try:
             async with self._session() as session:
                 async with session.begin():
-                    stmt = select(Poll).filter(Poll.message_id.isnot(None), Poll.guild_id.in_(self._GUILDS)
-                                               ).with_for_update()
+                    stmt = select(Poll).filter(Poll.message_id.isnot(None), Poll.guild_id.in_(self._GUILDS))
                     polls = (await session.execute(stmt)).scalars()
                     for poll in polls:
                         channel = self._bot.get_channel(poll.channel_id)
                         message = channel.get_partial_message(poll.message_id)
                         options = json.loads(poll.options)
-                        embed = await self._generate_embed(poll, options, True)
-                        if channel.last_message_id == poll.message_id:
-                            await message.edit(
-                                embed=embed, components=[create_actionrow(*self._BUTTONS[:len(options)])])
+                        embed = await self._generate_embed(poll, options)
+                        if poll.is_open:
+                            action_row = [create_actionrow(*self._BUTTONS[:len(options)])]
                         else:
-                            new_message = await channel.send(
-                                embed=embed, components=[create_actionrow(*self._BUTTONS[:len(options)])])
+                            action_row = None
+                            await session.delete(poll)
+                            await session.execute(delete(PollEntry).filter(
+                                PollEntry.guild_id == poll.guild_id, PollEntry.channel_id == poll.channel_id))
+                        if channel.last_message_id == poll.message_id:
+                            await message.edit(embed=embed, components=action_row)
+                        else:
+                            new_message = await channel.send(embed=embed, components=action_row)
                             poll.message_id = new_message.id
-                            await session.merge(poll)
                             await message.delete()
+                        if poll.is_open:
+                            await session.update(poll)
         except Exception as e:
             _log.exception(e)
 
-    async def _generate_embed(self, poll: Poll, options: List[str], is_open: bool) -> Embed:
+    async def _generate_embed(self, poll: Poll, options: List[str]) -> Embed:
         async with self._session() as session:
             async with session.begin():
                 # Get the poll results
@@ -124,12 +130,12 @@ class PollCog(Cog, name='POLL'):
                 total_votes = sum(counts.values())
                 max_count = max(counts.values(), default=0)
                 embed = Embed(title=poll.title, description='Vote for your choice below.',
-                              color=Color.green() if is_open else Color.dark_red())
+                              color=Color.green() if poll.is_open else Color.dark_red())
                 for i, option in enumerate(options):
                     votes = counts.get(i, 0)
                     pct = votes / total_votes if votes else 0
                     name = f'[{i + 1}] {option}'
-                    if not is_open and votes > 0 and votes == max_count:
+                    if not poll.is_open and votes > 0 and votes == max_count:
                         name = '🏆 ' + name
                     embed.add_field(name=name, value=f'**{votes} votes** ({pct:.0%})', inline=True)
         return embed
@@ -146,13 +152,9 @@ class PollCog(Cog, name='POLL'):
                 poll = (await session.execute(stmt)).scalar()
                 if not poll:
                     raise PollUserError("There is no poll running in this channel.")
-                embed = await self._generate_embed(poll, json.loads(poll.options), False)
-
-                await session.execute(delete(PollEntry).filter(
-                    PollEntry.guild_id == ctx.guild.id, PollEntry.channel_id == ctx.channel.id))
-                await session.delete(poll)
-                await self._bot.get_channel(poll.channel_id).get_partial_message(poll.message_id).delete()
-                await ctx.reply(embed=embed)
+                poll.is_open = False
+                await session.merge(poll)
+                await ctx.reply('Poll ended.', hidden=True)
 
     @cog_component(components=_BUTTONS)
     async def vote(self, ctx: ComponentContext):

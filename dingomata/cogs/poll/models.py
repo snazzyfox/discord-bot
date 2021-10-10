@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String
+from sqlalchemy import Column, Integer, BigInteger, String, Boolean
 from sqlalchemy.orm import declarative_base
 
 PollModel = declarative_base()
@@ -12,6 +12,7 @@ class Poll(PollModel):
     title = Column(String, nullable=False)
     options = Column(String, nullable=False)
     message_id = Column(BigInteger, nullable=True)
+    is_open = Column(Boolean, nullable=False, default=True)
 
 
 class PollEntry(PollModel):
