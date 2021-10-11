@@ -89,7 +89,7 @@ class PollCog(Cog, name='POLL'):
                 session.add(poll)
                 await session.commit()
 
-    @tasks.loop(seconds=2)
+    @tasks.loop(seconds=5)
     async def poll_message_updater(self):
         try:
             async with self._session() as session:
@@ -105,7 +105,7 @@ class PollCog(Cog, name='POLL'):
                             action_row = [create_actionrow(*self._BUTTONS[:len(options)])]
                         else:
                             action_row = None
-                            await session.delete(poll)
+                            session.delete(poll)
                             await session.execute(delete(PollEntry).filter(
                                 PollEntry.guild_id == poll.guild_id, PollEntry.channel_id == poll.channel_id))
                         if channel.last_message_id == poll.message_id:
@@ -114,8 +114,7 @@ class PollCog(Cog, name='POLL'):
                             new_message = await channel.send(embed=embed, components=action_row)
                             poll.message_id = new_message.id
                             await message.delete()
-                        if poll.is_open:
-                            await session.update(poll)
+                    await session.commit()
         except Exception as e:
             _log.exception(e)
 
