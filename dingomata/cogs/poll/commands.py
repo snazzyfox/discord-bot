@@ -105,7 +105,7 @@ class PollCog(Cog, name='POLL'):
                             action_row = [create_actionrow(*self._BUTTONS[:len(options)])]
                         else:
                             action_row = None
-                            session.delete(poll)
+                            await session.delete(poll)
                             await session.execute(delete(PollEntry).filter(
                                 PollEntry.guild_id == poll.guild_id, PollEntry.channel_id == poll.channel_id))
                         if channel.last_message_id == poll.message_id:
