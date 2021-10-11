@@ -152,7 +152,7 @@ class PollCog(Cog, name='POLL'):
                 if not poll:
                     raise PollUserError("There is no poll running in this channel.")
                 poll.is_open = False
-                await session.merge(poll)
+                await session.commit()
                 await ctx.reply('Poll ended.', hidden=True)
 
     @cog_component(components=_BUTTONS)

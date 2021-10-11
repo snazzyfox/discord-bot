@@ -126,7 +126,6 @@ class GambaCog(Cog, name='GAMBA'):
                     for game in games:
                         if game.open_until < now:
                             game.is_open = False
-                            await session.commit()
                             components = []
                         else:
                             components = [self._ACTION_ROW]
@@ -138,8 +137,8 @@ class GambaCog(Cog, name='GAMBA'):
                         else:
                             new_message = await channel.send(embed=embed, components=components)
                             game.message_id = new_message.id
-                            await session.merge(game)
                             await message.delete()
+                        await session.commit()
         except Exception as e:
             _log.exception(e)
 
