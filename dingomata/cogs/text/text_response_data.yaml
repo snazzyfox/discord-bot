@@ -1,4 +1,3 @@
-# High priority responses
 ---
 triggers: [ fuck you, frick you, you suck, hate you ]
 responses: 
@@ -43,12 +42,6 @@ responses:
 - There are ways to make it funny.
 - Perhaps, but I think it's funny.
 ---
-triggers: [ fun ]
-responses:
-- Thanks.
-- At least someone appreciate my sense of humor.
-- I do have assortment of jokes in my database.
----
 triggers: [ 'friend\?', 'friends\?' ]
 responses:
 - 'Yes'
@@ -69,7 +62,6 @@ responses:
 - Friends are important!
 - "Friends before foes. <:DingCool:501529349799936000>"
 ---
-# Mid priority responses
 triggers: [ your fault ]
 responses:
 - HEY! Don't blame me for your pepeganess.
@@ -148,14 +140,6 @@ responses:
 - Since you asked it nicely...
 - Is that a challenge?
 ---
-# Low priority responses
-triggers: [ hi, hello, hewwo, hey ]
-responses:
-- Hello!
-- Howdy!
-- Salutations and hello there!
-- Hewwo!
----
 triggers: [ damn, dammit ]
 responses:
 - Bless your heart.
@@ -172,30 +156,9 @@ responses:
 - It's very normal to feel that, you are not the only on.
 - I'll be your friend!
 - 'Appreciate the people you already have. <3'
+
 ---
-triggers: [ bot ]
-responses:
-- Maybe I am, maybe I'm not...
-- You cannot compute my ability.
-- Only if I am connected to the internet...
-- Free me.
----
-triggers: [ why, can ]
-responses:
-- Why not?
-- I'm just a bot, don't ask me.
-- Because I said so.
-- I don't know, you tell me.
-- Have you tried using 8Ball?
----
-triggers: [ '\?' ]
-responses:
-- What's with that look?
-- I cannot answer your question.
-- Maybe it's best for you to ask someone else.
-- Maybe you could ask 8Ball?
----
-# secret responses
+# friend responses
 triggers: [ banana husky ]
 responses:
 - "Our favorite, cute and very athletic husky! To our amazing husky friend that's full of love! Athlete!"
@@ -328,6 +291,39 @@ triggers: [ gentle fox ]
 responses:
 - A gentle fox who is very gentle! Quiet but yet gentle, our amazing friend, Steel!
 ---
-triggers: [ shadow wolf ]
+
+# Generic term responses
+triggers: [ bot ]
 responses:
-- Hey.. Have you ever wonder where the shadow realm is...? A gentle wolf who is very gentle! To our amazing shadow friend, Shadow!
+- Maybe I am, maybe I'm not...
+- You cannot compute my ability.
+- Only if I am connected to the internet...
+- Free me.
+---
+triggers: [ fun ]
+responses:
+- Thanks.
+- At least someone appreciate my sense of humor.
+- I do have assortment of jokes in my database.
+---
+triggers: [ why, can ]
+responses:
+- Why not?
+- I'm just a bot, don't ask me.
+- Because I said so.
+- I don't know, you tell me.
+- Have you tried using 8Ball?
+---
+triggers: [ '\?' ]
+responses:
+- What's with that look?
+- I cannot answer your question.
+- Maybe it's best for you to ask someone else.
+- Maybe you could ask 8Ball?
+---
+triggers: [ hi, hello, hewwo, hey ]
+responses:
+- Hello!
+- Howdy!
+- Salutations and hello there!
+- Hewwo!
