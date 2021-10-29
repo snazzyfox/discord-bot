@@ -7,6 +7,6 @@ servers:
     game_code:
       exclude_played: true
     gamba:
-      points_name: cheddar
+      points_name: nuggies
     text:
       no_pings: *mods
