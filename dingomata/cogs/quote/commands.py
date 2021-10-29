@@ -12,16 +12,14 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
 from .models import QuoteModel, TextQuote
-from ...config import service_config
-from ...decorators import slash, subcommand, context_menu
+from ...decorators import slash, subcommand, context_menu, SubcommandBase
 from ...exceptions import DingomataUserError
 
 
 class QuoteCog(Cog, name='Quotes'):
     """Text commands."""
     _NEXT_BUTTON = 'quote_next'
-    _GUILDS = service_config.get_command_guilds('quote')
-    _BASE_MOD_COMMAND = dict(base='quotes', guild_ids=_GUILDS, base_default_permission=False)
+    _BASE = SubcommandBase(name='quotes', group='quote', mod_only=True)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -33,8 +31,7 @@ class QuoteCog(Cog, name='Quotes'):
         async with self._engine.begin() as conn:
             await conn.run_sync(QuoteModel.metadata.create_all)
 
-    @slash(name='whiskey', description="What does the Dingo say?",
-           guild_ids=service_config.get_command_guilds('whiskey', False))
+    @slash(name='whiskey', description="What does the Dingo say?", default_available=False)
     @cooldown(1, 5.0, BucketType.member)
     async def whiskey(self, ctx: SlashContext) -> None:
         quote = await self._get_quote(178042794386915328, 178041504508542976)
@@ -43,8 +40,7 @@ class QuoteCog(Cog, name='Quotes'):
         else:
             await ctx.reply(quote)
 
-    @slash(name='corgi', description="What does the Corgi say?",
-           guild_ids=service_config.get_command_guilds('corgi', False))
+    @slash(name='corgi', description="What does the Corgi say?", default_available=False)
     @cooldown(1, 5.0, BucketType.member)
     async def corgi(self, ctx: SlashContext) -> None:
         quote = await self._get_quote(768208778780475447, 168916479306235914)
@@ -53,7 +49,7 @@ class QuoteCog(Cog, name='Quotes'):
         else:
             await ctx.reply(quote)
 
-    @slash(name='quote', description="Get a quote from a user", guild_ids=_GUILDS)
+    @slash(name='quote', description="Get a quote from a user", group='quote')
     @cooldown(1, 5.0, BucketType.member)
     async def quote(self, ctx: SlashContext, user: User) -> None:
         quote = await self._get_quote(ctx.guild.id, user.id)
@@ -77,14 +73,13 @@ class QuoteCog(Cog, name='Quotes'):
                     create_option(name='user', option_type=User, required=True, description='Who said it?'),
                     create_option(name='content', option_type=str, required=True, description='What did they say?'),
                 ],
-                **_BASE_MOD_COMMAND,
+                base=_BASE,
                 )
     async def add(self, ctx: SlashContext, user: User, content: str) -> None:
         qid = await self._quote_add(ctx.guild, ctx.author, user, content)
         await ctx.reply(f'Quote has been added. New quote ID is {qid}.', hidden=True)
 
-    @context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", guild_ids=_GUILDS,
-                  default_permission=False, permissions=service_config.mod_permissions)
+    @context_menu(target=ContextMenuType.MESSAGE, name="Add Quote", group='quote', mod_only=True)
     async def add_menu(self, ctx: MenuContext) -> None:
         qid = await self._quote_add(ctx.guild, ctx.author, ctx.target_message.author, ctx.target_message.content)
         await ctx.send(f'Quote has been added. New quote ID is {qid}.', hidden=True)
@@ -110,7 +105,7 @@ class QuoteCog(Cog, name='Quotes'):
                     create_option(name='search', option_type=str, required=False,
                                   description='Find quotes including this exact phrase'),
                 ],
-                **_BASE_MOD_COMMAND,
+                base=_BASE
                 )
     async def find(self, ctx: SlashContext, user: Optional[User] = None, search: Optional[str] = None) -> None:
         async with self._session() as session:
@@ -142,7 +137,7 @@ class QuoteCog(Cog, name='Quotes'):
                     create_option(name='quote_id', option_type=int, required=True,
                                   description='ID of quote to post'),
                 ],
-                **_BASE_MOD_COMMAND,
+                base=_BASE,
                 )
     async def get(self, ctx: SlashContext, quote_id: int) -> None:
         async with self._session() as session:
@@ -155,13 +150,8 @@ class QuoteCog(Cog, name='Quotes'):
                 else:
                     await ctx.send(f'Quote ID {quote_id} does not exist.', hidden=True)
 
-    @subcommand(name='delete', description="Delete a quote by ID",
-                options=[
-                    create_option(name='id', option_type=int, required=True, description='Quote ID to delete'),
-                ],
-                base_permissions=service_config.mod_permissions,
-                **_BASE_MOD_COMMAND,
-                )
+    @subcommand(name='delete', description="Delete a quote by ID", base=_BASE,
+                options=[create_option(name='id', option_type=int, required=True, description='Quote ID to delete')])
     async def delete(self, ctx: SlashContext, id: int) -> None:
         async with self._session() as session:
             async with session.begin():

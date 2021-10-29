@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from ...decorators import slash
-from ...config import service_config
 from ...exceptions import DingomataUserError
 
 _log = logging.getLogger(__name__)
@@ -21,15 +20,10 @@ class BotAdmin(Cog, name='Bot Admin'):
         self._engine = engine
         self._session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
-    @slash(
-        guild_ids=service_config.get_command_guilds('echo', False),
-        options=[
-            create_option(name='channel', option_type=str, description='Channel ID', required=True),
-            create_option(name='message', option_type=str, description='Message', required=True),
-        ],
-        default_permission=False,
-        permissions=service_config.mod_permissions,
-    )
+    @slash(name='echo', default_available=False, mod_only=True, options=[
+        create_option(name='channel', option_type=str, description='Channel ID', required=True),
+        create_option(name='message', option_type=str, description='Message', required=True),
+    ])
     async def echo(self, ctx: SlashContext, channel: str, message: str):
         ch = self._bot.get_channel(int(channel))
         if not ch:

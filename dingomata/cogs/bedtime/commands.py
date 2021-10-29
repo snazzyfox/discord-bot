@@ -15,7 +15,7 @@ from sqlalchemy.orm import sessionmaker
 
 from dingomata.config import service_config
 from .models import BedtimeModel, Bedtime
-from ...decorators import subcommand
+from ...decorators import subcommand, SubcommandBase
 from ...exceptions import DingomataUserError
 
 _log = logging.getLogger(__name__)
@@ -29,8 +29,7 @@ class BedtimeSpecificationError(DingomataUserError):
 
 class BedtimeCog(Cog, name='Bedtime'):
     """Remind users to go to bed."""
-    _GUILDS = service_config.get_command_guilds('bedtime')
-    _BASE_COMMAND = dict(base='bedtime', guild_ids=_GUILDS)
+    _BASE = SubcommandBase(name='bedtime')
     _BEDTIME_CACHE: Dict[int, Bedtime] = {}
     _BEDTIME_KWDS = {'bed', 'sleep', 'bye', 'cya', 'see y', 'night', 'nini', 'nite'}
 
@@ -52,7 +51,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                           option_type=str, required=True),
             create_option(name='timezone', description='Time zone you are in', option_type=str, required=True),
         ],
-        **_BASE_COMMAND,
+        base=_BASE,
     )
     async def bedtime_set(self, ctx: SlashContext, time: str, timezone: str) -> None:
         # Convert user timezone to UTC
@@ -76,7 +75,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 self._BEDTIME_CACHE.pop(ctx.author.id, None)
         await ctx.reply(f"Done! I've saved your bedtime as {time_obj} {tz}.", hidden=True)
 
-    @subcommand(name='off', description='Clears your bed time.', **_BASE_COMMAND)
+    @subcommand(name='off', description='Clears your bed time.', base=_BASE)
     async def bedtime_off(self, ctx: SlashContext) -> None:
         async with self._session() as session:
             async with session.begin():
@@ -86,7 +85,7 @@ class BedtimeCog(Cog, name='Bedtime'):
                 self._BEDTIME_CACHE.pop(ctx.author.id, None)
         await ctx.reply("Done! I've removed your bedtime preferences.", hidden=True)
 
-    @subcommand(name='get', description='Get your current bed time.', **_BASE_COMMAND)
+    @subcommand(name='get', description='Get your current bed time.', base=_BASE)
     async def bedtime_get(self, ctx: SlashContext) -> None:
         async with self._session() as session:
             async with session.begin():
@@ -99,7 +98,7 @@ class BedtimeCog(Cog, name='Bedtime'):
 
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
-        if not message.guild or message.guild.id not in self._GUILDS \
+        if not message.guild or message.guild.id not in self._BASE.guild_ids \
                 or any(kwd in message.content.lower() for kwd in self._BEDTIME_KWDS):
             return
         async with self._session() as session:

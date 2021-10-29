@@ -5,6 +5,7 @@ servers:
     mod_users: [749862270129143880]
     commands:
       whiskey: on
+      collect: off
     game_code:
       exclude_played: true
     gamba:

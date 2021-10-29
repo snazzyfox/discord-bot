@@ -16,3 +16,11 @@ class TextTuchLog(TextModel):
     __table_args__ = (
         Index('text_tuch_guild_max_butts_idx', guild_id, max_butts.desc()),
     )
+
+
+class TextCollect(TextModel):
+    __tablename__ = "text_collect"
+
+    guild_id = Column(BigInteger, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
+    target_user_id = Column(BigInteger, primary_key=True)

@@ -14,7 +14,7 @@ from sqlalchemy.orm import sessionmaker
 from .models import GamecodeModel, EntryStatus, GameMode
 from .pool import MemberPool, MemberRoleError
 from ...config import service_config
-from ...decorators import subcommand
+from ...decorators import subcommand, SubcommandBase
 from ...exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
@@ -24,8 +24,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
     """RNG-based Game Code distributor."""
     _JOIN_BUTTON = 'game_join'
     _LEAVE_BUTTON = 'game_leave'
-    _GUILDS = service_config.get_command_guilds('game')
-    _BASE_COMMAND = dict(base='game', guild_ids=_GUILDS, base_default_permission=False)
+    _BASE = SubcommandBase(name='game', mod_only=True)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         """Initialize application state."""
@@ -81,8 +80,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
                           choices=[create_choice(name='anyone', value='anyone'),
                                    create_choice(name='new players only', value='new')])
         ],
-        **_BASE_COMMAND,
-        base_permissions=service_config.mod_permissions,
+        base=_BASE,
     )
     async def open(self, ctx: SlashContext, *, title: str, allow: str = 'new') -> None:
         pool = self._pool_for_guild(ctx.guild.id)
@@ -103,7 +101,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
         await ctx.reply('Pool is now open.', hidden=True)
         log.info(f'Game pool opened for: {title}')
 
-    @subcommand(name='close', description='Close the open pool.', **_BASE_COMMAND)
+    @subcommand(name='close', description='Close the open pool.', base=_BASE)
     async def close(self, ctx: SlashContext) -> None:
         pool = self._pool_for_guild(ctx.guild.id)
         await pool.close(True)
@@ -126,7 +124,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
             create_option(name='message', description='Message to DM to selected users', option_type=str,
                           required=True),
         ],
-        **_BASE_COMMAND,
+        base=_BASE,
     )
     async def pick(self, ctx: SlashContext, count: int, *, message: str) -> None:
         """Randomly pick users from the pool and send them a DM.
@@ -161,7 +159,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
             create_option(name='message', description='Message to DM to selected users', option_type=str,
                           required=True),
         ],
-        **_BASE_COMMAND,
+        base=_BASE,
     )
     async def resend(self, ctx: SlashContext, *, message: str) -> None:
         await ctx.defer(hidden=True)
@@ -186,7 +184,7 @@ class GameCodeCommands(Cog, name='Game Code Sender'):
     @subcommand(
         name='reset',
         description='Reset the list of people who were selected before so they can play again.',
-        **_BASE_COMMAND,
+        base=_BASE,
     )
     async def reset(self, ctx: SlashContext) -> None:
         pool = self._pool_for_guild(ctx.guild.id)

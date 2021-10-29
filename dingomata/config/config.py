@@ -1,7 +1,7 @@
 import logging.config
 import os
 from functools import cached_property
-from typing import Dict, Any, Set, List
+from typing import Dict, Any, Set, List, Optional
 
 import yaml
 from discord_slash.model import SlashCommandPermissionType
@@ -30,6 +30,7 @@ class GuildConfig(BaseModel):
     mod_roles: Set[int] = set()
     mod_users: Set[int] = set()
     commands: Dict[str, bool] = {}
+    permissions: Dict[str, List[int]] = {}
 
     bedtime: BedtimeConfig = BedtimeConfig()
     botadmin: BotAdminConfig = BotAdminConfig()
@@ -46,7 +47,7 @@ class GuildConfig(BaseModel):
     @cached_property
     def mod_permissions(self) -> List[Dict]:
         return [create_permission(role, SlashCommandPermissionType.ROLE, True) for role in self.mod_roles] \
-                + [create_permission(role, SlashCommandPermissionType.USER, True) for role in self.mod_users]
+               + [create_permission(role, SlashCommandPermissionType.USER, True) for role in self.mod_users]
 
 
 class _BotConfig(BaseSettings):
@@ -82,6 +83,14 @@ class ServiceConfig(BaseSettings):
 
     def get_command_guilds(self, command: str, default: bool = True) -> List[int]:
         return [server for server, config in self.servers.items() if config.commands.get(command, default)]
+
+    def get_command_permissions(self, command: str) -> Optional[List[int]]:
+        return {
+                   server: [
+                       create_permission(id=role, id_type=SlashCommandPermissionType.ROLE, permission=True)
+                       for role in config.permissions[command]
+                   ] for server, config in self.servers.items() if config.permissions.get(command)
+               } or None
 
 
 def get_logging_config():

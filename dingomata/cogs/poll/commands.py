@@ -15,8 +15,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
 from .models import PollModel, Poll, PollEntry
-from ...config import service_config
-from ...decorators import subcommand
+from ...decorators import subcommand, SubcommandBase
 from ...exceptions import DingomataUserError
 
 _log = logging.getLogger(__name__)
@@ -31,8 +30,7 @@ _VOTE_BUTTON_PREFIX = 'poll.vote'
 
 class PollCog(Cog, name='POLL'):
     """Run polls in Discord. Each channel can only have one active poll at a time."""
-    _GUILDS = service_config.get_command_guilds('guild')
-    _BASE_MOD_COMMAND = dict(base='poll', guild_ids=_GUILDS, base_default_permission=False)
+    _BASE = SubcommandBase(name='poll', mod_only=True)
     _MAX_OPTIONS = 5
     _BUTTONS = [
         create_button(label=f'Vote {i + 1}', style=ButtonStyle.blue, custom_id=f'{_VOTE_BUTTON_PREFIX}{i}')
@@ -63,8 +61,7 @@ class PollCog(Cog, name='POLL'):
                             required=i < 1)  # at least 1 option required
               for i in range(_MAX_OPTIONS))
         ],
-        base_permissions=service_config.mod_permissions,
-        **_BASE_MOD_COMMAND,
+        base=_BASE,
     )
     async def start(self, ctx: SlashContext, title: str, **kwargs):
         options = (kwargs.get(f'option{i}') for i in range(self._MAX_OPTIONS))
@@ -94,7 +91,7 @@ class PollCog(Cog, name='POLL'):
         try:
             async with self._session() as session:
                 async with session.begin():
-                    stmt = select(Poll).filter(Poll.message_id.isnot(None), Poll.guild_id.in_(self._GUILDS))
+                    stmt = select(Poll).filter(Poll.message_id.isnot(None), Poll.guild_id.in_(self._BASE.guild_ids))
                     polls = (await session.execute(stmt)).scalars()
                     for poll in polls:
                         channel = self._bot.get_channel(poll.channel_id)
@@ -139,11 +136,7 @@ class PollCog(Cog, name='POLL'):
                     embed.add_field(name=name, value=f'**{votes} votes** ({pct:.0%})', inline=True)
         return embed
 
-    @subcommand(
-        name='end',
-        description='End the current poll.',
-        **_BASE_MOD_COMMAND,
-    )
+    @subcommand(name='end', description='End the current poll.', base=_BASE)
     async def end(self, ctx: SlashContext):
         async with self._session() as session:
             async with session.begin():

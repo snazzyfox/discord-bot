@@ -4,6 +4,8 @@ servers:
     mod_roles: &mods [768232863043682314, 768233366889300028]
     commands:
       corgi: on
+    permissions:
+      collect: [768232863043682314, 768233366889300028, 768280287862849578] # corgi, mods, vips
     game_code:
       exclude_played: true
     gamba:

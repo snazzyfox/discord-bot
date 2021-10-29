@@ -13,8 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from ...config import service_config
-from ...decorators import subcommand
+from ...decorators import subcommand, SubcommandBase
 from ...exceptions import DingomataUserError
 
 
@@ -34,8 +33,7 @@ class SubEvent(BaseModel):
 
 class TwitchCog(Cog, name='Twitch Commands'):
     """Commands relating to twitch."""
-    _BASE_COMMAND = dict(base='twitch', base_default_permission=False,
-                         guild_ids=service_config.get_command_guilds('twitch'))
+    _BASE = SubcommandBase(name='twitch', mod_only=True)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -50,8 +48,7 @@ class TwitchCog(Cog, name='Twitch Commands'):
             create_option(name='download', description='If true, the full sub list will be sent via DM.',
                           option_type=bool, required=False),
         ],
-        base_permissions=service_config.mod_permissions,
-        **_BASE_COMMAND,
+        base=_BASE,
     )
     async def subdata(self, ctx: SlashContext, vod_url: str, download: bool = False) -> None:
         await ctx.defer(hidden=True)

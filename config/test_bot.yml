@@ -1,6 +1,9 @@
 servers:
   # Test server
   814653859838427136:
-    mod_users: [749862270129143880]
+    mod_roles: [869729094722543627]
     commands:
       echo: on
+      collect: on
+    permissions:
+      collect: [869729094722543627]

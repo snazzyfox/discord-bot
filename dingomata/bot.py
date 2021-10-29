@@ -21,7 +21,7 @@ bot = commands.Bot(
     command_prefix=service_config.command_prefix,
     intents=Intents(guilds=True, messages=True, dm_messages=True, members=True)
 )
-slash = SlashCommand(bot, sync_commands=True)
+slash = SlashCommand(bot, sync_commands=True, delete_from_unused_guilds=True)
 
 engine = create_async_engine(service_config.database_url.get_secret_value())
 
