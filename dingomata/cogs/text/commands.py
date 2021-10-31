@@ -114,6 +114,23 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 except IntegrityError:
                     await ctx.reply(f'You have already collected {user.display_name}.', hidden=True)
 
+    @slash(name='discard', description='Remove a cutie from your collection D:',
+           options=[create_option(name='user', description='Target user', option_type=User, required=True)],
+           )
+    async def discard(self, ctx: SlashContext, user: User) -> None:
+        async with self._session() as session:
+            async with session.begin():
+                stmt = select(TextCollect).filter(TextCollect.guild_id == ctx.guild.id,
+                                                  TextCollect.user_id == ctx.author.id,
+                                                  TextCollect.target_user_id == user.id)
+                col = await session.scalar(stmt)
+                if col:
+                    await session.delete(col)
+                    await ctx.reply(f'{ctx.author.display_name} has removed {self._mention(ctx, user)} from their '
+                                    f'collection.')
+                else:
+                    await ctx.reply(f'{user.display_name} is not in your collection.', hidden=True)
+
     @slash(name='collection', description='Show your collection!', group='collect')
     async def collection(self, ctx: SlashContext) -> None:
         async with self._session() as session:
