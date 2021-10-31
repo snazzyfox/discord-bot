@@ -105,15 +105,14 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 try:
                     col = TextCollect(guild_id=ctx.guild.id, user_id=ctx.author.id, target_user_id=user.id)
                     session.add(col)
+                    stmt = select(func.count()).filter(TextCollect.guild_id == ctx.guild.id,
+                                                       TextCollect.user_id == ctx.author.id)
+                    total = await session.scalar(stmt)
                     await session.commit()
+                    await ctx.reply(f'{ctx.author.display_name} collects {self._mention(ctx, user)}. '
+                                    f'They now have {total} cutie(s) in their collection!')
                 except IntegrityError:
-                    pass
-            async with session.begin():
-                stmt = select(func.count()).filter(TextCollect.guild_id == ctx.guild.id,
-                                                   TextCollect.user_id == ctx.author.id)
-                total = await session.scalar(stmt)
-                await ctx.reply(f'{ctx.author.display_name} collects {self._mention(ctx, user)}. '
-                                f'They now have {total} cutie(s) in their collection!')
+                    await ctx.reply(f'You have already collected {user.display_name}.', hidden=True)
 
     @slash(name='collection', description='Show your collection!', group='collect')
     async def collection(self, ctx: SlashContext) -> None:
@@ -352,7 +351,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
             reason = choice([
                 'they get distracted and went to chase a squirrel instead',
                 'they only have a knife in the gun fight',
-                'they watched the Dingomata while waiting and was heard',
+                'they went to watch stream and forgot about it all',
                 'they fall out of the tree while waiting',
                 'the rifle turns out to be a water gun',
                 'they totally forget to shoot because they were browsing furry art',
