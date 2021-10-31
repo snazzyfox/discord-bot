@@ -101,18 +101,19 @@ class TextCommandsCog(Cog, name='Text Commands'):
            )
     async def collect(self, ctx: SlashContext, user: User) -> None:
         async with self._session() as session:
-            async with session.begin():
-                try:
+            try:
+                async with session.begin():
                     col = TextCollect(guild_id=ctx.guild.id, user_id=ctx.author.id, target_user_id=user.id)
                     session.add(col)
+                    await session.commit()
+                async with session.begin():
                     stmt = select(func.count()).filter(TextCollect.guild_id == ctx.guild.id,
                                                        TextCollect.user_id == ctx.author.id)
                     total = await session.scalar(stmt)
-                    await session.commit()
                     await ctx.reply(f'{ctx.author.display_name} collects {self._mention(ctx, user)}. '
                                     f'They now have {total} cutie(s) in their collection!')
-                except IntegrityError:
-                    await ctx.reply(f'You have already collected {user.display_name}.', hidden=True)
+            except IntegrityError:
+                await ctx.reply(f'You have already collected {user.display_name}.', hidden=True)
 
     @slash(name='discard', description='Remove a cutie from your collection D:',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
