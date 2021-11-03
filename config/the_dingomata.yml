@@ -3,9 +3,14 @@ servers:
   178042794386915328:
     mod_roles: &mods [552399444105232384, 492485748071727129]  # Dingo and Moderators
     mod_users: [749862270129143880]
+    cooldown:
+      default_seconds: 60
+      exempt: [876683421601136650]
     commands:
-      whiskey: on
-      collect: off
+      whiskey:
+        enabled: on
+      collect:
+        enabled: off
     game_code:
       exclude_played: true
     gamba:
@@ -16,6 +21,9 @@ servers:
   # Lycaon
   351122293105229835:
     mod_roles: [858607225617776650]
+    cooldown:
+      default_seconds: 20
+      exempt: [ 895922436250406912 ]
     gamba:
       points_name: lycoins
 
@@ -23,4 +31,5 @@ servers:
   814653859838427136:
     mod_users: [749862270129143880]
     commands:
-      echo: on
+      echo:
+        enabled: on

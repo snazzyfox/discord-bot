@@ -31,8 +31,7 @@ class QuoteCog(Cog, name='Quotes'):
         async with self._engine.begin() as conn:
             await conn.run_sync(QuoteModel.metadata.create_all)
 
-    @slash(name='whiskey', description="What does the Dingo say?", default_available=False)
-    @cooldown(1, 5.0, BucketType.member)
+    @slash(name='whiskey', description="What does the Dingo say?", default_available=False, cooldown=True)
     async def whiskey(self, ctx: SlashContext) -> None:
         quote = await self._get_quote(178042794386915328, 178041504508542976)
         if quote is None:
@@ -40,8 +39,7 @@ class QuoteCog(Cog, name='Quotes'):
         else:
             await ctx.reply(quote)
 
-    @slash(name='corgi', description="What does the Corgi say?", default_available=False)
-    @cooldown(1, 5.0, BucketType.member)
+    @slash(name='corgi', description="What does the Corgi say?", default_available=False, cooldown=True)
     async def corgi(self, ctx: SlashContext) -> None:
         quote = await self._get_quote(768208778780475447, 168916479306235914)
         if quote is None:
@@ -49,8 +47,7 @@ class QuoteCog(Cog, name='Quotes'):
         else:
             await ctx.reply(quote)
 
-    @slash(name='quote', description="Get a quote from a user", group='quote')
-    @cooldown(1, 5.0, BucketType.member)
+    @slash(name='quote', description="Get a quote from a user", group='quote', cooldown=True)
     async def quote(self, ctx: SlashContext, user: User) -> None:
         quote = await self._get_quote(ctx.guild.id, user.id)
         if quote is None:

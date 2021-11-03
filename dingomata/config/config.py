@@ -1,9 +1,10 @@
 import logging.config
 import os
 from functools import cached_property
-from typing import Dict, Any, Set, List, Optional
+from typing import Dict, Any, Set, List, Optional, Tuple, Callable
 
 import yaml
+from discord_slash.context import InteractionContext
 from discord_slash.model import SlashCommandPermissionType
 from discord_slash.utils.manage_commands import create_permission
 from pydantic import BaseSettings, SecretStr, BaseModel, Field, validator, FilePath
@@ -21,6 +22,16 @@ _LOGGING_CONFIG = 'config/logging.cfg'
 _logger = logging.getLogger(__name__)
 
 
+class CooldownConfig(BaseModel):
+    exempt: Set[int] = set()  # Channels that are exempt from cooldown
+    defualt_seconds: int = 120  # Global command cooldown period for this server
+
+
+class CommandConfig(BaseModel):
+    enabled: Optional[bool] = None
+    cooldown_seconds: Optional[int] = None
+
+
 class GuildConfig(BaseModel):
     """Per-guild configs"""
 
@@ -29,7 +40,8 @@ class GuildConfig(BaseModel):
     #: command is enabled for the server.
     mod_roles: Set[int] = set()
     mod_users: Set[int] = set()
-    commands: Dict[str, bool] = {}
+    cooldown: CooldownConfig = CooldownConfig()
+    commands: Dict[str, CommandConfig] = {}
     permissions: Dict[str, List[int]] = {}
 
     bedtime: BedtimeConfig = BedtimeConfig()
@@ -48,6 +60,19 @@ class GuildConfig(BaseModel):
     def mod_permissions(self) -> List[Dict]:
         return [create_permission(role, SlashCommandPermissionType.ROLE, True) for role in self.mod_roles] \
                + [create_permission(role, SlashCommandPermissionType.USER, True) for role in self.mod_users]
+
+    def command_enabled(self, command: str) -> Optional[bool]:
+        if command in self.commands:
+            return self.commands[command].enabled
+        else:
+            return None
+
+    def command_cooldown_seconds(self, command: str) -> int:
+        cmd_config = self.commands.get(command)
+        if cmd_config:
+            return cmd_config.cooldown_seconds or self.cooldown.defualt_seconds
+        else:
+            return self.cooldown.defualt_seconds
 
 
 class _BotConfig(BaseSettings):
@@ -81,8 +106,14 @@ class ServiceConfig(BaseSettings):
     def mod_permissions(self) -> Dict[int, List[Dict]]:
         return {guild: config.mod_permissions for guild, config in self.servers.items()}
 
+    @cached_property
+    def cooldown_exempt(self) -> Set[int]:
+        return {channel for config in self.servers.values() for channel in config.cooldown.exempt}
+
     def get_command_guilds(self, command: str, default: bool = True) -> List[int]:
-        return [server for server, config in self.servers.items() if config.commands.get(command, default)]
+        return [server
+                for server, config in self.servers.items()
+                if config.command_enabled(command) is True or (config.command_enabled(command) is None and default)]
 
     def get_command_permissions(self, command: str) -> Optional[List[int]]:
         return {
@@ -92,6 +123,8 @@ class ServiceConfig(BaseSettings):
                    ] for server, config in self.servers.items() if config.permissions.get(command)
                } or None
 
+    def get_command_cooldowns(self, command: str) -> Dict[int, int]:
+        return {server: config.command_cooldown_seconds(command) for server, config in self.servers.items()}
 
 def get_logging_config():
     logging.config.fileConfig(_LOGGING_CONFIG, disable_existing_loggers=False)
