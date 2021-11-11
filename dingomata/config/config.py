@@ -14,6 +14,7 @@ from dingomata.cogs.botadmin.config import BotAdminConfig
 from dingomata.cogs.gamba.config import GambaConfig
 from dingomata.cogs.game_code.config import GameCodeConfig
 from dingomata.cogs.quote.config import QuoteConfig
+from dingomata.cogs.roles.config import RoleConfig
 from dingomata.cogs.text.config import TextConfig
 from dingomata.cogs.twitch.config import TwitchConfig
 
@@ -50,6 +51,7 @@ class GuildConfig(BaseModel):
     game_code: GameCodeConfig = GameCodeConfig()
     quote: QuoteConfig = QuoteConfig()
     text: TextConfig = TextConfig()
+    roles: RoleConfig = RoleConfig()
     twitch: TwitchConfig = TwitchConfig()
 
     class Config:
@@ -125,6 +127,7 @@ class ServiceConfig(BaseSettings):
 
     def get_command_cooldowns(self, command: str) -> Dict[int, int]:
         return {server: config.command_cooldown_seconds(command) for server, config in self.servers.items()}
+
 
 def get_logging_config():
     logging.config.fileConfig(_LOGGING_CONFIG, disable_existing_loggers=False)

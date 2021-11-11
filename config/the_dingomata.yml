@@ -20,7 +20,12 @@ servers:
 
   # Lycaon
   351122293105229835:
-    mod_roles: [858607225617776650]
+    mod_roles: [ 858607225617776650 ]
+    commands:
+      roles:
+        enabled: on
+    roles:
+      self_assignable_roles: [ 908285057498751007 ]
     cooldown:
       default_seconds: 20
       exempt: [ 895922436250406912 ]

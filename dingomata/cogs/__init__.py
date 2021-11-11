@@ -4,10 +4,12 @@ from .gamba.commands import GambaCog
 from .game_code.commands import GameCodeCommands
 from .poll.commands import PollCog
 from .quote.commands import QuoteCog
+from .roles.commands import RoleCommandsCog
 from .text.commands import TextCommandsCog
 from .twitch.commands import TwitchCog
 
-all_cogs = [BedtimeCog, BotAdmin, GambaCog, GameCodeCommands, PollCog, QuoteCog, TextCommandsCog, TwitchCog]
+all_cogs = [BedtimeCog, BotAdmin, GambaCog, GameCodeCommands, PollCog, QuoteCog, RoleCommandsCog, TextCommandsCog,
+            TwitchCog]
 
 __all__ = [
     'BedtimeCog',
@@ -16,6 +18,7 @@ __all__ = [
     'GameCodeCommands',
     'PollCog',
     'QuoteCog',
+    'RoleCommandsCog',
     'TextCommandsCog',
     'TwitchCog',
     'all_cogs',
