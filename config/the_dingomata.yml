@@ -25,7 +25,7 @@ servers:
       roles:
         enabled: on
     roles:
-      self_assignable_roles: [ 908285057498751007 ]
+      self_assignable_roles: [ 908285057498751007, 875679251704193037, 878827554222538854, 890676584867049482 ]
     cooldown:
       default_seconds: 20
       exempt: [ 895922436250406912 ]
