@@ -11,6 +11,10 @@ servers:
         enabled: on
       collect:
         enabled: off
+      roles:
+        enabled: on
+    roles:
+      self_assignable_roles: [ 745821300987002912, 862135223072194571 ]
     game_code:
       exclude_played: true
     gamba:
