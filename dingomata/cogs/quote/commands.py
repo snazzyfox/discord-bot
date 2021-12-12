@@ -1,8 +1,7 @@
 from typing import Optional
 
 from discord import User, Guild, Embed
-from discord.ext.commands import Bot, Cog, cooldown
-from discord.ext.commands.cooldowns import BucketType
+from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext, ContextMenuType, MenuContext
 from discord_slash.utils.manage_commands import create_option
 from sqlalchemy import func, delete

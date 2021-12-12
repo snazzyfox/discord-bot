@@ -1,10 +1,9 @@
 import logging.config
 import os
 from functools import cached_property
-from typing import Dict, Any, Set, List, Optional, Tuple, Callable
+from typing import Dict, Any, Set, List, Optional
 
 import yaml
-from discord_slash.context import InteractionContext
 from discord_slash.model import SlashCommandPermissionType
 from discord_slash.utils.manage_commands import create_permission
 from pydantic import BaseSettings, SecretStr, BaseModel, Field, validator, FilePath

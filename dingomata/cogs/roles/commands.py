@@ -26,7 +26,7 @@ class RoleCommandsCog(Cog, name='Role Commands'):
             await ctx.author.add_roles(role, reason='Requested via bot')
             await ctx.reply(f"You've been given the {role.name} role.", hidden=True)
         else:
-            await ctx.reply(f"That's not a role you can change yourself. Please ask a moderator for help.", hidden=True)
+            await ctx.reply("That's not a role you can change yourself. Please ask a moderator for help.", hidden=True)
 
     @subcommand(name='remove', base=_BASE, description='Remove a role from yourself in this server', options=[
         create_option(name='role', description='Which role to assign yourself', option_type=Role, required=True),
@@ -36,15 +36,15 @@ class RoleCommandsCog(Cog, name='Role Commands'):
             await ctx.author.remove_roles(role, reason='Requested via bot')
             await ctx.reply(f"You've been removed from the {role.name} role.", hidden=True)
         else:
-            await ctx.reply(f"That's not a role you can change yourself. Please ask a moderator for help.", hidden=True)
+            await ctx.reply("That's not a role you can change yourself. Please ask a moderator for help.", hidden=True)
 
     @subcommand(name='list', base=_BASE, description='Show the list of roles you can add yourself.')
     async def list_roles(self, ctx: SlashContext):
         roles = service_config.servers[ctx.guild.id].roles.self_assignable_roles
         if roles:
-            await ctx.reply(f"You can assign yourself the following roles: \n" + '\n'.join(
+            await ctx.reply("You can assign yourself the following roles: \n" + '\n'.join(
                 ctx.guild.get_role(role_id).mention for role_id in roles
             ), hidden=True)
         else:
-            await ctx.reply(f"This server is not configured to allow self-adding any roles. Please speak to a "
-                            f"moderator if you think this is wrong.", hidden=True)
+            await ctx.reply("This server is not configured to allow self-adding any roles. Please speak to a "
+                            "moderator if you think this is wrong.", hidden=True)

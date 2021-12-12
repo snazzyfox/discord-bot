@@ -4,8 +4,7 @@ from random import betavariate, random, choice, randint
 
 import pytz
 from discord import User, Message
-from discord.ext.commands import Bot, Cog, cooldown
-from discord.ext.commands.cooldowns import BucketType
+from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
 from parsedatetime import Calendar
