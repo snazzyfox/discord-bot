@@ -26,7 +26,7 @@ servers:
 
   # Lycaon
   351122293105229835:
-    mod_roles: [ 858607225617776650 ]
+    mod_roles: [ 862178327049404437 ]
     commands:
       roles:
         enabled: on
