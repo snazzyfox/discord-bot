@@ -16,5 +16,7 @@ servers:
         enabled: on
       fwee:
         enabled: on
+      wheel:
+        enabled: on
     permissions:
       collect: [869729094722543627]

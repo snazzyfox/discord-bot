@@ -30,6 +30,8 @@ servers:
     commands:
       roles:
         enabled: on
+      wheel:
+        enabled: on
     roles:
       self_assignable_roles: [ 908285057498751007, 875679251704193037, 878827554222538854, 890676584867049482 ]
     cooldown:
