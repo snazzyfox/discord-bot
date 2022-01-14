@@ -350,10 +350,6 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.reply("It's... hecc, it went under the couch.")
 
-    @slash(name='fwee', description="FWEE!", cooldown=True, default_available=False)
-    async def fwee(self, ctx: SlashContext) -> None:
-        await ctx.reply("<:wdingPepega:896818441011470376> 📢 🇫 🇼 🇪 🇪")
-
     @slash(name='snipe', description="It's bloody murderrrr",
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
            cooldown=True,
