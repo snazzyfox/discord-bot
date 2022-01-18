@@ -18,6 +18,9 @@ class ModerationCommandsCog(Cog, name='Moderation'):
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
 
+        #: Message IDs that are already being deleted - skip to avoid double posting
+        self._processing_message_ids = set()
+
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
         await self._check_likely_discord_scam(message)
@@ -27,6 +30,8 @@ class ModerationCommandsCog(Cog, name='Moderation'):
         await self._check_likely_discord_scam(after)
 
     async def _check_likely_discord_scam(self, message: Message):
+        if message.id in self._processing_message_ids:
+            return   # It's already in the process of being deleted.
         reasons = []
         if message.guild.default_role.mention in message.content or '@everyone' in message.content:
             reasons.append('Mentions at-everone')
@@ -39,31 +44,40 @@ class ModerationCommandsCog(Cog, name='Moderation'):
 
         if len(reasons) >= 2 and not self._is_mod(message.author):
             # Consider the message scam likely if two of the three matches
-            _log.info(f'Deleting message from {message.author}. Reason: {reasons}. '
+            self._processing_message_ids.add(message.id)
+            _log.info(f'Detected message from {message.author} as scam. Reason: {reasons}. '
                       f'Original message: {message.content}')
             log_channel = service_config.servers[message.guild.id].moderation.log_channel
+            actions = []
+
+            mute_role = service_config.servers[message.guild.id].moderation.mute_role
+            if mute_role:
+                _log.info(f'Added role {mute_role} to {message.author}')
+                try:
+                    role = message.guild.get_role(mute_role)
+                    await message.author.add_roles(role, reason='Likely scam message detected.')
+                    actions.append(f'Added role {role.mention}')
+                except Exception as e:
+                    _log.exception(e)
+
+            try:
+                await message.delete()
+                actions.append('Deleted message')
+            except Exception as e:
+                _log.exception(e)
+                actions.append(f'Failed to delete message: {e}')
+
             if log_channel:
                 embed = Embed(
                     title='Likely scam message detected.'
                 )
                 embed.add_field(name='User', value=message.author.mention, inline=True)
                 embed.add_field(name='Channel', value=message.channel.mention, inline=True)
-                embed.add_field(name='Reason(s)', value=', '.join(reasons))
-                embed.add_field(name='Original Message', value=message.content)
-                try:
-                    await self._bot.get_channel(log_channel).send(embed=embed)
-                except Exception as e:
-                    _log.exception(e)
-            mute_role = service_config.servers[message.guild.id].moderation.mute_role
-            if mute_role:
-                _log.info(f'Adding role {mute_role} to {message.author}')
-                try:
-                    await message.author.add_roles(message.guild.get_role(mute_role),
-                                                   reason='Likely scam message detected.')
-                except Exception as e:
-                    _log.exception(e)
-
-            await message.delete()
+                embed.add_field(name='Reason(s)', value='\n'.join(reasons), inline=False)
+                embed.add_field(name='Action(s) taken', value='\n'.join(actions), inline=False)
+                embed.add_field(name='Original Message', value=message.content, inline=False)
+                await self._bot.get_channel(log_channel).send(embed=embed)
+            self._processing_message_ids.discard(message.id)
 
     @staticmethod
     def _search_embeds(regex: re.Pattern, message: Message):
