@@ -13,6 +13,9 @@ servers:
         enabled: off
       roles:
         enabled: on
+    moderation:
+      log_channel: 552398918865125376
+      mute_role: 563552555318378536
     roles:
       self_assignable_roles: [ 745821300987002912, 862135223072194571 ]
     game_code:

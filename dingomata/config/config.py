@@ -12,6 +12,7 @@ from dingomata.cogs.bedtime.config import BedtimeConfig
 from dingomata.cogs.botadmin.config import BotAdminConfig
 from dingomata.cogs.gamba.config import GambaConfig
 from dingomata.cogs.game_code.config import GameCodeConfig
+from dingomata.cogs.moderation.config import ModerationConfig
 from dingomata.cogs.quote.config import QuoteConfig
 from dingomata.cogs.roles.config import RoleConfig
 from dingomata.cogs.text.config import TextConfig
@@ -48,6 +49,7 @@ class GuildConfig(BaseModel):
     botadmin: BotAdminConfig = BotAdminConfig()
     gamba: GambaConfig = GambaConfig()
     game_code: GameCodeConfig = GameCodeConfig()
+    moderation: ModerationConfig = ModerationConfig()
     quote: QuoteConfig = QuoteConfig()
     text: TextConfig = TextConfig()
     roles: RoleConfig = RoleConfig()

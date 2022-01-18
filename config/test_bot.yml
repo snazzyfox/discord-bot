@@ -7,6 +7,9 @@ servers:
       exempt: [840021184589856778]
     roles:
       self_assignable_roles: [873029553918967889, 908451036308590593]
+    moderation:
+      log_channel: 870516696593596506
+      mute_role: 908451036308590593
     commands:
       echo:
         enabled: on
