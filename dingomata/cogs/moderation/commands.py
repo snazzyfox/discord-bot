@@ -13,7 +13,7 @@ _log = logging.getLogger(__name__)
 class ModerationCommandsCog(Cog, name='Moderation'):
     """Message filtering."""
     _URL_REGEX = re.compile(r'\bhttps?://')
-    _SCAM_KEYWORD_REGEX = re.compile(r'\bfree|gift|nitro|subscription', re.IGNORECASE)
+    _SCAM_KEYWORD_REGEX = re.compile(r'\b(?:nitro|subscription)', re.IGNORECASE)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -37,10 +37,10 @@ class ModerationCommandsCog(Cog, name='Moderation'):
             reasons.append('Mentions at-everone')
         if bool(self._URL_REGEX.search(message.content)):
             reasons.append('Includes URL')
-        if self._SCAM_KEYWORD_REGEX.search(message.content):
-            reasons.append('Message content includes scam keyword(s)')
-        if self._search_embeds(self._SCAM_KEYWORD_REGEX, message):
-            reasons.append('Embed content includes scam keyword(s)')
+        if match := self._SCAM_KEYWORD_REGEX.search(message.content):
+            reasons.append(f'Message content includes scam keyword(s): {match.group()}')
+        if match := self._search_embeds(self._SCAM_KEYWORD_REGEX, message):
+            reasons.append(f'Embed content includes scam keyword(s): {match.group()}')
 
         if len(reasons) >= 2 and not self._is_mod(message.author):
             # Consider the message scam likely if two of the three matches
@@ -81,9 +81,11 @@ class ModerationCommandsCog(Cog, name='Moderation'):
 
     @staticmethod
     def _search_embeds(regex: re.Pattern, message: Message):
-        return any((embed.title and regex.search(embed.title))
-                   or (embed.description and regex.search(embed.description))
-                   for embed in message.embeds)
+        matches = (
+            (embed.title and regex.search(embed.title)) or (embed.description and regex.search(embed.description))
+            for embed in message.embeds
+        )
+        return next(matches, None)
 
     @staticmethod
     def _is_mod(user: Member):
