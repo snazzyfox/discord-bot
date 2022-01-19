@@ -6,7 +6,7 @@ import pytz
 from discord import User, Message
 from discord.ext.commands import Bot, Cog
 from discord_slash import SlashContext
-from discord_slash.utils.manage_commands import create_option
+from discord_slash.utils.manage_commands import create_option, create_choice
 from parsedatetime import Calendar
 from prettytable import PrettyTable
 from sqlalchemy import func
@@ -150,14 +150,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def hug(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} is lonely and can't stop hugging themselves.")
-        elif random() < 0.98:
-            adj = choice(['great big', 'giant', 'big bear', 'friendly', 'loving', 'nice warm', 'floofy', 'free',
-                          'suplex and a', 'rambunctious', 'therapeutic', 'heavenly', 'tender', 'dazzling', 'joyous',
-                          'tremendous', 'remarkable', 'magical', 'kind', 'delightful', 'satisfying', 'cheerful'])
-            await ctx.send(f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} hug!')
         else:
-            await ctx.send(f'{ctx.author.display_name} wants to give {self._mention(ctx, user)} a hug, but then '
-                           f'remembers social distancing is still a thing.')
+            await self._post_random_reply(ctx, 'hug', target=self._mention(ctx, user))
 
     @slash(name='pat', description='Give someone pats!',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -167,7 +161,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f'{ctx.author.display_name} gives themselves a pat on the back!')
         else:
-            await ctx.send(f'{ctx.author.display_name} gives {self._mention(ctx, user)} all the pats!')
+            await self._post_random_reply(ctx, 'pat', target=self._mention(ctx, user))
 
     @slash(name='bonk', description='Give someone bonks!',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -179,24 +173,19 @@ class TextCommandsCog(Cog, name='Text Commands'):
         elif user == self._bot.user:
             await ctx.send("How dare you.")
         else:
-            adj = choice(['lightly', 'gently', 'aggressively', 'frantically', 'twice', 'heavily', 'loudly',
-                          'deliberately', 'dutifully', 'mortally', 'politely', 'weakly', 'violently', 'noisily',
-                          'swiftly', 'repeatedly', 'fiercely', 'kiddingly', 'judgmentally', 'mockingly'])
-            await ctx.send(f'{ctx.author.display_name} bonks {self._mention(ctx, user)} {adj} on the head. Bad!')
+            await self._post_random_reply(ctx, 'bonk', target=self._mention(ctx, user))
 
     @slash(name='bap', description='Give someone baps!',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
            cooldown=True,
            )
     async def bap(self, ctx: SlashContext, user: User) -> None:
-        thing = choice(['magazine', 'newspaper', 'mousepad', 'phonebook', 'pancake', 'pillow', 'pizza', 'towel'])
         if ctx.author == user:
             await ctx.send("Aw, don't be so rough on yourself.")
-        elif user == self._bot.user:
-            await ctx.send(f"{user.mention} rolls up a {thing} and baps {ctx.author.mention} on the snoot.")
         else:
-            await ctx.send(f'{ctx.author.display_name} rolls up a {thing} and baps {self._mention(ctx, user)} on '
-                           f'the snoot.')
+            if user == self._bot.user:
+                user, ctx.author = ctx.author, user
+            await self._post_random_reply(ctx, 'bonk', target=self._mention(ctx, user))
 
     @slash(name='boop', description='Give someone a boop!',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -206,8 +195,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f"{ctx.author.display_name} walks into a glass door and end up booping themselves.")
         else:
-            adv = choice(['lightly', 'gently', 'lovingly', 'aggressively', 'kindly', 'tenderly'])
-            await ctx.send(f"{ctx.author.display_name} {adv} boops {self._mention(ctx, user)}'s snoot. Aaaaaa!")
+            await self._post_random_reply(ctx, 'boop', target=self._mention(ctx, user))
 
     @slash(name='smooch', description='Give someone a big smooch!',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -217,13 +205,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if ctx.author == user:
             await ctx.send(f'{ctx.author.display_name} tries to smooch themselves... How is that possible?')
         else:
-            location = choice(['cheek', 'head', 'booper', 'snoot', 'face', 'lips', 'tail', 'neck', 'paws', 'beans',
-                               'ears', 'tummy', 'shoulder', 'forehead', 'eyeball', 'arms'])
-            adj = choice(['lovely', 'sweet', 'affectionate', 'delightful', 'friendly', 'warm', 'wet', 'loud'])
-            message = f'{ctx.author.display_name} gives {self._mention(ctx, user)} a {adj} smooch on the {location}.'
-            if user == self._bot.user:
-                message += ' Bzzzt. A shocking experience.'
-            await ctx.send(message)
+            await self._post_random_reply(ctx, 'smooch', target=self._mention(ctx, user),
+                                          post='Bzzzt. A shocking experience.' if user == self._bot.user else '')
 
     @slash(name='cuddle', description="Give a cutie some cuddles",
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -235,8 +218,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 f"{ctx.author.display_name} can't find anyone to cuddle, so they decided to pull their tail in front "
                 f"and cuddle it instead.")
         else:
-            await ctx.send(
-                f'{ctx.author.display_name} pulls {self._mention(ctx, user)} into their arm for a long cuddle.')
+            await self._post_random_reply(ctx, 'cuddle', target=self._mention(ctx, user))
 
     @slash(name='snug', description="Give someone some snuggles",
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -248,7 +230,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 f"{ctx.author.display_name} can't find a hot werewolf boyfriend to snuggle, so they decide to snuggle "
                 f"a daki with themselves on it.")
         else:
-            await ctx.send(f'{ctx.author.display_name} snuggles the heck out of {self._mention(ctx, user)}!')
+            await self._post_random_reply(ctx, 'snug', target=self._mention(ctx, user))
 
     @slash(name='tuck', description='Tuck someone into bed!',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -257,14 +239,11 @@ class TextCommandsCog(Cog, name='Text Commands'):
     async def tuck(self, ctx: SlashContext, user: User) -> None:
         if ctx.author == user:
             await ctx.send(f'{ctx.author.display_name} gets into bed and rolls up into a cozy burrito.')
-        elif user.bot:
-            await ctx.send(f'{ctx.author.display_name} rolls {self._mention(ctx, user)} up in a blanket. The bot '
-                           f'overheats.')
         else:
-            shell = choice(['cozy blanket', 'tortilla', 'pancake', 'comforter', 'piece of toast', 'beach towel'])
-            product = choice(['burrito', 'purrito', 'tasty snacc', 'hotdog', 'crepe', 'swiss roll'])
-            await ctx.send(f'{ctx.author.display_name} takes a {shell} and rolls {self._mention(ctx, user)} into a '
-                           f'{product} before tucking them into bed. Sweet dreams!')
+            await self._post_random_reply(
+                ctx, 'tuck', target=self._mention(ctx, user),
+                post='The bot overheats and burns their beans.' if user == self._bot.user else '',
+            )
 
     @slash(name='tacklehug', description='Bam!',
            options=[create_option(name='user', description='Target user', option_type=User, required=True)],
@@ -275,19 +254,17 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.send(f'{ctx.author.display_name} trips over and somehow tackles themselves. Oh wait, they tied '
                            f'both their shoes together.')
         else:
-            ending = choice(['to the ground!', 'to the floor!', 'off a cliff. Oops!', 'into a tree. *Thud*',
-                             'into the grass.', 'into a lake. *splash*', ])
-            message = f'{ctx.author.display_name} tacklehugs {self._mention(ctx, user)} {ending}'
-            if user.bot:
-                message += ' The bot lets out some sparks and burns their beans.'
-            await ctx.send(message)
+            await self._post_random_reply(
+                ctx, 'tacklehug', target=self._mention(ctx, user),
+                post='The bot lets out some sparks and burns their beans.' if user == self._bot.user else '',
+            )
 
     @slash(name='scream', description='Scream!', cooldown=True)
     async def scream(self, ctx: SlashContext) -> None:
         char = choice(['A'] * 20 + ['🅰', '🇦 '])
         await ctx.send(char * randint(1, 35) + '!')
 
-    @slash(name='awoo', description='Howl!', cooldown=True,)
+    @slash(name='awoo', description='Howl!', cooldown=True, )
     async def awoo(self, ctx: SlashContext) -> None:
         await ctx.send('Awoo' + 'o' * randint(0, 25) + '!')
 
@@ -299,9 +276,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
         if user == self._bot.user:
             await ctx.reply('No U.')
         else:
-            phrase = choice(['Such a cutie! :-3', 'How cute!', "I can't get over how cute they are!",
-                             "I can't believe they're so cute!", "Why are they so cute?", "*melts to their cuteness*"])
-            await ctx.reply(f"Aww, Look at {self._mention(ctx, user)}... {phrase}")
+            await self._post_random_reply(ctx, 'cute', target=self._mention(ctx, user))
 
     @slash(name='roll', description="Roll a die.",
            options=[create_option(name='sides', description='Number of sides (default 6)', option_type=int,
@@ -318,30 +293,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
         else:
             await ctx.reply(f"{ctx.author.display_name} rolls a {randint(1, sides)} on a d{sides}.")
 
-    @slash(name='8ball', description="Shake a magic 8 ball.", cooldown=True,)
+    @slash(name='8ball', description="Shake a magic 8 ball.", cooldown=True, )
     async def eightball(self, ctx: SlashContext) -> None:
-        await ctx.reply(choice([
-            'As I see it, yes.',
-            'Ask again later.',
-            'Better not tell you now.',
-            'Cannot predict now.',
-            'Concentrate and ask again.',
-            "Don't count on it.",
-            'It is certain.',
-            'It is decidedly so.',
-            'Most likely.',
-            'My reply is no.',
-            'My sources say no.',
-            'Outlook good.',
-            'Outlook not so good.',
-            'Reply hazy, try again.',
-            'Signs point to yes.',
-            'Very doubtful.',
-            'Without a doubt.',
-            'Yes, definitely.',
-            'Yes.',
-            'You may rely on it.',
-        ]))
+        await self._post_random_reply(ctx, '8ball')
 
     @slash(name='flip', description="Flip a coin.", cooldown=True)
     async def flip(self, ctx: SlashContext) -> None:
@@ -359,35 +313,9 @@ class TextCommandsCog(Cog, name='Text Commands'):
             await ctx.reply(f"{ctx.author.display_name} dares to snipe {self._mention(ctx, user)}. The rifle "
                             "explodes, taking their paws with it.")
         elif user == ctx.author:
-            result = "BANG! The gun goes." if random() < 1 / 6 else "Whew, it's a blank."
-            await ctx.reply(f"{ctx.author.display_name} plays Russian Roulette with a revolver. {result}")
-        elif (prob := random()) < 0.50:
-            reason = choice([
-                'they get distracted and went to chase a squirrel instead',
-                'they only have a knife in the gun fight',
-                'they went to watch stream and forgot about it all',
-                'they fall out of the tree while waiting',
-                'the rifle turns out to be a water gun',
-                'they totally forget to shoot because they were browsing furry art',
-                'they spend all night awooing to a full moon',
-            ])
-            await ctx.reply(f"{ctx.author.display_name} tries to snipe {self._mention(ctx, user)}, but {reason}.")
-        elif prob < 0.975:
-            reason = choice([
-                'forgot gravity existed', 'failed to account for wind', "didn't clean the scope", 'got too tipsy',
-                "can't concentrate", "had too much coffee", "are pepega at shooting"
-            ])
-            action = choice(['misses completely', 'botches it', 'foxes it up', 'borks it', "it's a ruff shot"])
-            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)}, but they "
-                            f"{reason} and {action}. The bullet ricochets and scares {user.display_name} away.")
-        elif prob < 0.995:
-            location = choice(['bean', 'arm', 'leg', 'thigh', 'fingy', 'paw', 'shoulder'])
-            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)} and hits their "
-                            f"{location}. {user.display_name} runs away.")
+            await self._post_random_reply(ctx, 'snipe.self')
         else:
-            location = choice(['chest', 'head', 'tums'])
-            await ctx.reply(f"{ctx.author.display_name} takes a shot at {self._mention(ctx, user)} and hits their "
-                            f"{location}. {user.display_name} is ded. F.")
+            await self._post_random_reply(ctx, 'snipe', target=self._mention(ctx, user))
 
     @slash(
         name='localtime',
@@ -403,8 +331,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
             tz = pytz.timezone(timezone.strip())
         except pytz.UnknownTimeZoneError as e:
             raise DingomataUserError(
-                f'Could not set your bedtime because timezone {timezone} is not recognized. Please use one of the '
-                f'"TZ Database Name"s listed here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
+                f'{timezone} is not a recognized timezone. Please use one of the "TZ Database Name"s listed here: '
+                f'https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
             ) from e
         time_obj, status = _calendar.parseDT(time, datetime.utcnow().astimezone(tz), tzinfo=tz)
         if status != 3:
@@ -429,12 +357,31 @@ class TextCommandsCog(Cog, name='Text Commands'):
                 await ctx.reply('> ' + question + '\n' + choice(reply.responses))
                 break
 
+    @slash(
+        name='pour',
+        description='Pour someone a drink!',
+        options=[
+            create_option(name='drink', description='What drink?', option_type=str, required=True, choices=[
+                create_choice(name='coffee', value='coffee'),
+                create_choice(name='tea', value='tea'),
+            ]),
+            create_option(name='user', description='Who to pour the drink for?', option_type=User, required=True),
+        ],
+        default_available=True,
+    )
+    async def pour(self, ctx: SlashContext, drink: str, user: User) -> None:
+        mention = 'themselves' if user == ctx.author else self._mention(ctx, user)
+        if drink == 'coffee':
+            await self._post_random_reply(ctx, 'pour.coffee', target=mention)
+        elif drink == 'tea':
+            await self._post_random_reply(ctx, 'pour.tea', target=mention)
+
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
         if (message.guild and message.guild.id in service_config.get_command_guilds('replies')
                 and (self._bot.user in message.mentions or self._BOT_NAME_REGEX.search(message.content))
                 and message.author != self._bot.user):
-            for reply in service_config.servers[message.guild.id].text.replies:
+            for reply in service_config.servers[message.guild.id].text.rawtext_replies:
                 if reply.regex.search(message.content):
                     await message.reply(choice(reply.responses))
                     break  # Stop after first match
@@ -448,3 +395,8 @@ class TextCommandsCog(Cog, name='Text Commands'):
             return user.display_name
         else:
             return user.mention
+
+    @staticmethod
+    async def _post_random_reply(ctx: SlashContext, key: str, **kwargs) -> None:
+        await ctx.reply(service_config.servers[ctx.guild.id].text.random_replies[key].render(
+            author=ctx.author.display_name, **kwargs))

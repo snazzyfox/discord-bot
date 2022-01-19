@@ -1,15 +1,17 @@
+import random
 from functools import cached_property
+from itertools import accumulate
 from pathlib import Path
-from typing import Set, List
+from typing import Set, List, Union, Dict
 from zlib import decompress
 
 import yaml
 import re
-from pydantic import BaseModel
+from pydantic import BaseModel, confloat, root_validator, PrivateAttr
 from dingomata.config import CogConfig
 
 
-class TextReply(BaseModel):
+class TriggerTextReply(BaseModel):
     triggers: List[str]
     responses: List[str]
 
@@ -21,24 +23,60 @@ class TextReply(BaseModel):
         return re.compile('|'.join(rf'(?:^|\b|\s){t}(?:$|\b|\s)' for t in self.triggers), re.IGNORECASE)
 
 
-def _get_text_replies() -> List[TextReply]:
-    with (Path(__file__).parent / 'text_response_data.yaml').open() as data:
-        return [TextReply.parse_obj(entry) for entry in yaml.safe_load_all(data)]
+def _get_rawtext_replies() -> List[TriggerTextReply]:
+    with (Path(__file__).parent / 'rawtext_response_data.yaml').open() as data:
+        return [TriggerTextReply.parse_obj(entry) for entry in yaml.safe_load_all(data)]
 
 
-def _get_wheel_replies() -> List[TextReply]:
+def _get_wheel_replies() -> List[TriggerTextReply]:
     with (Path(__file__).parent / 'wheel.bin').open('rb') as bindata:
         bindata.seek(2, 0)
         textdata = decompress(bindata.read())
-        return [TextReply.parse_obj(entry) for entry in yaml.safe_load_all(textdata)]
+        return [TriggerTextReply.parse_obj(entry) for entry in yaml.safe_load_all(textdata)]
+
+
+class RandomTextChoice(BaseModel):
+    content: str
+    probability: confloat(gt=0) = 1.0  #: Note: probabilities don't have to add up to 1. They'll be normalized.
+
+
+class RandomTextChoiceList(BaseModel):
+    __root__: List[Union[RandomTextChoice, str]]
+    _weights: List[float] = PrivateAttr()
+
+    def __init__(self, __root__: List[Union[RandomTextChoice, str]], **kwargs):
+        for idx, value in enumerate(__root__):
+            if isinstance(value, str):
+                __root__[idx] = RandomTextChoice(content=value, probability=1.0)
+        super().__init__(__root__=__root__, **kwargs)
+        self._weights = list(accumulate(choice.probability for choice in self.__root__))
+
+    def choose(self) -> str:
+        return random.choices(population=self.__root__, cum_weights=self._weights)[0].content
+
+
+class RandomTextReply(BaseModel):
+    templates: RandomTextChoiceList
+    fragments: Dict[str, RandomTextChoiceList] = {}
+
+    def render(self, **kwargs) -> str:
+        fragments = {k: v.choose() for k, v in self.fragments.items()}
+        template = self.templates.choose()
+        return template.format(**fragments, **kwargs)
+
+
+def _get_random_text_replies() -> Dict[str, RandomTextReply]:
+    with (Path(__file__).parent / 'random_response_data.yaml').open() as data:
+        return {k: RandomTextReply.parse_obj(v) for k, v in yaml.safe_load(data).items()}
 
 
 class TextConfig(CogConfig):
     #: List of role or user IDs where unnecessary pings are suppressed.
     no_pings: Set[int] = set()
 
-    #: List of terms to reply to
-    replies: List[TextReply] = _get_text_replies()
+    #: Text data
+    rawtext_replies: List[TriggerTextReply] = _get_rawtext_replies()
+    random_replies: Dict[str, RandomTextReply] = _get_random_text_replies()
 
     #: Responses for the wheel (obfuscated)
-    wheel: List[TextReply] = _get_wheel_replies()
+    wheel: List[TriggerTextReply] = _get_wheel_replies()
