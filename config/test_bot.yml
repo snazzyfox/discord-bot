@@ -17,7 +17,5 @@ servers:
         enabled: on
       roles:
         enabled: on
-      wheel:
-        enabled: on
     permissions:
       collect: [869729094722543627]

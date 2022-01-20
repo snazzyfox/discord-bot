@@ -31,8 +31,6 @@ servers:
     commands:
       roles:
         enabled: on
-      wheel:
-        enabled: on
     moderation:
       log_channel: 895922436250406912
     roles:

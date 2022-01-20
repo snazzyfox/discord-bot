@@ -342,22 +342,6 @@ class TextCommandsCog(Cog, name='Text Commands'):
         await ctx.reply(f'{time} in {tz} is <t:{int(time_obj.timestamp())}:f> your local time.')
 
     @slash(
-        name='wheel',
-        description='Ask the Wheel of Enormous Proportions, without having to climb a hill first.',
-        options=[
-            create_option(name='question', description='What question are you asking the wheel?', option_type=str,
-                          required=True),
-        ],
-        default_available=False,
-    )
-    async def wheel(self, ctx: SlashContext, question: str) -> None:
-        question = question.strip()
-        for reply in service_config.servers[ctx.guild.id].text.wheel:
-            if reply.regex.search(question):
-                await ctx.reply('> ' + question + '\n' + choice(reply.responses))
-                break
-
-    @slash(
         name='pour',
         description='Pour someone a drink!',
         options=[

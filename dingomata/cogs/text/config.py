@@ -1,4 +1,5 @@
 import random
+import re
 from functools import cached_property
 from itertools import accumulate
 from pathlib import Path
@@ -6,8 +7,8 @@ from typing import Set, List, Union, Dict
 from zlib import decompress
 
 import yaml
-import re
-from pydantic import BaseModel, confloat, root_validator, PrivateAttr
+from pydantic import BaseModel, confloat, PrivateAttr
+
 from dingomata.config import CogConfig
 
 
@@ -23,13 +24,8 @@ class TriggerTextReply(BaseModel):
         return re.compile('|'.join(rf'(?:^|\b|\s){t}(?:$|\b|\s)' for t in self.triggers), re.IGNORECASE)
 
 
-def _get_rawtext_replies() -> List[TriggerTextReply]:
-    with (Path(__file__).parent / 'rawtext_response_data.yaml').open() as data:
-        return [TriggerTextReply.parse_obj(entry) for entry in yaml.safe_load_all(data)]
-
-
-def _get_wheel_replies() -> List[TriggerTextReply]:
-    with (Path(__file__).parent / 'wheel.bin').open('rb') as bindata:
+def _get_text_replies() -> List[TriggerTextReply]:
+    with (Path(__file__).parent / 'text_responses.bin').open('rb') as bindata:
         bindata.seek(2, 0)
         textdata = decompress(bindata.read())
         return [TriggerTextReply.parse_obj(entry) for entry in yaml.safe_load_all(textdata)]
@@ -75,8 +71,5 @@ class TextConfig(CogConfig):
     no_pings: Set[int] = set()
 
     #: Text data
-    rawtext_replies: List[TriggerTextReply] = _get_rawtext_replies()
+    rawtext_replies: List[TriggerTextReply] = _get_text_replies()
     random_replies: Dict[str, RandomTextReply] = _get_random_text_replies()
-
-    #: Responses for the wheel (obfuscated)
-    wheel: List[TriggerTextReply] = _get_wheel_replies()
