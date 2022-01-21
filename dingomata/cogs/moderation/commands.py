@@ -13,7 +13,7 @@ _log = logging.getLogger(__name__)
 class ModerationCommandsCog(Cog, name='Moderation'):
     """Message filtering."""
     _URL_REGEX = re.compile(r'\bhttps?://(?!twitch\.tv/)')
-    _SCAM_KEYWORD_REGEX = re.compile(r'\b(?:nitro|subscription)', re.IGNORECASE)
+    _SCAM_KEYWORD_REGEX = re.compile(r'\b(?:free gift|nitro|subscription)', re.IGNORECASE)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot

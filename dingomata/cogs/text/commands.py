@@ -30,13 +30,11 @@ class TextCommandsCog(Cog, name='Text Commands'):
         self._bot = bot
         self._engine = engine
         self._session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-        self._BOT_NAME_REGEX: re.Pattern = None
 
     @Cog.listener()
     async def on_ready(self):
         async with self._engine.begin() as conn:
             await conn.run_sync(TextModel.metadata.create_all)
-            self._BOT_NAME_REGEX = re.compile(f'\b{self._bot.user.display_name}\b', re.IGNORECASE)
 
     @slash(name='tuch', description='Tuch some butts. You assume all risks.', cooldown=True)
     async def tuch(self, ctx: SlashContext) -> None:
@@ -363,7 +361,7 @@ class TextCommandsCog(Cog, name='Text Commands'):
     @Cog.listener()
     async def on_message(self, message: Message) -> None:
         if (message.guild and message.guild.id in service_config.get_command_guilds('replies')
-                and (self._bot.user in message.mentions or self._BOT_NAME_REGEX.search(message.content))
+                and self._bot.user in message.mentions
                 and message.author != self._bot.user):
             for reply in service_config.servers[message.guild.id].text.rawtext_replies:
                 if reply.regex.search(message.content):
