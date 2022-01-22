@@ -4,6 +4,7 @@ import re
 from discord import Message, Embed, Member
 from discord.ext.commands import Bot, Cog
 from sqlalchemy.ext.asyncio import AsyncEngine
+from unidecode import unidecode
 
 from dingomata.config.config import service_config
 
@@ -13,7 +14,7 @@ _log = logging.getLogger(__name__)
 class ModerationCommandsCog(Cog, name='Moderation'):
     """Message filtering."""
     _URL_REGEX = re.compile(r'\bhttps?://(?!twitch\.tv/)')
-    _SCAM_KEYWORD_REGEX = re.compile(r'\b(?:free gift|nitro|subscription)', re.IGNORECASE)
+    _SCAM_KEYWORD_REGEX = re.compile(r'\b(?:free gift(?:s|ed)?|nitro|subscription)', re.IGNORECASE)
 
     def __init__(self, bot: Bot, engine: AsyncEngine):
         self._bot = bot
@@ -31,13 +32,13 @@ class ModerationCommandsCog(Cog, name='Moderation'):
 
     async def _check_likely_discord_scam(self, message: Message):
         if message.id in self._processing_message_ids:
-            return   # It's already in the process of being deleted.
+            return  # It's already in the process of being deleted.
         reasons = []
         if message.guild.default_role.mention in message.content or '@everyone' in message.content:
             reasons.append('Mentions at-everone')
         if bool(self._URL_REGEX.search(message.content)):
             reasons.append('Includes URL')
-        if match := self._SCAM_KEYWORD_REGEX.search(message.content):
+        if match := self._SCAM_KEYWORD_REGEX.search(unidecode(message.content)):
             reasons.append(f'Message content includes scam keyword(s): {match.group()}')
         if match := self._search_embeds(self._SCAM_KEYWORD_REGEX, message):
             reasons.append(f'Embed content includes scam keyword(s): {match.group()}')
@@ -81,14 +82,18 @@ class ModerationCommandsCog(Cog, name='Moderation'):
 
     @staticmethod
     def _search_embeds(regex: re.Pattern, message: Message):
-        matches = (
-            (embed.title and regex.search(embed.title)) or (embed.description and regex.search(embed.description))
-            for embed in message.embeds
-        )
+        for embed in message.embeds:
+            print(embed.title, embed.description)
+        matches = ((embed.title and regex.search(unidecode(embed.title)))
+                   or (embed.description and regex.search(unidecode(embed.description)))
+                   for embed in message.embeds
+                   )
         return next(matches, None)
 
     @staticmethod
     def _is_mod(user: Member):
         guild = user.guild.id
-        return user.id in service_config.servers[guild].mod_users or \
-            any(role.id in service_config.servers[guild].mod_roles for role in user.roles)
+        return (
+                user.id in service_config.servers[guild].mod_users
+                or any(role.id in service_config.servers[guild].mod_roles for role in user.roles)
+        )
