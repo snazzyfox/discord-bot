@@ -16,7 +16,7 @@ from dingomata.cogs.moderation.config import ModerationConfig
 from dingomata.cogs.quote.config import QuoteConfig
 from dingomata.cogs.roles.config import RoleConfig
 from dingomata.cogs.text.config import TextConfig
-from dingomata.cogs.twitch.config import TwitchConfig
+
 
 _LOGGING_CONFIG = 'config/logging.cfg'
 
@@ -53,7 +53,6 @@ class GuildConfig(BaseModel):
     quote: QuoteConfig = QuoteConfig()
     text: TextConfig = TextConfig()
     roles: RoleConfig = RoleConfig()
-    twitch: TwitchConfig = TwitchConfig()
 
     class Config:
         keep_untouched = (cached_property,)

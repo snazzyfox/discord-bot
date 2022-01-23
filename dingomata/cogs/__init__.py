@@ -7,10 +7,9 @@ from .poll.commands import PollCog
 from .quote.commands import QuoteCog
 from .roles.commands import RoleCommandsCog
 from .text.commands import TextCommandsCog
-from .twitch.commands import TwitchCog
 
 all_cogs = [BedtimeCog, BotAdmin, GambaCog, GameCodeCommands, ModerationCommandsCog, PollCog, QuoteCog,
-            RoleCommandsCog, TextCommandsCog, TwitchCog]
+            RoleCommandsCog, TextCommandsCog]
 
 __all__ = [
     'BedtimeCog',
@@ -22,6 +21,5 @@ __all__ = [
     'QuoteCog',
     'RoleCommandsCog',
     'TextCommandsCog',
-    'TwitchCog',
     'all_cogs',
 ]
