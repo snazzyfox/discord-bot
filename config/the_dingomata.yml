@@ -14,6 +14,7 @@ servers:
       roles:
         enabled: on
     moderation:
+      text: <@&492485748071727129> Ban the user if their account appears compromised, or remove the muted role if this is a false detection.
       log_channel: 552398918865125376
       mute_role: 563552555318378536
     roles:

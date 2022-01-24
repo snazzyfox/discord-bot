@@ -16,3 +16,7 @@ servers:
       points_name: nuggies
     text:
       no_pings: *mods
+    moderation:
+      text: <@&768232863043682314> Please review the message below. Ban the user if their account appears compromised, or remove the mute role if this is a false detection.
+      log_channel: 790632143037399070
+      mute_role: 887834415466700840

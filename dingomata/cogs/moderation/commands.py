@@ -56,7 +56,7 @@ class ModerationCommandsCog(Cog, name='Moderation'):
                 _log.info(f'Added role {mute_role} to {message.author}')
                 try:
                     role = message.guild.get_role(mute_role)
-                    await message.author.add_roles(role, reason='Likely scam message detected.')
+                    await message.author.add_roles(role, reason='Scam message detected.')
                     actions.append(f'Added role {role.mention}')
                 except Exception as e:
                     _log.exception(e)
@@ -69,15 +69,14 @@ class ModerationCommandsCog(Cog, name='Moderation'):
                 actions.append(f'Failed to delete message: {e}')
 
             if log_channel:
-                embed = Embed(
-                    title='Likely scam message detected.'
-                )
+                embed = Embed(title='Scam message detected.')
                 embed.add_field(name='User', value=message.author.mention, inline=True)
                 embed.add_field(name='Channel', value=message.channel.mention, inline=True)
                 embed.add_field(name='Reason(s)', value='\n'.join(reasons), inline=False)
                 embed.add_field(name='Action(s) taken', value='\n'.join(actions), inline=False)
                 embed.add_field(name='Original Message', value=message.content, inline=False)
-                await self._bot.get_channel(log_channel).send(embed=embed)
+                await self._bot.get_channel(log_channel).send(
+                    content=service_config.servers[message.guild.id].moderation.text, embed=embed)
             self._processing_message_ids.discard(message.id)
 
     @staticmethod
