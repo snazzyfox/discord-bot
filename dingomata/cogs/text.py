@@ -43,8 +43,9 @@ class RandomTextChoiceList(BaseModel):
     _weights: List[float] = PrivateAttr()
 
     def __init__(self, __root__: List[RandomTextChoice | str], **kwargs):
-        data: List[RandomTextChoice] = [
-            RandomTextChoice(content=value, probability=1.0) if isinstance(value, str) else value
+        data = [
+            RandomTextChoice(content=value, probability=1.0) if isinstance(value, str)
+            else RandomTextChoice.parse_obj(value)
             for value in __root__
         ]
         super().__init__(__root__=data, **kwargs)
