@@ -457,8 +457,8 @@ multidict = ">=4.0"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.9"  # Required for random.sample with weights
-content-hash = "942632dee6ce87f0b182ea1bd7e93b5f9db756d58464ab131eea2117a2aaaa49"
+python-versions = "^3.10"  # Required for random.sample with weights
+content-hash = "5620cb194c977f2f420738e391ffac21a8adde4f523be6e9a90eb434432a03a7"
 
 [metadata.files]
 aiodns = [
