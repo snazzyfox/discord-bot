@@ -52,7 +52,7 @@ class TuchCog(discord.Cog):
         SELECT *
         FROM (
             SELECT user_id, max_butts, total_butts, rank() over (order by max_butts desc) as rank
-            FROM text_tuch
+            FROM tuch
             WHERE guild_id = $1
         ) a
         WHERE rank <= 10
