@@ -9,7 +9,7 @@ self_assign = [ 745821300987002912, 862135223072194571 ]
 no_pings = [552399444105232384, 492485748071727129]
 
 [server.cooldown]
-default_seconds = 60
+default_seconds = 15
 exempt = [876683421601136650]
 
 [server.automod]
@@ -26,8 +26,11 @@ collect.enabled = false
 id = 351122293105229835
 
 automod.log_channel = 895922436250406912
-cooldown.exempt = [ 895922436250406912 ]
 gamba.points_name = "lycoins"
+
+[server.cooldown]
+default_seconds = 5
+exempt = [ 895922436250406912 ]
 
 [server.roles]
 mods = [ 862178327049404437 ]

@@ -7,7 +7,7 @@ self_assign = [873029553918967889, 908451036308590593]
 no_pings = []
 
 [server.cooldown]
-default_seconds = 60
+default_seconds = 15
 exempt = [840021184589856778]
 
 [server.automod]

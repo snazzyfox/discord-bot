@@ -7,7 +7,7 @@ mods = [768232863043682314, 768233366889300028]
 no_pings = [768232863043682314, 768233366889300028]
 
 [server.cooldown]
-default_seconds = 120
+default_seconds = 15
 exempt = [903465905630089236]
 
 [server.automod]
