@@ -1,0 +1,41 @@
+[[server]]
+# Dingo Den
+id = 178042794386915328
+gamba.points_name = "cheddar"
+
+[server.roles]
+mods = [552399444105232384, 492485748071727129]  # Dingo and Moderators
+self_assign = [ 745821300987002912, 862135223072194571 ]
+no_pings = [552399444105232384, 492485748071727129]
+mute = 563552555318378536
+
+[server.cooldown]
+default_seconds = 60
+exempt = [876683421601136650]
+
+[server.automod]
+text_prefix = "<@&492485748071727129> Ban the user if their account appears compromised, or remove the muted role if this is a false detection."
+log_channel = 552398918865125376
+
+[server.commands]
+whiskey.enabled = true
+collect.enabled = false
+
+
+[[server]]
+# Lycaon
+id = 351122293105229835
+
+automod.log_channel = 895922436250406912
+cooldown.exempt = [ 895922436250406912 ]
+gamba.points_name = "lycoins"
+
+[server.roles]
+mods = [ 862178327049404437 ]
+self_assign = [ 908285057498751007, 875679251704193037, 878827554222538854, 890676584867049482 ]
+
+[[server]]
+# Test server
+id = 814653859838427136
+roles.mods = [749862270129143880]
+commands.echo.enabled = true
