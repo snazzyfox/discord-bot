@@ -1,6 +1,8 @@
-from .models import CogConfig
-from .config import ServiceConfig, GuildConfig, get_logging_config, service_config
+from .bot import GuildConfig, ServiceConfig, get_logging_config, service_config
 
 __all__ = [
-    'CogConfig', 'ServiceConfig', 'GuildConfig', 'get_logging_config', 'service_config'
+    "ServiceConfig",
+    "GuildConfig",
+    "get_logging_config",
+    "service_config",
 ]

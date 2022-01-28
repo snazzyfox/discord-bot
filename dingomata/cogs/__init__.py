@@ -1,25 +1,31 @@
-from .bedtime.commands import BedtimeCog
-from .botadmin.commands import BotAdmin
-from .gamba.commands import GambaCog
-from .game_code.commands import GameCodeCommands
-from .moderation.commands import ModerationCommandsCog
-from .poll.commands import PollCog
-from .quote.commands import QuoteCog
-from .roles.commands import RoleCommandsCog
-from .text.commands import TextCommandsCog
+from .admin import AdminCog
+from .automod import AutomodCog
+from .bedtime import BedtimeCog
+from .gamba import GambaCog
+from .game_code import GameCodeCog
+from .quote import QuoteCog
+from .text import TextCog
+from .tuch import TuchCog
 
-all_cogs = [BedtimeCog, BotAdmin, GambaCog, GameCodeCommands, ModerationCommandsCog, PollCog, QuoteCog,
-            RoleCommandsCog, TextCommandsCog]
+all_cogs = [
+    AdminCog,
+    # AutomodCog,
+    # BedtimeCog,
+    # GambaCog,
+    # GameCodeCog,
+    # QuoteCog,
+    # TextCog,
+    # TuchCog,
+]
 
 __all__ = [
-    'BedtimeCog',
-    'BotAdmin',
-    'GambaCog',
-    'GameCodeCommands',
-    'ModerationCommandsCog',
-    'PollCog',
-    'QuoteCog',
-    'RoleCommandsCog',
-    'TextCommandsCog',
-    'all_cogs',
+    "BedtimeCog",
+    "AdminCog",
+    "AutomodCog",
+    "GambaCog",
+    "GameCodeCog",
+    "QuoteCog",
+    "TextCog",
+    "TuchCog",
+    "all_cogs",
 ]

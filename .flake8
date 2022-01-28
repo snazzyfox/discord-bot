@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 120
+ignore =
+    F722, F821,  # pycord uses invalid python syntax
+    W503

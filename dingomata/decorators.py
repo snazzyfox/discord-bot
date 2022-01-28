@@ -1,19 +1,18 @@
 from functools import wraps
 from time import time
-from typing import Callable, TypeVar, List, Optional, Dict, Hashable
+from typing import Callable, Dict, Hashable, Optional, TypeVar
 
-from discord_slash.cog_ext import cog_slash, cog_subcommand, cog_context_menu
-from discord_slash.context import InteractionContext
+import discord
 
 from dingomata.config import service_config
 from dingomata.exceptions import CooldownError
 
-F = TypeVar('F', bound=Callable)
+F = TypeVar("F", bound=Callable)
 
-_COOLDOWNS = {}
+_COOLDOWNS: Dict[Hashable, float] = {}
 
 
-def _is_cooldown(key: Hashable, ttl: int) -> int:
+def _is_cooldown(key: Hashable, ttl: Optional[int]) -> float:
     global _COOLDOWNS
     if not ttl:
         return 0
@@ -23,7 +22,7 @@ def _is_cooldown(key: Hashable, ttl: int) -> int:
         return _COOLDOWNS[key] - now
     else:
         _COOLDOWNS[key] = now + ttl
-        return 0
+        return 0.0
 
 
 def _cooldown(command_group: str):
@@ -32,101 +31,83 @@ def _cooldown(command_group: str):
 
     def decorator(func):
         @wraps(func)
-        async def wrapped(self, ctx: InteractionContext, *args, **kwargs):
+        async def wrapped(self, ctx: discord.ApplicationContext, *args, **kwargs):
             if ctx.channel.id not in service_config.cooldown_exempt:
-                remaining_time = _is_cooldown(
-                    (command_group, ctx.channel.id, ctx.author.id),
-                    cooldown_configs.get(ctx.guild.id))
+                remaining_time = _is_cooldown((command_group, ctx.channel.id), cooldown_configs.get(ctx.guild.id))
                 if remaining_time:
-                    raise CooldownError(f'Command is on cooldown. You can use this command again in '
-                                        f'{remaining_time:.1f} seconds. You may be able to get around this by using '
-                                        f'the command in the bot spam channel.')
+                    raise CooldownError(
+                        f"Command is on cooldown. You can use this command again in {remaining_time:.1f} seconds. "
+                        f"You can get around this by using the bot spam channel instead.")
             return await func(self, ctx, *args, **kwargs)
+
         return wrapped
-    return decorator
-
-
-def _compose_decorators(*decorators):
-    def decorator(func):
-        for dec in reversed(decorators):
-            func = dec(func)
-        return func
 
     return decorator
 
 
-def slash(name: str, group: Optional[str] = None, mod_only: bool = False, default_available: bool = True,
-          guild_ids: Optional[List[int]] = None, permissions: Optional[Dict[int, List]] = None, cooldown: bool = False,
-          **kwargs):
+def slash(
+        mod_only: bool = False,
+        default_available: bool = True,
+        config_group: Optional[str] = None,
+        cooldown: bool = False,
+):
     """Wrapper for slash commands. Automatically fills in guilds and permissions from configs.
 
-    :param name: Name of the command
-    :param group: If given, uses command configs from this command name instead of the one in name
     :param mod_only: Set permissions to only allow mod users
     :param default_available: If False, the command is turned off by default for all servers
-    :param guild_ids: Same as guild_ids in upstream lib. If empty filled by decorator.
-    :param permissions: Same as permissions in upstream lib. If empty filled by decorator.
+    :param config_group: If given, uses command configs from this command name instead of the one in name
     :param cooldown: Whether this command is subject to cooldown.
     """
-    group_name = group or name
-    guild_ids = guild_ids or service_config.get_command_guilds(group_name, default=default_available)
-    if not permissions:
-        if mod_only:
-            permissions = service_config.mod_permissions
-        else:
-            permissions = service_config.get_command_permissions(group_name)
-    if permissions:
-        kwargs['permissions'] = permissions
-        kwargs['default_permission'] = False
-    if guild_ids:
-        decorator = cog_slash(name=name, guild_ids=guild_ids, **kwargs)
+
+    def decorator(f: Callable):
+        name = f.__name__
+        config_name = config_group or name
+        perms = service_config.mod_permissions if mod_only else service_config.get_command_permissions(config_name)
+        guild_ids = service_config.get_command_guilds(config_name, default=default_available)
         if cooldown:
-            decorator = _compose_decorators(decorator, _cooldown(group_name))
-        return decorator
-    else:
-        return lambda func: func  # do not register the command if no guilds
-
-
-class SubcommandBase:
-    def __init__(self, name: str, group: Optional[str] = None, mod_only: bool = False, default_available: bool = True,
-                 guild_ids: Optional[List[int]] = None, permissions: Optional[Dict[int, List]] = None):
-        self.name = name
-        group_name = group or name
-        self.guild_ids = guild_ids or service_config.get_command_guilds(group_name, default=default_available)
-        self.permissions = permissions or (
-            service_config.mod_permissions if mod_only else service_config.get_command_permissions(group_name))
-        self.registered = False
-
-
-def subcommand(name: str, base: SubcommandBase, cooldown: bool = False, **kwargs):
-    """Wrapper for subcommands. Automatically fills in guilds and permissions from configs."""
-    if base.guild_ids:
-        if base.registered:
-            return cog_subcommand(base=base.name, base_default_permission=not base.permissions,
-                                  name=name, guild_ids=base.guild_ids, **kwargs)
+            f = _cooldown(config_name)(f)
+        if guild_ids:
+            decorated = discord.slash_command(guild_ids=guild_ids, permissions=perms, default_permission=not perms)(f)
+            return decorated
         else:
-            # bug in interactions lib - can only pass permission list once or they get concat'd
-            base.registered = True
-            return cog_subcommand(base=base.name, base_permissions=base.permissions,
-                                  base_default_permission=not base.permissions,
-                                  name=name, guild_ids=base.guild_ids, **kwargs)
-    else:
-        return lambda func: func
+            return f  # do not register the command if no guilds
+
+    return decorator
 
 
-def context_menu(name: str, group: Optional[str] = None, mod_only: bool = False, default_available: bool = True,
-                 guild_ids: Optional[List[int]] = None, permissions: Optional[Dict[int, List]] = None, **kwargs):
-    group_name = group or name
-    guild_ids = guild_ids or service_config.get_command_guilds(group_name, default=default_available)
-    if not permissions:
-        if mod_only:
-            permissions = service_config.mod_permissions
-            kwargs['default_permission'] = False
+def message_command(
+        name: Optional[str] = None,
+        mod_only: bool = False,
+        default_available: bool = True,
+        config_group: Optional[str] = None,
+):
+    def decorator(f: Callable):
+        command_name = name or f.__name__
+        config_name = config_group or f.__name__
+        perms = service_config.mod_permissions if mod_only else service_config.get_command_permissions(config_name)
+        guild_ids = service_config.get_command_guilds(config_name, default=default_available)
+        if guild_ids:
+            decorated = discord.message_command(name=command_name, guild_ids=guild_ids, permissions=perms,
+                                                default_permission=not perms)(f)
+            return decorated
         else:
-            permissions = service_config.get_command_permissions(group_name)
-    if permissions:
-        kwargs['permissions'] = permissions
-    if guild_ids:
-        return cog_context_menu(name=name, guild_ids=guild_ids, **kwargs)
-    else:
-        return lambda func: func
+            return f  # do not register the command if no guilds
+
+    return decorator
+
+
+def slash_group(
+        name: str,
+        description: str,
+        mod_only: bool = False,
+        default_available: bool = True,
+        config_group: Optional[str] = None,
+):
+    config_name = config_group or name
+    perms = service_config.mod_permissions if mod_only else service_config.get_command_permissions(config_name)
+    return discord.SlashCommandGroup(
+        name, description,
+        guild_ids=service_config.get_command_guilds(config_name, default_available),
+        default_permission=not perms,  # if no permission set, open to everyone
+        permissions=perms,
+    )

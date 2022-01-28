@@ -1,0 +1,21 @@
+[[server]]
+id = 768208778780475447
+gamba.points_name = "nuggies"
+
+[server.roles]
+mods = [768232863043682314, 768233366889300028]
+no_pings = [768232863043682314, 768233366889300028]
+mute = 887834415466700840
+
+[server.cooldown]
+default_seconds = 120
+exempt = [903465905630089236]
+
+[server.automod]
+log_channel = 790632143037399070
+text_prefix = "<@&768232863043682314> Please review the message below. Ban the user if their account appears compromised, or remove the mute role if this is a false detection."
+
+[server.commands]
+corgi.enabled = true
+roles.enabled = false
+collect.permissions = [768232863043682314, 768233366889300028, 768280287862849578] # corgi, mods, vips
