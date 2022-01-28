@@ -7,7 +7,6 @@ gamba.points_name = "cheddar"
 mods = [552399444105232384, 492485748071727129]  # Dingo and Moderators
 self_assign = [ 745821300987002912, 862135223072194571 ]
 no_pings = [552399444105232384, 492485748071727129]
-mute = 563552555318378536
 
 [server.cooldown]
 default_seconds = 60

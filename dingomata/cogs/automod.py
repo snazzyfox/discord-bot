@@ -1,5 +1,7 @@
 import logging
 import re
+from datetime import timedelta
+from enum import Enum
 from typing import Set
 
 import discord
@@ -7,8 +9,38 @@ from unidecode import unidecode
 
 from dingomata.config.bot import service_config
 from dingomata.decorators import slash_group
+from dingomata.utils import View
 
 _log = logging.getLogger(__name__)
+
+
+class AutomodAction(Enum):
+    BAN = 'ban'
+    KICK = 'kick'
+    UNDO = 'undo'
+
+
+class AutomodActionView(View):
+    def __init__(self):
+        self.action: AutomodAction | None = None
+        self.confirmed_by: discord.Member | None = None
+        super().__init__(timeout=None)
+
+    @discord.ui.select(placeholder='Select an action', options=[
+        discord.SelectOption(label='Ban', description='Ban the user from this server', emoji="🔨",
+                             value=AutomodAction.BAN.value),
+        discord.SelectOption(label='Kick', description='Kick the user from this server without ban', emoji='🥾',
+                             value=AutomodAction.KICK.value),
+        discord.SelectOption(label='Remove timeout', description='This was a false detection, remove the timeout',
+                             emoji='✅', value=AutomodAction.UNDO.value)
+    ])
+    async def select(self, select: discord.ui.Select, interaction: discord.Interaction) -> None:
+        if AutomodCog.is_mod(interaction.user):
+            self.action = AutomodAction(select.values[0])
+            self.confirmed_by = interaction.user
+            self.stop()
+        else:
+            interaction.response.send_message("You can't do this, you're not a mod.")
 
 
 class AutomodCog(discord.Cog):
@@ -46,7 +78,7 @@ class AutomodCog(discord.Cog):
         if match := self._search_embeds(self._SCAM_KEYWORD_REGEX, message):
             reasons.append(f"Embed content includes scam keyword(s): {match.group()}")
 
-        if len(reasons) >= 2 and not self._is_mod(message.author):
+        if len(reasons) >= 2 and not self.is_mod(message.author):
             # Consider the message scam likely if two matches
             self._processing_message_ids.add(message.id)
             _log.info(
@@ -56,19 +88,18 @@ class AutomodCog(discord.Cog):
             log_channel = service_config.server[message.guild.id].automod.log_channel
             actions = []
 
-            mute_role = service_config.server[message.guild.id].roles.mute
-            if mute_role:
-                _log.info(f"Added role {mute_role} to {message.author}")
-                try:
-                    role = message.guild.get_role(mute_role)
-                    await message.author.add_roles(role, reason="Scam message detected.")
-                    actions.append(f"Added role {role.mention}")
-                except Exception as e:
-                    _log.exception(e)
+            try:
+                await message.author.timeout_for(timedelta(days=1), reason="Potential scam message.")
+                actions.append("Timed out user for 1 day: pending mod review")
+            except Exception as e:
+                _log.exception(e)
+                actions.append(f"Failed to time out user: {e}")
 
             try:
                 await message.delete()
                 actions.append("Deleted message")
+            except discord.NotFound:
+                actions.append("Deleted message")  # It's already been deleted previously
             except Exception as e:
                 _log.exception(e)
                 actions.append(f"Failed to delete message: {e}")
@@ -80,10 +111,24 @@ class AutomodCog(discord.Cog):
                 embed.add_field(name="Reason(s)", value="\n".join(reasons), inline=False)
                 embed.add_field(name="Action(s) taken", value="\n".join(actions), inline=False)
                 embed.add_field(name="Original Message", value=message.content, inline=False)
-                await self._bot.get_channel(log_channel).send(
+                view = AutomodActionView()
+                notify_message = await self._bot.get_channel(log_channel).send(
                     content=service_config.server[message.guild.id].automod.text_prefix,
-                    embed=embed,
+                    embed=embed, view=view
                 )
+                await view.wait()
+                if view.action is AutomodAction.BAN:
+                    await message.author.ban(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
+                    actions.append(f'Banned user, confirmed by {view.confirmed_by.display_name}')
+                elif view.action is AutomodAction.KICK:
+                    await message.author.kick(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
+                    actions.append(f'Kicked user, confirmed by {view.confirmed_by.display_name}')
+                elif view.action is AutomodAction.UNDO:
+                    await message.author.remove_timeout(
+                        reason=f'False detection reviewed by {view.confirmed_by.display_name}')
+                    actions.append(f'Timeout removed, reviewed by {view.confirmed_by.display_name}')
+                embed.set_field_at(3, name="Action(s) taken", value="\n".join(actions))
+                await notify_message.edit(embed=embed, view=None)
             self._processing_message_ids.discard(message.id)
 
     @staticmethod
@@ -96,7 +141,7 @@ class AutomodCog(discord.Cog):
         return next(matches, None)
 
     @staticmethod
-    def _is_mod(user: discord.Member):
+    def is_mod(user: discord.Member):
         guild = user.guild.id
         return any(role.id in service_config.server[guild].roles.mods for role in user.roles)
 

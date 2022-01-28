@@ -30,7 +30,6 @@ class RoleConfig(BaseModel):
     no_pings: List[int] = []
     mods: List[int] = []
     self_assign: List[int] = []
-    mute: Optional[int] = None
 
 
 class GuildConfig(BaseModel):

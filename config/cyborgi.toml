@@ -5,7 +5,6 @@ gamba.points_name = "nuggies"
 [server.roles]
 mods = [768232863043682314, 768233366889300028]
 no_pings = [768232863043682314, 768233366889300028]
-mute = 887834415466700840
 
 [server.cooldown]
 default_seconds = 120

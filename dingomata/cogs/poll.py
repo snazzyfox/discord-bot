@@ -10,6 +10,7 @@ from discord.ext.tasks import loop
 from ..decorators import slash_group
 from ..exceptions import DingomataUserError
 from ..models import Poll, PollEntry
+from ..utils import View
 
 _log = logging.getLogger(__name__)
 
@@ -29,9 +30,9 @@ class PollVoteButton(discord.ui.Button["PollVoteView"]):
         await interaction.response.send_message(f"You've voted for option {self.index + 1}.", ephemeral=True)
 
 
-class PollVoteView(discord.ui.View):
+class PollVoteView(View):
     def __init__(self, option_count: int):
-        super(PollVoteView, self).__init__()
+        super(PollVoteView, self).__init__(timeout=None)
         for i in range(option_count):
             self.add_item(PollVoteButton(i))
 
