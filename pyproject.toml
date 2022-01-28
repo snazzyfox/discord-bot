@@ -6,7 +6,7 @@ authors = ["SnazzyFox <12706268+snazzyfox@users.noreply.github.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"  # Required for random.sample with weights
+python = "^3.10"  # Required for random.sample with weights
 pydantic = { extras = ["dotenv"], version = "^1.8.2" }
 PyYAML = "^5.4.1"
 pytz = "^2021.1"

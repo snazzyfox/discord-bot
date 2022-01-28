@@ -9,13 +9,13 @@ from .tuch import TuchCog
 
 all_cogs = [
     AdminCog,
-    # AutomodCog,
-    # BedtimeCog,
-    # GambaCog,
-    # GameCodeCog,
-    # QuoteCog,
-    # TextCog,
-    # TuchCog,
+    AutomodCog,
+    BedtimeCog,
+    GambaCog,
+    GameCodeCog,
+    QuoteCog,
+    TextCog,
+    TuchCog,
 ]
 
 __all__ = [
