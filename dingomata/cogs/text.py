@@ -306,7 +306,7 @@ class TextCog(discord.Cog):
     async def pour(
             self,
             ctx: discord.ApplicationContext,
-            drink: discord.Option(str, "What drink?", choices=["coffee", "tea"]),
+            drink: discord.Option(str, "What drink?", choices=["coffee", "tea", "orangina"]),
             user: discord.Option(discord.User, "Who to pour for?"),
     ) -> None:
         mention = "themselves" if user == ctx.author else mention_if_needed(ctx, user)
@@ -314,6 +314,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "pour.coffee", target=mention)
         elif drink == "tea":
             await self._post_random_reply(ctx, "pour.tea", target=mention)
+        elif drink == "orangina":
+            await self._post_random_reply(ctx, "pour.orangina", target=mention)
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
