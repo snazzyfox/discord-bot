@@ -46,6 +46,7 @@ def _cooldown(command_group: str):
 
 
 def slash(
+        name: Optional[str] = None,
         mod_only: bool = False,
         default_available: bool = True,
         config_group: Optional[str] = None,
@@ -60,14 +61,15 @@ def slash(
     """
 
     def decorator(f: Callable):
-        name = f.__name__
-        config_name = config_group or name
+        command_name = name or f.__name__
+        config_name = config_group or command_name
         perms = service_config.mod_permissions if mod_only else service_config.get_command_permissions(config_name)
         guild_ids = service_config.get_command_guilds(config_name, default=default_available)
         if cooldown:
             f = _cooldown(config_name)(f)
         if guild_ids:
-            decorated = discord.slash_command(guild_ids=guild_ids, permissions=perms, default_permission=not perms)(f)
+            decorated = discord.slash_command(name=command_name, guild_ids=guild_ids, permissions=perms,
+                                              default_permission=not perms)(f)
             return decorated
         else:
             return f  # do not register the command if no guilds

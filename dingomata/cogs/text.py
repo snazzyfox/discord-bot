@@ -251,7 +251,7 @@ class TextCog(discord.Cog):
         else:
             await ctx.respond(f"{ctx.author.display_name} rolls a {random.randint(1, sides)} on a {sides}-sided die.")
 
-    @slash(cooldown=True)
+    @slash(name='8ball', cooldown=True)
     async def eightball(self, ctx: discord.ApplicationContext) -> None:
         """Shake a magic 8 ball."""
         await self._post_random_reply(ctx, "8ball")
