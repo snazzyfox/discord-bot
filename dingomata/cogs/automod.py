@@ -106,8 +106,8 @@ class AutomodCog(discord.Cog):
 
             if log_channel:
                 embed = discord.Embed(title="Scam message detected.")
-                embed.add_field(name="User", value=message.author.mention, inline=True)
-                embed.add_field(name="Channel", value=message.channel.mention, inline=True)
+                embed.add_field(name="User", value=message.author.display_name, inline=True)
+                embed.add_field(name="Channel", value=message.channel.name, inline=True)
                 embed.add_field(name="Reason(s)", value="\n".join(reasons), inline=False)
                 embed.add_field(name="Action(s) taken", value="\n".join(actions), inline=False)
                 embed.add_field(name="Original Message", value=message.content, inline=False)
