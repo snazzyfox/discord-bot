@@ -26,7 +26,7 @@ pour.orangina:
   templates:
     - '{author} politely {action} {target} a {unit} of Sparkling Orangina. Mmmmm, Citrusy!'
     - '{author} hands {target} a glass of Orangina and a tangerine... or is it a grapefruit?'
-    - '{author} suddenly transports {target} into an Orangina ad. You're on TV now!'
+    - "{author} suddenly transports {target} into an Orangina ad. You're on TV now!"
     - '{author} hands {target} a can of Sparkling Orangina. Cheers, Salud, and Awooo!'
   fragments:
     action: [ gives, hands, offers, passes, orders ]
