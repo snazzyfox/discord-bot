@@ -24,10 +24,12 @@ pour.tea:
     unit: [ cup, mug, shot, pot, gallon, quart, pint ]
 pour.orangina:
   templates:
-    - '{author} politely {action} {target} a {unit} of Sparkling Orangina. Mmmmm, Citrusy!'
-    - '{author} hands {target} a glass of Orangina and a tangerine... or is it a grapefruit?'
+    - "{author} politely {action} {target} a {unit} of Sparkling Orangina. {target} has somehow now gained +5 Charisma... with furries."
+    - "{author} politely {action} {target} a {unit} of Sparkling Orangina. Mmmmm, Citrusy!"
+    - "{author} politely {action} {target} a bottle of Orangina. What an odd bottle design to hold in one's paws!”"
+    - "{author} hands {target} a glass of Orangina and a tangerine... or is it a grapefruit?"
     - "{author} suddenly transports {target} into an Orangina ad. You're on TV now!"
-    - '{author} hands {target} a can of Sparkling Orangina. Cheers, Salud, and Awooo!'
+    - "{author} hands {target} a can of Sparkling Orangina. Cheers, Salud, and Awooo!"
   fragments:
     action: [ gives, hands, offers, passes, orders ]
     unit: [ can, glass, gallon, quart, pint ]
