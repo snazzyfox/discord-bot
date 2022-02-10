@@ -24,10 +24,16 @@ pour.tea:
     unit: [ cup, mug, shot, pot, gallon, quart, pint ]
 pour.orangina:
   templates:
-    - '{author} politely {action} {target} a {unit} of Sparkling Orangina. Mmmmm, Citrusy!'
-    - '{author} hands {target} a glass of Orangina and a tangerine... or is it a grapefruit?'
+    - "{author} politely {action} {target} a {unit} of Sparkling Orangina. {target} has somehow gained +5 Charisma... with furries."
+    - "{author} politely {action} {target} a {unit} of Sparkling Orangina. Mmmmm, Citrusy!"
+    - "{author} politely {action} {target} a bottle of Orangina. What an odd bottle design to hold in one's paws!"
+    - "{author} {action} {target} some Orangina. {target} sips on it and somewhere a wolf's ears have perked up in interest."
+    - "{auther} hands a citrusy orangina beverage that evokes an empowering fizziness of pep and a passionate juiciness of wonder upon {target}."
+    - "{author} has requested that Dingomata pass some Orangina to {target}. They should really share some with the Dingomata, who gets thirsty giving all these Orangina responses"
+    - "{author} hands {target} a bottle of Orangina with bubbles! They shake it for even more bubbles! They shake it again even harder for an explosion of bubbles! Oops..."
+    - "{author} hands {target} a glass of Orangina and a tangerine... or is it a grapefruit?"
     - "{author} suddenly transports {target} into an Orangina ad. You're on TV now!"
-    - '{author} hands {target} a can of Sparkling Orangina. Cheers, Salud, and Awooo!'
+    - "{author} {action} {target} a can of Sparkling Orangina. Cheers, Salud, and Awooo!"
   fragments:
     action: [ gives, hands, offers, passes, orders ]
     unit: [ can, glass, gallon, quart, pint ]
