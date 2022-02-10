@@ -143,9 +143,7 @@ class TextCog(discord.Cog):
         else:
             await self._post_random_reply(ctx, "boop", target=mention_if_needed(ctx, user))
 
-    @slash(
-        cooldown=True,
-    )
+    @slash(cooldown=True)
     async def smooch(
             self,
             ctx: discord.ApplicationContext,

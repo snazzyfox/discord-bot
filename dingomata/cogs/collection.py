@@ -4,36 +4,38 @@ import discord
 import tortoise.transactions
 from tortoise import functions as func
 
-from ..decorators import slash
+from ..decorators import slash_group
 from ..models import Collect
 from ..utils import mention_if_needed
 
 _log = logging.getLogger(__name__)
 
 
-class CollectCog(discord.Cog):
+class CollectionCog(discord.Cog):
     """Collect some cuties."""
+    collection = slash_group("collection", "Collect some cuties!")
 
     def __init__(self, bot: discord.Bot):
         self._bot = bot
 
-    @slash(cooldown=True)
-    async def collect(
+    @collection.command()
+    async def add(
             self,
             ctx: discord.ApplicationContext,
             user: discord.Option(discord.User, "Who to collect"),
     ) -> None:
+        """Collect a cutie!"""
         try:
             await Collect.create(guild_id=ctx.guild.id, user_id=ctx.author.id, target_user_id=user.id)
-            count = await Collect.filter(guild_id=ctx.guild.id, user_id=ctx.author.id).annotate(
-                count=func.Count("target_user_id")).only("count").first().values_list()
+            count, = await Collect.filter(guild_id=ctx.guild.id, user_id=ctx.author.id).annotate(
+                count=func.Count("target_user_id")).first().values_list("count")
             await ctx.respond(f"{ctx.author.display_name} collects {mention_if_needed(ctx, user)}. "
                               f"They now have {count} cutie(s) in their collection!")
         except tortoise.exceptions.IntegrityError:
             await ctx.respond(f"You have already collected {user.display_name}.", ephemeral=True)
 
-    @slash(cooldown=True)
-    async def discard(
+    @collection.command()
+    async def remove(
             self,
             ctx: discord.ApplicationContext,
             user: discord.Option(discord.User, "Who to collect"),
@@ -47,8 +49,8 @@ class CollectCog(discord.Cog):
         else:
             await ctx.respond(f"{user.display_name} is not in your collection.", ephemeral=True)
 
-    @slash(cooldown=True)
-    async def collection(self, ctx: discord.ApplicationContext) -> None:
+    @collection.command()
+    async def show(self, ctx: discord.ApplicationContext) -> None:
         """Show your collection to the world!"""
         collected = await Collect.filter(guild_id=ctx.guild.id, user_id=ctx.user.id).only("target_user_id")
         await ctx.respond(

@@ -15,6 +15,7 @@ __pycache__
 *.pyc
 *.pyo
 *.pyx
+.mypy_cache
 
 .env
 .env.*
