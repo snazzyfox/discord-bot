@@ -61,7 +61,7 @@ class QuoteCog(discord.Cog):
             self,
             ctx: discord.ApplicationContext,
             user: discord.Option(discord.User, "Find quotes by a particular user", required=False) = None,
-            search: discord.Option(discord.User, "Find quotes including this phrase", required=False) = None,
+            search: discord.Option(str, "Find quotes including this phrase", required=False) = None,
     ) -> None:
         """Find existing quotes."""
         query = Quote.all().limit(11)
