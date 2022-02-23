@@ -17,4 +17,5 @@ text_prefix = "<@&768232863043682314> Please review the message below. Ban the u
 [server.commands]
 corgi.enabled = true
 roles.enabled = false
+waffle.enabled = true
 collect.permissions = [768232863043682314, 768233366889300028, 768280287862849578] # corgi, mods, vips

@@ -165,3 +165,12 @@ snipe.self:
         content: Whew, it's a blank.
       - probability: 1
         content: BANG! The gun goes.
+waffle:
+  templates:
+    - "I didn't have time to put it in the toaster, okay?"
+    - "Got my red bull, got my frozen eggo waffle."
+    - "I've committed to the stream. I have to show up. No, it's frozen."
+    - "Who here actually likes frozen eggos?"
+    - "No, I did eat it frozen."
+    - "You can eat them frozen, they're fine!"
+    - "I am actually hungry. The only thing I ate since lunch was a frozen eggo waffle."

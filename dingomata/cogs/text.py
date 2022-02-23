@@ -300,13 +300,14 @@ class TextCog(discord.Cog):
             )
         await ctx.respond(f"{time} in {tz} is <t:{int(time_obj.timestamp())}:f> your local time.")
 
-    @slash()
+    @slash(cooldown=True)
     async def pour(
             self,
             ctx: discord.ApplicationContext,
             drink: discord.Option(str, "What drink?", choices=["coffee", "tea", "orangina"]),
             user: discord.Option(discord.User, "Who to pour for?"),
     ) -> None:
+        """Pour someone a nice drink."""
         mention = "themselves" if user == ctx.author else mention_if_needed(ctx, user)
         if drink == "coffee":
             await self._post_random_reply(ctx, "pour.coffee", target=mention)
@@ -314,6 +315,11 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "pour.tea", target=mention)
         elif drink == "orangina":
             await self._post_random_reply(ctx, "pour.orangina", target=mention)
+
+    @slash(cooldown=True, default_available=False)
+    async def waffle(self, ctx: discord.ApplicationContext) -> None:
+        """Waffle."""
+        await self._post_random_reply(ctx, "waffle")
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
