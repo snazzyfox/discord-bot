@@ -120,3 +120,26 @@ class GamePoolEntry(Model):
     user_id = fields.BigIntField(null=False)
     status = fields.SmallIntField(null=False)
     weight = fields.IntField()
+
+
+class RefSheetMessages(Model):
+    class Meta:
+        table = "ref_sheet_messages"
+        unique_together = (('guild_id', 'message_seq_num'),)
+
+    guild_id = fields.BigIntField(null=False)
+    message_seq_num = fields.IntField(null=False)
+    channel_id = fields.BigIntField(null=False)
+    message_id = fields.BigIntField(null=False)
+
+
+class RefSheet(Model):
+    class Meta:
+        table = "ref_sheets"
+        indexes = (("guild_id", "user_id"), ("guild_id", "url"))
+
+    guild_id = fields.BigIntField(null=False)
+    name = fields.TextField(null=True)
+    user_id = fields.BigIntField(null=False)
+    url = fields.CharField(256, null=False)
+    added_by = fields.BigIntField(null=False)
