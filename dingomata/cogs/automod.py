@@ -161,7 +161,7 @@ class AutomodCog(discord.Cog):
             role: discord.Option(discord.Role, "Role to remove"),
     ) -> None:
         """Remove a role from yourself in this server"""
-        if role.id in service_config.server[ctx.guild.id].roles.self_assignable_roles:
+        if role.id in service_config.server[ctx.guild.id].roles.self_assign:
             await ctx.author.remove_roles(role, reason="Requested via bot")
             await ctx.respond(f"You've been removed from the {role.name} role.", ephemeral=True)
         else:
@@ -170,7 +170,7 @@ class AutomodCog(discord.Cog):
     @roles.command()
     async def list_roles(self, ctx: discord.ApplicationContext):
         """Show the list of roles you can add yourself."""
-        roles = service_config.server[ctx.guild.id].roles.self_assignable_roles
+        roles = service_config.server[ctx.guild.id].roles.self_assign
         if roles:
             await ctx.respond(
                 "You can assign yourself the following roles: \n"
