@@ -28,7 +28,7 @@ class BedtimeCog(discord.Cog):
     """Remind users to go to bed."""
 
     bedtime = slash_group(name="bedtime", description="Get a reminder to go to bed when you're up late.")
-    _BEDTIME_KWDS = {"bed", "sleep", "bye", "cya", "see y", "night", "nini", "nite"}
+    _BEDTIME_KWDS = {"bed", "sleep", "bye", "cya", "see y", "night", "nini", "nite", "comf"}
 
     def __init__(self, bot: discord.Bot):
         self._bot = bot
@@ -66,6 +66,7 @@ class BedtimeCog(discord.Cog):
         """Clears your existing bed time."""
         deleted_count = await Bedtime.filter(user_id=ctx.author.id).delete()
         if deleted_count:
+            self._cache.pop(ctx.author.id, None)
             await ctx.respond("Done! I've removed your bedtime preferences.", ephemeral=True)
         else:
             await ctx.respond("You did not have a bedtime set.", ephemeral=True)
