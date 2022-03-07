@@ -47,7 +47,7 @@ class AutomodCog(discord.Cog):
     """Message filtering."""
 
     _URL_REGEX = re.compile(r"\bhttps?://(?!(?:www\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
-    _SCAM_KEYWORD_REGEX = re.compile(r"\b(?:free gift(?:s|ed)?|nitro|subscription)", re.IGNORECASE)
+    _SCAM_KEYWORD_REGEX = re.compile(r"gift|nitro|subscription", re.IGNORECASE)
 
     roles = slash_group(name="roles", description="Add or remove roles for yourself.")
 
