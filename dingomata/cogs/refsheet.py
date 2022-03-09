@@ -1,7 +1,7 @@
 import logging
 import re
 from itertools import groupby
-from typing import List
+from typing import List, Optional
 
 import discord
 import tortoise.exceptions
@@ -84,13 +84,14 @@ class RefSheetCog(discord.Cog):
         """Add a new ref sheet for a given user."""
         return await self._add_ref(ctx, user, url, name)
 
-    async def _add_ref(self, ctx: discord.ApplicationContext, user: discord.User, url: str, name: str) -> None:
+    async def _add_ref(self, ctx: discord.ApplicationContext, user: discord.User, url: str, name: Optional[str],
+                       ) -> None:
         # Check that the URL is a discord image embed - disallow other sources bc they can get deleted or changed.
         if not self._DISCORD_IMAGE_URL.match(url):
             raise DingomataUserError(
                 "The URL does not look like a Discord image attachment. Please make sure it's an image uploaded to "
                 "Discord, not a link to a message, or an image from an outside source.")
-        if len(name) > 32:
+        if name and len(name) > 32:
             raise DingomataUserError("Your character's name is too powerful! Please keep it under 32 letters.")
         # Limit 10 refs per user - max number of images per message
         existing_image_count = await RefSheet.filter(guild_id=ctx.guild.id, user_id=user.id).count()
