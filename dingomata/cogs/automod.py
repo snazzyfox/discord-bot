@@ -2,7 +2,7 @@ import logging
 import re
 from datetime import timedelta
 from enum import Enum
-from typing import Set
+from typing import List, Set
 
 import discord
 from unidecode import unidecode
@@ -35,12 +35,17 @@ class AutomodActionView(View):
                              emoji='✅', value=AutomodAction.UNDO.value)
     ])
     async def select(self, select: discord.ui.Select, interaction: discord.Interaction) -> None:
-        if AutomodCog.is_mod(interaction.user):
+        if self.is_mod(interaction.user):
             self.action = AutomodAction(select.values[0])
             self.confirmed_by = interaction.user
             self.stop()
         else:
             interaction.response.send_message("You can't do this, you're not a mod.")
+
+    @staticmethod
+    def is_mod(user: discord.Member):
+        guild = user.guild.id
+        return any(role.id in service_config.server[guild].roles.mods for role in user.roles)
 
 
 class AutomodCog(discord.Cog):
@@ -48,6 +53,9 @@ class AutomodCog(discord.Cog):
 
     _URL_REGEX = re.compile(r"\bhttps?://(?!(?:www\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
     _SCAM_KEYWORD_REGEX = re.compile(r"gift|nitro|subscription", re.IGNORECASE)
+    _BLOCK_LIST = re.compile(r'\b(?:' + '|'.join([
+        r'cozy\.tv', 'groypers', 'burn in hell'
+    ]) + r')\b', re.IGNORECASE)
 
     roles = slash_group(name="roles", description="Add or remove roles for yourself.")
 
@@ -59,77 +67,94 @@ class AutomodCog(discord.Cog):
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        await self._check_likely_discord_scam(message)
+        await self._check_message(message)
 
     @discord.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
-        await self._check_likely_discord_scam(after)
+        await self._check_message(after)
 
-    async def _check_likely_discord_scam(self, message: discord.Message):
+    async def _check_message(self, message: discord.Message) -> None:
         if message.id in self._processing_message_ids or not message.guild:
             return  # It's already in the process of being deleted.
+        message.content = unidecode(message.content)
+        reasons = self._check_likely_discord_scam(message) + self._check_blocklist(message)
+        if reasons:
+            await self._timeout_user(message, reasons)
+
+    def _check_likely_discord_scam(self, message: discord.Message) -> List[str]:
         reasons = []
         if message.guild.default_role.mention in message.content or "@everyone" in message.content:
             reasons.append("Mentions at-everone")
         if bool(self._URL_REGEX.search(message.content)):
             reasons.append("Includes URL")
-        if match := self._SCAM_KEYWORD_REGEX.search(unidecode(message.content)):
+        if match := self._SCAM_KEYWORD_REGEX.search(message.content):
             reasons.append(f"Message content includes scam keyword(s): {match.group()}")
         if match := self._search_embeds(self._SCAM_KEYWORD_REGEX, message):
             reasons.append(f"Embed content includes scam keyword(s): {match.group()}")
 
-        if len(reasons) >= 2 and not self.is_mod(message.author):
-            # Consider the message scam likely if two matches
-            self._processing_message_ids.add(message.id)
-            _log.info(
-                f"Detected message from {message.author} as scam. Reason: {reasons}. "
-                f"Original message: {message.content}"
+        if len(reasons) >= 2:
+            return reasons
+        else:
+            return []
+
+    def _check_blocklist(self, message: discord.Message) -> List[str]:
+        if match := self._BLOCK_LIST.search(message.content):
+            return [f'Message content includes blocked term: {match.group()}']
+        else:
+            return []
+
+    async def _timeout_user(self, message: discord.Message, reasons: List[str]):
+        # Consider the message scam likely if two matches
+        self._processing_message_ids.add(message.id)
+        _log.info(
+            f"Detected message from {message.author} as scam. Reason: {reasons}. "
+            f"Original message: {message.content}"
+        )
+        log_channel = service_config.server[message.guild.id].automod.log_channel
+        actions = []
+
+        try:
+            await message.author.timeout_for(timedelta(days=1), reason="Potential scam message.")
+            actions.append("Timed out user for 1 day: pending mod review")
+        except Exception as e:
+            _log.exception(e)
+            actions.append(f"Failed to time out user: {e}")
+
+        try:
+            await message.delete()
+            actions.append("Deleted message")
+        except discord.NotFound:
+            actions.append("Deleted message")  # It's already been deleted previously
+        except Exception as e:
+            _log.exception(e)
+            actions.append(f"Failed to delete message: {e}")
+
+        if log_channel:
+            embed = discord.Embed(title="Scam message detected.")
+            embed.add_field(name="User", value=message.author.display_name, inline=True)
+            embed.add_field(name="Channel", value=message.channel.name, inline=True)
+            embed.add_field(name="Reason(s)", value="\n".join(reasons), inline=False)
+            embed.add_field(name="Action(s) taken", value="\n".join(actions), inline=False)
+            embed.add_field(name="Original Message", value=message.content, inline=False)
+            view = AutomodActionView()
+            notify_message = await self._bot.get_channel(log_channel).send(
+                content=service_config.server[message.guild.id].automod.text_prefix,
+                embed=embed, view=view
             )
-            log_channel = service_config.server[message.guild.id].automod.log_channel
-            actions = []
-
-            try:
-                await message.author.timeout_for(timedelta(days=1), reason="Potential scam message.")
-                actions.append("Timed out user for 1 day: pending mod review")
-            except Exception as e:
-                _log.exception(e)
-                actions.append(f"Failed to time out user: {e}")
-
-            try:
-                await message.delete()
-                actions.append("Deleted message")
-            except discord.NotFound:
-                actions.append("Deleted message")  # It's already been deleted previously
-            except Exception as e:
-                _log.exception(e)
-                actions.append(f"Failed to delete message: {e}")
-
-            if log_channel:
-                embed = discord.Embed(title="Scam message detected.")
-                embed.add_field(name="User", value=message.author.display_name, inline=True)
-                embed.add_field(name="Channel", value=message.channel.name, inline=True)
-                embed.add_field(name="Reason(s)", value="\n".join(reasons), inline=False)
-                embed.add_field(name="Action(s) taken", value="\n".join(actions), inline=False)
-                embed.add_field(name="Original Message", value=message.content, inline=False)
-                view = AutomodActionView()
-                notify_message = await self._bot.get_channel(log_channel).send(
-                    content=service_config.server[message.guild.id].automod.text_prefix,
-                    embed=embed, view=view
-                )
-                await view.wait()
-                if view.action is AutomodAction.BAN:
-                    await message.author.ban(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
-                    actions.append(f'Banned user, confirmed by {view.confirmed_by.display_name}')
-                elif view.action is AutomodAction.KICK:
-                    await message.author.kick(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
-                    actions.append(f'Kicked user, confirmed by {view.confirmed_by.display_name}')
-                elif view.action is AutomodAction.UNDO:
-                    await message.author.remove_timeout(
-                        reason=f'False detection reviewed by {view.confirmed_by.display_name}')
-                    actions.append(f'Timeout removed, reviewed by {view.confirmed_by.display_name}')
-                embed.set_field_at(3, name="Action(s) taken", value="\n".join(actions))
-                await notify_message.edit(embed=embed, view=None)
-            self._processing_message_ids.discard(message.id)
+            await view.wait()
+            if view.action is AutomodAction.BAN:
+                await message.author.ban(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
+                actions.append(f'Banned user, confirmed by {view.confirmed_by.display_name}')
+            elif view.action is AutomodAction.KICK:
+                await message.author.kick(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
+                actions.append(f'Kicked user, confirmed by {view.confirmed_by.display_name}')
+            elif view.action is AutomodAction.UNDO:
+                await message.author.remove_timeout(
+                    reason=f'False detection reviewed by {view.confirmed_by.display_name}')
+                actions.append(f'Timeout removed, reviewed by {view.confirmed_by.display_name}')
+            embed.set_field_at(3, name="Action(s) taken", value="\n".join(actions))
+            await notify_message.edit(embed=embed, view=None)
+        self._processing_message_ids.discard(message.id)
 
     @staticmethod
     def _search_embeds(regex: re.Pattern, message: discord.Message):
@@ -139,11 +164,6 @@ class AutomodCog(discord.Cog):
             for embed in message.embeds
         )
         return next(matches, None)
-
-    @staticmethod
-    def is_mod(user: discord.Member):
-        guild = user.guild.id
-        return any(role.id in service_config.server[guild].roles.mods for role in user.roles)
 
     @roles.command()
     async def add(self, ctx: discord.ApplicationContext, role: discord.Option(discord.Role, "Role to add")) -> None:

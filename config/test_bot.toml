@@ -11,7 +11,7 @@ default_seconds = 15
 exempt = [840021184589856778]
 
 [server.automod]
-log_channel = 870516696593596506
+log_channel = 941073180003561514
 text_prefix = "<@749862270129143880> This is a test."
 
 [server.commands]
