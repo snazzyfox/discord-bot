@@ -20,6 +20,11 @@ class AutomodAction(Enum):
     UNDO = 'undo'
 
 
+def is_mod(user: discord.Member):
+    guild = user.guild.id
+    return any(role.id in service_config.server[guild].roles.mods for role in user.roles)
+
+
 class AutomodActionView(View):
     def __init__(self):
         self.action: AutomodAction | None = None
@@ -35,17 +40,12 @@ class AutomodActionView(View):
                              emoji='✅', value=AutomodAction.UNDO.value)
     ])
     async def select(self, select: discord.ui.Select, interaction: discord.Interaction) -> None:
-        if self.is_mod(interaction.user):
+        if is_mod(interaction.user):
             self.action = AutomodAction(select.values[0])
             self.confirmed_by = interaction.user
             self.stop()
         else:
             interaction.response.send_message("You can't do this, you're not a mod.")
-
-    @staticmethod
-    def is_mod(user: discord.Member):
-        guild = user.guild.id
-        return any(role.id in service_config.server[guild].roles.mods for role in user.roles)
 
 
 class AutomodCog(discord.Cog):
@@ -83,6 +83,8 @@ class AutomodCog(discord.Cog):
 
     def _check_likely_discord_scam(self, message: discord.Message) -> List[str]:
         reasons = []
+        if is_mod(message.author):
+            return []
         if message.guild.default_role.mention in message.content or "@everyone" in message.content:
             reasons.append("Mentions at-everone")
         if bool(self._URL_REGEX.search(message.content)):
