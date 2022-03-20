@@ -321,6 +321,19 @@ class TextCog(discord.Cog):
         """Waffle."""
         await self._post_random_reply(ctx, "waffle")
 
+    @slash(cooldown=True)
+    async def brush(
+            self,
+            ctx: discord.ApplicationContext,
+            user: discord.Option(discord.User, "Who to brush"),
+    ) -> None:
+        """Give someone a nice brushing!"""
+        if ctx.author == user:
+            await ctx.respond(f"{ctx.author.display_name} brushes themselves... that's not weird is it?")
+        else:
+            await self._post_random_reply(ctx, "brush", target=mention_if_needed(ctx, user),
+                                          post="Bzzzt. A shocking experience." if user == self._bot.user else "")
+
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if (

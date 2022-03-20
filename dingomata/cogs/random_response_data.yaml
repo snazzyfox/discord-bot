@@ -174,3 +174,10 @@ waffle:
     - "No, I did eat it frozen."
     - "You can eat them frozen, they're fine!"
     - "I am actually hungry. The only thing I ate since lunch was a frozen eggo waffle."
+brush:
+  templates:
+    - "{author} {adv} brushes {target}'s {bodyPart}. {post}"
+  fragments:
+    adv: [ lightly, gently, frantically, heavily, loudly, deliberately, dutifully,
+           politely, weakly, violently, noisily, swiftly, repeatedly, fiercely, kiddingly, judgmentally, ]
+    bodyPart: [ head, ears, tail, paws, arms ]
