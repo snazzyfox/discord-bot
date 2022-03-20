@@ -329,7 +329,7 @@ class TextCog(discord.Cog):
     ) -> None:
         """Give someone a nice brushing!"""
         if ctx.author == user:
-            await ctx.respond(f"{ctx.author.display_name} brushes themselves... that's not weird is it?")
+            await ctx.respond(f"{ctx.author.display_name} brushes themselves... Got to look your best!")
         else:
             await self._post_random_reply(ctx, "brush", target=mention_if_needed(ctx, user),
                                           post="Ahhhhhh. That feels nice, thank you!" if user == self._bot.user else "")
