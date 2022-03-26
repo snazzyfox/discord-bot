@@ -52,7 +52,7 @@ class AutomodCog(discord.Cog):
     """Message filtering."""
 
     _URL_REGEX = re.compile(r"\bhttps?://(?!(?:[^/]+\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
-    _SCAM_KEYWORD_REGEX = re.compile(r"gift|nitro|subscription", re.IGNORECASE)
+    _SCAM_KEYWORD_REGEX = re.compile(r"nitro|subscription", re.IGNORECASE)
     _BLOCK_LIST = re.compile(r'\b(?:' + '|'.join([
         r'cozy\.tv', 'groypers', 'burn in hell'
     ]) + r')\b', re.IGNORECASE)
