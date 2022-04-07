@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import discord
 import orjson
@@ -62,9 +62,9 @@ class PollCog(discord.Cog):
             title: discord.Option(str, "Title of the poll"),
             option1: discord.Option(str, "The first option"),
             option2: discord.Option(str, "The second option"),
-            option3: discord.Option(Optional[str], "The third option", required=False),
-            option4: discord.Option(Optional[str], "The fourth option", required=False),
-            option5: discord.Option(Optional[str], "The fifth option", required=False),
+            option3: discord.Option(str, "The third option", required=False),
+            option4: discord.Option(str, "The fourth option", required=False),
+            option5: discord.Option(str, "The fifth option", required=False),
     ) -> None:
         """Start a new poll."""
         options = [o for o in (option1, option2, option3, option4, option5) if o]
