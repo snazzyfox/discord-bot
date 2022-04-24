@@ -19,3 +19,7 @@ echo.enabled = true
 collect.enabled = true
 ref.enabled = true
 collect.permissions = [869729094722543627]
+
+[server.logging]
+log_channel = 941073180003561514
+message_deleted = true

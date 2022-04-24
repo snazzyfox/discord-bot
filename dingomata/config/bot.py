@@ -44,6 +44,7 @@ class GuildConfig(BaseModel):
     automod: cogs.AutomodConfig = cogs.AutomodConfig()
     gamba: cogs.GambaConfig = cogs.GambaConfig()
     game_code: cogs.GameCodeConfig = cogs.GameCodeConfig()
+    logging: cogs.LoggingConfig = cogs.LoggingConfig()
 
     class Config:
         keep_untouched = (cached_property,)

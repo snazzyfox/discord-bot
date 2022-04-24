@@ -9,7 +9,10 @@ from .exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
 
-bot = discord.Bot(intents=discord.Intents(guilds=True, messages=True, members=True))
+bot = discord.Bot(
+    intents=discord.Intents(guilds=True, messages=True, message_content=True, members=True),
+    max_messages=4096,
+)
 
 for cog in all_cogs:
     bot.add_cog(cog(bot))

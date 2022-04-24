@@ -4,6 +4,7 @@ from .bedtime import BedtimeCog
 from .collection import CollectionCog
 from .gamba import GambaCog
 from .game_code import GameCodeCog
+from .logging import LoggingCog
 from .poll import PollCog
 from .quote import QuoteCog
 from .refsheet import RefSheetCog
@@ -17,6 +18,7 @@ all_cogs = [
     CollectionCog,
     GambaCog,
     GameCodeCog,
+    LoggingCog,
     PollCog,
     QuoteCog,
     RefSheetCog,
@@ -31,6 +33,7 @@ __all__ = [
     "CollectionCog",
     "GambaCog",
     "GameCodeCog",
+    "LoggingCog",
     "PollCog",
     "QuoteCog",
     "RefSheetCog",

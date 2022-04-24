@@ -85,7 +85,7 @@ class AutomodCog(discord.Cog):
         reasons = []
         if is_mod(message.author):
             return []
-        if message.guild.default_role.mention in message.content or "@everyone" in message.content:
+        if message.mention_everyone or "@everyone" in message.content:
             reasons.append("Mentions at-everone")
         if bool(self._URL_REGEX.search(message.content)):
             reasons.append("Includes URL")

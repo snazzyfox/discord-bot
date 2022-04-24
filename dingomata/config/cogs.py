@@ -26,3 +26,8 @@ class GambaConfig(CogConfig):
 
 class GameCodeConfig(CogConfig):
     player_roles: Dict[int, int] = {0: 1}
+
+
+class LoggingConfig(CogConfig):
+    log_channel: Optional[int] = None  #: If none, all logging disabled
+    message_deleted: bool = False
