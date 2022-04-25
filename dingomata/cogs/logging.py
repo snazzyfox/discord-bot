@@ -33,5 +33,5 @@ class LoggingCog(discord.Cog):
             embed.add_field(name='Channel', value=message.channel.mention)
             embed.add_field(name='Author', value=message.author.mention)
             embed.add_field(name='Sent At', value=f'<t:{int(message.created_at.timestamp())}:f>')
-            embed.add_field(name='Content', value=message.content, inline=False)
+            embed.add_field(name='Content', value=message.clean_content, inline=False)
             await self._bot.get_channel(log_channel).send(embed=embed)
