@@ -39,7 +39,7 @@ class TuchCog(discord.Cog):
     @slash(config_group="tuch", cooldown=True)
     async def tuchboard(self, ctx: discord.ApplicationContext) -> None:
         """Show statistics about tuches."""
-        total_tuchs, total_butts = await Tuch.annotate(
+        total_tuchs, total_butts = await Tuch.filter(guild_id=ctx.guild.id).annotate(
             total_tuchs=func.Sum("total_tuchs"), total_butts=func.Sum("total_butts"),
         ).first().values_list("total_tuchs", "total_butts")
         message = (
