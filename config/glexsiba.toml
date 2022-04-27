@@ -10,3 +10,6 @@ self_assign = [968735501194494002]
 [server.cooldown]
 default_seconds = 15
 exempt = [859278418511003698]
+
+[server.commands]
+snipe.enabled = false
