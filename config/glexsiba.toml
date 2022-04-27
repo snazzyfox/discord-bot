@@ -1,0 +1,12 @@
+[[server]]
+id = 840467720695971840
+gamba.points_name = "shiba stars"
+
+[server.roles]
+mods = [863866859061379133]
+no_pings = [863866859061379133]
+self_assign = [968735501194494002]
+
+[server.cooldown]
+default_seconds = 15
+exempt = [859278418511003698]
