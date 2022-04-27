@@ -4,7 +4,7 @@ gamba.points_name = "shiba stars"
 
 [server.roles]
 mods = [863866859061379133]
-no_pings = [863866859061379133]
+no_pings = [863866217445326858]
 self_assign = [968735501194494002]
 
 [server.cooldown]
