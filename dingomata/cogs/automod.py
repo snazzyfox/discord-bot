@@ -189,7 +189,7 @@ class AutomodCog(discord.Cog):
         else:
             await ctx.respond("You cannot change that role yourself. Please ask a moderator for help.", ephemeral=True)
 
-    @roles.command()
+    @roles.command(name='list')
     async def list_roles(self, ctx: discord.ApplicationContext):
         """Show the list of roles you can add yourself."""
         roles = service_config.server[ctx.guild.id].roles.self_assign
