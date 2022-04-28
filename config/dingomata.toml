@@ -19,6 +19,11 @@ log_channel = 552398918865125376
 whiskey.enabled = true
 collect.enabled = false
 
+# Temporarily disable tools that require mod access bc this server doesnt have command perms yet for some reason
+quote.enabled = false
+game.enabled = false
+poll.enabled = false
+
 [server.logging]
 log_channel = 552398918865125376
 message_deleted = true
