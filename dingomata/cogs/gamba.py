@@ -48,9 +48,7 @@ class GambaCog(discord.Cog):
     """Gamble with server points."""
 
     gamba = slash_group("gamba", "Gamble your points away!")
-    gamble = slash_group(
-        "gamble", "Give people the opportunity to gamble their points away!", mod_only=True, config_group="gamba"
-    )
+    gamble = slash_group("gamble", "Give people the opportunity to gamble their points away!", config_group="gamba")
 
     def __init__(self, bot: discord.Bot) -> None:
         self._bot = bot

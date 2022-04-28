@@ -40,7 +40,7 @@ class PollVoteView(View):
 class PollCog(discord.Cog):
     """Run polls in Discord. Each channel can only have one active poll at a time."""
 
-    poll = slash_group("poll", "Run polls in a channel.", mod_only=True)
+    poll = slash_group("poll", "Run polls in a channel.")
 
     def __init__(self, bot: discord.Bot):
         self._bot = bot

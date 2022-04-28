@@ -106,7 +106,7 @@ class JoinView(View):
 class GameCodeCog(discord.Cog):
     """Randomly send game codes to people who join a game."""
 
-    game = slash_group("game", "Manage game codes", mod_only=True)
+    game = slash_group("game", "Manage game codes")
 
     def __init__(self, bot: discord.Bot):
         """Initialize application state."""

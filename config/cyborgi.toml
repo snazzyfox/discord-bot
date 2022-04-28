@@ -3,7 +3,6 @@ id = 768208778780475447
 gamba.points_name = "nuggies"
 
 [server.roles]
-mods = [768232863043682314, 768233366889300028]
 no_pings = [768232863043682314, 768233366889300028]
 
 [server.cooldown]
@@ -18,4 +17,3 @@ text_prefix = "<@&768232863043682314> Problematic message detected. Please selec
 corgi.enabled = true
 roles.enabled = false
 waffle.enabled = true
-collect.permissions = [768232863043682314, 768233366889300028, 768280287862849578] # corgi, mods, vips

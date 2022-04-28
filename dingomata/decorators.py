@@ -47,14 +47,13 @@ def _cooldown(command_group: str):
 
 def slash(
         name: Optional[str] = None,
-        mod_only: bool = False,
         default_available: bool = True,
         config_group: Optional[str] = None,
         cooldown: bool = False,
 ):
     """Wrapper for slash commands. Automatically fills in guilds and permissions from configs.
 
-    :param mod_only: Set permissions to only allow mod users
+    :param name: Name of the command if not the function name
     :param default_available: If False, the command is turned off by default for all servers
     :param config_group: If given, uses command configs from this command name instead of the one in name
     :param cooldown: Whether this command is subject to cooldown.
@@ -63,13 +62,11 @@ def slash(
     def decorator(f: Callable):
         command_name = name or f.__name__
         config_name = config_group or command_name
-        perms = service_config.mod_permissions if mod_only else service_config.get_command_permissions(config_name)
         guild_ids = service_config.get_command_guilds(config_name, default=default_available)
         if cooldown:
             f = _cooldown(config_name)(f)
         if guild_ids:
-            decorated = discord.slash_command(name=command_name, guild_ids=guild_ids, permissions=perms,
-                                              default_permission=not perms)(f)
+            decorated = discord.slash_command(name=command_name, guild_ids=guild_ids)(f)
             return decorated
         else:
             return f  # do not register the command if no guilds
@@ -79,18 +76,15 @@ def slash(
 
 def message_command(
         name: Optional[str] = None,
-        mod_only: bool = False,
         default_available: bool = True,
         config_group: Optional[str] = None,
 ):
     def decorator(f: Callable):
         command_name = name or f.__name__
         config_name = config_group or f.__name__
-        perms = service_config.mod_permissions if mod_only else service_config.get_command_permissions(config_name)
         guild_ids = service_config.get_command_guilds(config_name, default=default_available)
         if guild_ids:
-            decorated = discord.message_command(name=command_name, guild_ids=guild_ids, permissions=perms,
-                                                default_permission=not perms)(f)
+            decorated = discord.message_command(name=command_name, guild_ids=guild_ids)(f)
             return decorated
         else:
             return f  # do not register the command if no guilds
@@ -101,15 +95,11 @@ def message_command(
 def slash_group(
         name: str,
         description: str,
-        mod_only: bool = False,
         default_available: bool = True,
         config_group: Optional[str] = None,
 ):
     config_name = config_group or name
-    perms = service_config.mod_permissions if mod_only else service_config.get_command_permissions(config_name)
     return discord.SlashCommandGroup(
         name, description,
         guild_ids=service_config.get_command_guilds(config_name, default_available),
-        default_permission=not perms,  # if no permission set, open to everyone
-        permissions=perms,
     )

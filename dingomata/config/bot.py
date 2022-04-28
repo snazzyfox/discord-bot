@@ -3,7 +3,6 @@ import os
 from functools import cached_property
 from typing import Dict, List, Optional, Set
 
-import discord
 import pydantic
 import toml
 from pydantic import BaseModel, BaseSettings, Field, FilePath, SecretStr
@@ -23,12 +22,10 @@ class CooldownConfig(BaseModel):
 class CommandConfig(BaseModel):
     enabled: Optional[bool] = None
     cooldown_seconds: Optional[int] = None
-    permissions: List[int] = []
 
 
 class RoleConfig(BaseModel):
     no_pings: List[int] = []
-    mods: List[int] = []
     self_assign: List[int] = []
 
 
@@ -49,10 +46,6 @@ class GuildConfig(BaseModel):
     class Config:
         keep_untouched = (cached_property,)
         extra = "forbid"
-
-    @cached_property
-    def mod_permissions(self) -> List[discord.CommandPermission]:
-        return [discord.CommandPermission(id=role, type=1, permission=True) for role in self.roles.mods]
 
     def command_enabled(self, command: str, default: bool) -> bool:
         if command in self.commands:
@@ -87,23 +80,11 @@ class ServiceConfig(BaseSettings):
         return {server.id: server for server in config_list}
 
     @cached_property
-    def mod_permissions(self) -> List[discord.CommandPermission]:
-        return [permission for config in self.server.values() for permission in config.mod_permissions]
-
-    @cached_property
     def cooldown_exempt(self) -> Set[int]:
         return {channel for config in self.server.values() for channel in config.cooldown.exempt}
 
     def get_command_guilds(self, command: str, default: bool = True) -> List[int]:
         return [server for server, config in self.server.items() if config.command_enabled(command, default)]
-
-    def get_command_permissions(self, command: str) -> List[discord.CommandPermission]:
-        return [
-            discord.CommandPermission(id=role, type=1, permission=True, guild_id=guild)
-            for guild, config in self.server.items()
-            if command in config.commands and config.commands[command].permissions is not None
-            for role in config.commands[command].permissions
-        ]
 
     def get_command_cooldowns(self, command: str) -> Dict[int, int]:
         return {server: config.command_cooldown_seconds(command) for server, config in self.server.items()}

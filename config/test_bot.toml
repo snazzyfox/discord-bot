@@ -2,7 +2,6 @@
 id = 941073179122737213
 
 [server.roles]
-mods = [947378729200529449]
 self_assign = [873029553918967889, 908451036308590593]
 no_pings = []
 
@@ -18,7 +17,6 @@ text_prefix = "<@749862270129143880> This is a test."
 echo.enabled = true
 collect.enabled = true
 ref.enabled = true
-collect.permissions = [869729094722543627]
 
 [server.logging]
 log_channel = 941073180003561514

@@ -17,7 +17,7 @@ class QuoteCog(discord.Cog):
     _NEXT_BUTTON = "quote_next"
     _NON_ALPHANUM = re.compile(r"[^\w]")
 
-    quotes = slash_group("quotes", "Manage quotes", mod_only=True, config_group="quote")
+    quotes = slash_group("quotes", "Manage quotes", config_group="quote")
 
     def __init__(self, bot: discord.Bot):
         self._bot = bot
@@ -33,7 +33,7 @@ class QuoteCog(discord.Cog):
         qid = await self._add_quote(ctx.guild, ctx.author, user, content)
         await ctx.respond(f"Quote has been added. New quote ID is {qid}.", ephemeral=True)
 
-    @message_command(name="Add Quote", config_group="quote", mod_only=True)
+    @message_command(name="Add Quote", config_group="quote")
     async def add_quote_menu(self, ctx: discord.ApplicationContext, message: discord.Message) -> None:
         qid = await self._add_quote(ctx.guild, ctx.author, message.author, message.content)
         await ctx.respond(f"Quote has been added. New quote ID is {qid}.", ephemeral=True)

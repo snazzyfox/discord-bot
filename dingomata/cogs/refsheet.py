@@ -20,8 +20,7 @@ class RefSheetCog(discord.Cog):
 
     _DISCORD_IMAGE_URL = re.compile(
         r'https://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/\d+/\d+/.*\.(?:jpg|png|webp|gif)', re.IGNORECASE)
-    ref_admin = slash_group("ref_admin", "Manage ref sheets", mod_only=True, config_group="ref",
-                            default_available=False)
+    ref_admin = slash_group("ref_admin", "Manage ref sheets", config_group="ref", default_available=False)
     ref = slash_group("ref", "Manage and look at ref sheets", default_available=False)
 
     def __init__(self, bot: discord.Bot):
@@ -155,7 +154,6 @@ class RefSheetCog(discord.Cog):
             embeds = await self._make_list_embeds(ctx)
             for i, embed in enumerate(embeds):
                 new_message = await ctx.channel.send(embed=embed)
-                print(i, new_message.id)
                 msg = RefSheetMessages(
                     guild_id=ctx.guild.id,
                     message_seq_num=i,

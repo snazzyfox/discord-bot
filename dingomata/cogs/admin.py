@@ -14,7 +14,7 @@ class AdminCog(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self._bot = bot
 
-    @slash(default_available=False, mod_only=True)
+    @slash(default_available=False)
     async def echo(
         self,
         ctx: discord.ApplicationContext,
