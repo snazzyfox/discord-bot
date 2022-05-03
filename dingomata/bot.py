@@ -41,11 +41,6 @@ async def on_disconnect():
     log.info("Bot has disconnected.")
 
 
-@bot.slash_command()
-async def ping(ctx: discord.ApplicationContext):
-    await ctx.respond("Pong!")
-
-
 @bot.listen()
 async def on_interaction(interaction: discord.Interaction):
     if interaction.guild:
