@@ -112,7 +112,7 @@ class TextCog(discord.Cog):
         """Give someone bonks!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} tries to bonk themselves. They appear to really enjoy it.")
-        elif user == self._bot.user:
+        elif user == self._bot.user or user.id == 749862270129143880:
             await ctx.respond("How dare you.")
         else:
             await self._post_random_reply(ctx, "bonk", target=mention_if_needed(ctx, user))
@@ -126,7 +126,7 @@ class TextCog(discord.Cog):
         """Give someone baps!"""
         if ctx.author == user:
             await ctx.respond("Aw, don't be so rough on yourself.")
-        elif user == self._bot.user:
+        elif user == self._bot.user or user.id == 749862270129143880:
             await ctx.respond("How dare you.")
         else:
             await self._post_random_reply(ctx, "bonk", target=mention_if_needed(ctx, user))
