@@ -78,7 +78,7 @@ class AutomodCog(discord.Cog):
 
     def _check_likely_discord_scam(self, message: discord.Message) -> List[str]:
         reasons = []
-        if message.author.guild_permissions.manage_messages:
+        if isinstance(message.author, discord.Member) and message.author.guild_permissions.manage_messages:
             return []
         if message.mention_everyone or "@everyone" in message.content:
             reasons.append("Mentions at-everone")

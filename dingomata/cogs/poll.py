@@ -22,7 +22,7 @@ class PollUserError(DingomataUserError):
 class PollVoteButton(discord.ui.Button["PollVoteView"]):
     def __init__(self, index: int):
         self.index = index
-        super(PollVoteButton, self).__init__(label=f"Vote {index}", style=discord.ButtonStyle.blurple)
+        super(PollVoteButton, self).__init__(label=f"Vote {index + 1}", style=discord.ButtonStyle.blurple)
 
     async def callback(self, interaction: discord.Interaction):
         await PollEntry.update_or_create({"option": self.index}, guild_id=interaction.guild.id,
@@ -111,8 +111,9 @@ class PollCog(discord.Cog):
     @loop(seconds=2)
     async def poll_message_updater(self):
         try:
-            polls = await Poll.filter(guild_id__in=self.poll.guild_ids, message_id__not=None)
+            polls = await Poll.filter(guild_id__in=self.poll.guild_ids, message_id__not_isnull=True)
             for poll in polls:
+                print(poll)
                 channel = self._bot.get_channel(poll.channel_id)
                 message = channel.get_partial_message(poll.message_id)
                 options = orjson.loads(poll.options)
@@ -130,7 +131,7 @@ class PollCog(discord.Cog):
         try:
             async with tortoise.transactions.in_transaction() as tx:
                 polls = await Poll.select_for_update().filter(
-                    guild_id__in=self.poll.guild_ids, message_id__not=None).using_db(tx).all()
+                    guild_id__in=self.poll.guild_ids, message_id__not_isnull=True).using_db(tx).all()
                 for poll in polls:
                     channel = self._bot.get_channel(poll.channel_id)
                     if channel.last_message_id != poll.message_id:
