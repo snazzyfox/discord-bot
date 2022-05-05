@@ -22,7 +22,10 @@ class PollUserError(DingomataUserError):
 class PollVoteButton(discord.ui.Button["PollVoteView"]):
     def __init__(self, index: int):
         self.index = index
-        super(PollVoteButton, self).__init__(label=f"Vote {index + 1}", style=discord.ButtonStyle.blurple)
+        action_row = min((index // 5), 4)
+        super(PollVoteButton, self).__init__(label=f"Vote {index + 1}",
+                                             style=discord.ButtonStyle.blurple,
+                                             row=action_row)
 
     async def callback(self, interaction: discord.Interaction):
         await PollEntry.update_or_create({"option": self.index}, guild_id=interaction.guild.id,
@@ -65,9 +68,15 @@ class PollCog(discord.Cog):
             option3: discord.Option(str, "The third option", required=False),
             option4: discord.Option(str, "The fourth option", required=False),
             option5: discord.Option(str, "The fifth option", required=False),
+            option6: discord.Option(str, "The sixth option", required=False),
+            option7: discord.Option(str, "The seventh option", required=False),
+            option8: discord.Option(str, "The eighth option", required=False),
+            option9: discord.Option(str, "The ninth option", required=False),
+            option10: discord.Option(str, "The tenth option", required=False),
     ) -> None:
         """Start a new poll."""
-        options = [o for o in (option1, option2, option3, option4, option5) if o]
+        options = [o for o in (option1, option2, option3, option4, option5,
+                               option6, option7, option8, option9, option10) if o]
         async with tortoise.transactions.in_transaction() as tx:
             if await Poll.filter(guild_id=ctx.guild.id, channel_id=ctx.channel.id).exists():
                 raise PollUserError(
