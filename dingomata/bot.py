@@ -44,7 +44,7 @@ def create_bot():
 
     @bot.listen()
     async def on_ready():
-        log.info(f'Bot "{bot.user}" is now up and running.')
+        log.info(f'Bot "{bot.user}" is now up and running in {bot.guilds}.')
 
     @bot.listen()
     async def on_disconnect():
