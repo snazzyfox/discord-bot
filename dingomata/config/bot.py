@@ -65,7 +65,7 @@ class GuildConfig(BaseModel):
 class ServiceConfig(BaseSettings):
     token: SecretStr = Field(..., env="token")
     database_url: SecretStr = Field(..., env="database_Url")
-    config_file: FilePath = Field(..., env="config_file")
+    config_file: FilePath = Field('config/config.toml', env="config_file")
 
     class Config:
         env_prefix = "dingomata"

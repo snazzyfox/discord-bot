@@ -11,4 +11,7 @@ if platform.system() == "Windows":
 
 if __name__ == "__main__":
     get_logging_config()
-    run()
+    try:
+        asyncio.run(run())
+    except KeyboardInterrupt:
+        pass

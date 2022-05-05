@@ -27,6 +27,8 @@ class LoggingCog(discord.Cog):
 
     async def _log_deleted_message(self, message: discord.Message) -> None:
         """Send a message to the log channel with the deleted message."""
+        if message.author.bot:
+            return
         log_channel = service_config.server[message.guild.id].logging.log_channel
         if log_channel:
             embed = discord.Embed(title='Message deleted.')
