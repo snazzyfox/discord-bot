@@ -1,5 +1,4 @@
 import logging
-import math
 from typing import Dict, List, Tuple
 
 import discord
@@ -21,9 +20,9 @@ class PollUserError(DingomataUserError):
 
 
 class PollVoteButton(discord.ui.Button["PollVoteView"]):
-    def __init__(self, index: int, option_count: int):
+    def __init__(self, index: int):
         self.index = index
-        action_row = min(math.trunc(option_count / 5), 4)
+        action_row = min((index // 5), 4)
         super(PollVoteButton, self).__init__(label=f"Vote {index + 1}",
                                              style=discord.ButtonStyle.blurple,
                                              row=action_row)
@@ -38,7 +37,7 @@ class PollVoteView(View):
     def __init__(self, option_count: int):
         super(PollVoteView, self).__init__(timeout=None)
         for i in range(option_count):
-            self.add_item(PollVoteButton(i, option_count))
+            self.add_item(PollVoteButton(i))
 
 
 class PollCog(discord.Cog):
