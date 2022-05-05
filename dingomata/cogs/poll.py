@@ -103,7 +103,10 @@ class PollCog(discord.Cog):
 
             # Post the poll results
             view = self._views.pop((ctx.guild.id, ctx.channel.id), None)
-            await message.delete()
+            try:
+                await message.delete()
+            except discord.NotFound:
+                pass  # it's already gone by some other means
             if view:
                 view.stop()
             await channel.send(embed=embed)
@@ -113,7 +116,6 @@ class PollCog(discord.Cog):
         try:
             polls = await Poll.filter(guild_id__in=self.poll.guild_ids, message_id__not_isnull=True)
             for poll in polls:
-                print(poll)
                 channel = self._bot.get_channel(poll.channel_id)
                 message = channel.get_partial_message(poll.message_id)
                 options = orjson.loads(poll.options)
@@ -122,7 +124,10 @@ class PollCog(discord.Cog):
                 if not view:
                     view = PollVoteView(len(options))
                     self._views[(poll.guild_id, poll.channel_id)] = view
-                await message.edit(embed=embed, view=view)
+                try:
+                    await message.edit(embed=embed, view=view)
+                except discord.NotFound:
+                    pass  # the message was deleted
         except Exception as e:
             _log.exception(e)
 
