@@ -56,7 +56,8 @@ def create_bot():
             location = f"{interaction.guild.name}/#{interaction.channel.name}"
         else:
             location = "DM"
-        log.info(f"Received {interaction.type.name} from {interaction.user} at {location}: {interaction.data}")
+        log.info(f"Received {interaction.type.name} {interaction.data.get('name')} "
+                 f"from {interaction.user} at {location} with options {interaction.data.get('options')}.")
 
     @bot.listen()
     async def on_application_command_error(ctx: discord.ApplicationContext, exc: Exception):
