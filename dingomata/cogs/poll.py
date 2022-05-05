@@ -24,7 +24,9 @@ class PollVoteButton(discord.ui.Button["PollVoteView"]):
     def __init__(self, index: int, option_count: int):
         self.index = index
         action_row = min(math.trunc(option_count / 5), 4)
-        super(PollVoteButton, self).__init__(label=f"Vote {index + 1}", style=discord.ButtonStyle.blurple, row=action_row)
+        super(PollVoteButton, self).__init__(label=f"Vote {index + 1}",
+                                             style=discord.ButtonStyle.blurple,
+                                             row=action_row)
 
     async def callback(self, interaction: discord.Interaction):
         await PollEntry.update_or_create({"option": self.index}, guild_id=interaction.guild.id,
