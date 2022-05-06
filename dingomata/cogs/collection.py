@@ -19,11 +19,8 @@ class CollectionCog(discord.Cog):
         self._bot = bot
 
     @collection.command()
-    async def add(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to collect"),
-    ) -> None:
+    @discord.option('user', description="Who to collect")
+    async def add(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Collect a cutie!"""
         try:
             await Collect.create(guild_id=ctx.guild.id, user_id=ctx.author.id, target_user_id=user.id)
@@ -35,11 +32,8 @@ class CollectionCog(discord.Cog):
             await ctx.respond(f"You have already collected {user.display_name}.", ephemeral=True)
 
     @collection.command()
-    async def remove(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to collect"),
-    ) -> None:
+    @discord.option('user', description="Who to discard")
+    async def remove(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Remove a cutie from your collection D:"""
         deleted_count = await Collect.filter(
             guild_id=ctx.guild.id, user_id=ctx.author.id, target_user_id=user.id).delete()

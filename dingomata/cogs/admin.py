@@ -15,12 +15,9 @@ class AdminCog(discord.Cog):
         self._bot = bot
 
     @slash(default_available=False)
-    async def echo(
-        self,
-        ctx: discord.ApplicationContext,
-        channel: discord.Option(str, "Channel ID to send message to"),
-        message: discord.Option(str, "Content of message to send"),
-    ):
+    @discord.option('channel', description="Channel ID to send message to")
+    @discord.option('message', description="Content of message to send")
+    async def echo(self, ctx: discord.ApplicationContext, channel: str, message: str) -> None:
         """Say something in a specific channel."""
         ch = self._bot.get_channel(int(channel))
         if not ch:

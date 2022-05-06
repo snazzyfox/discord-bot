@@ -1,9 +1,10 @@
 import datetime
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
 import discord.ui
 from pypika import CustomFunction
+from tortoise import Model
 from tortoise.expressions import Function
 from tortoise.fields import Field
 
@@ -21,6 +22,9 @@ class TimeField(Field, datetime.time):
     skip_to_python_if_native = True
     SQL_TYPE = "TIME"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # needed to make mypy go shut
+
     def to_python_value(self, value: Any) -> Optional[datetime.time]:
         if value is not None and not isinstance(value, datetime.time):
             value = datetime.time.fromisoformat(value)
@@ -28,7 +32,7 @@ class TimeField(Field, datetime.time):
         return value
 
     def to_db_value(
-        self, value: datetime.time | str | None, instance: "Type[Model] | Model"
+            self, value: datetime.time | str | None, instance: Type[Model] | Model
     ) -> Optional[datetime.time]:
         if value is not None and not isinstance(value, datetime.time):
             value = datetime.time.fromisoformat(value)
@@ -44,6 +48,9 @@ class DatetimeField(Field, datetime.datetime):
     skip_to_python_if_native = True
     SQL_TYPE = "TIMESTAMP"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # needed to make mypy go shut
+
     def to_python_value(self, value: Any) -> Optional[datetime.datetime]:
         if value is not None and not isinstance(value, datetime.datetime):
             value = datetime.datetime.fromisoformat(value)
@@ -51,7 +58,7 @@ class DatetimeField(Field, datetime.datetime):
         return value
 
     def to_db_value(
-        self, value: datetime.datetime | str | None, instance: "Type[Model] | Model"
+            self, value: datetime.datetime | str | None, instance: Type[Model] | Model
     ) -> Optional[datetime.datetime]:
         if value is not None and not isinstance(value, datetime.datetime):
             value = datetime.datetime.fromisoformat(value)

@@ -124,15 +124,13 @@ class GameCodeCog(discord.Cog):
             self._bot.add_view(view)
 
     @game.command()
-    async def open(
-            self,
-            ctx: discord.ApplicationContext,
-            title: discord.Option(str, "Name of the game to start"),
-            allow: discord.Option(int, "Who can join the game", default=GameMode.NEW_PLAYERS_ONLY.value, choices=[
-                discord.OptionChoice("Anyone", GameMode.ANYONE.value),
-                discord.OptionChoice("New Players Only", GameMode.NEW_PLAYERS_ONLY.value),
-            ]),
-    ) -> None:
+    @discord.option('title', description="Name of the game to start")
+    @discord.option('allow', description="Who can join the game", choices=[
+        discord.OptionChoice("Anyone", GameMode.ANYONE.value),
+        discord.OptionChoice("New Players Only", GameMode.NEW_PLAYERS_ONLY.value),
+    ])
+    async def open(self, ctx: discord.ApplicationContext, title: str, allow: int = GameMode.NEW_PLAYERS_ONLY.value,
+                   ) -> None:
         """Open a new game pool for people to join."""
         await ctx.defer(ephemeral=True)
         async with tortoise.transactions.in_transaction() as tx:
@@ -186,16 +184,10 @@ class GameCodeCog(discord.Cog):
         await ctx.respond("Pool has been closed.", ephemeral=True)
 
     @game.command()
-    async def pick(
-            self,
-            ctx: discord.ApplicationContext,
-            count: discord.Option(int, "Number of users to pick"),
-            message: discord.Option(str, "Message to send them"),
-    ) -> None:
+    @discord.option('count', description="Number of users to pick", min_value=1)
+    @discord.option('message', description="Message to send to picked users")
+    async def pick(self, ctx: discord.ApplicationContext, count: int, message: str) -> None:
         """Pick random eligible users from the pool and send them a DM."""
-        if count < 1:
-            raise DingomataUserError("You have to pick at least one user.")
-
         await ctx.defer(ephemeral=True)
         try:
             async with tortoise.transactions.in_transaction() as tx:
@@ -234,7 +226,8 @@ class GameCodeCog(discord.Cog):
         await ctx.respond("All done!", ephemeral=True)
 
     @game.command()
-    async def resend(self, ctx: discord.ApplicationContext, message: discord.Option(str, "Message to send")) -> None:
+    @discord.option('message', description="Message to send")
+    async def resend(self, ctx: discord.ApplicationContext, message: str) -> None:
         """Send a DM to all existing picked users."""
         await ctx.defer(ephemeral=True)
         entries = await GamePoolEntry.filter(guild_id=ctx.guild.id, status=EntryStatus.SELECTED.value)

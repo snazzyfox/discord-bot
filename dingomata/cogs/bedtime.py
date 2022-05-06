@@ -35,12 +35,10 @@ class BedtimeCog(discord.Cog):
         self._cache: Dict[int, Bedtime] = {}
 
     @bedtime.command()
-    async def set(
-            self,
-            ctx: discord.ApplicationContext,
-            time: discord.Option(str, "Your usual bedtime, for example 11:00pm, or 23:00"),
-            timezone: discord.Option(str, "Your timezone, for example US/Pacific"),
-    ) -> None:
+    @discord.option('time', description="Your usual bedtime, for example 11:00pm, or 23:00")
+    @discord.option('timezone', description="Your timezone",
+                    autocomplete=discord.utils.basic_autocomplete(pytz.common_timezones))
+    async def set(self, ctx: discord.ApplicationContext, time: str, timezone: str) -> None:
         """Set a bedtime. I will remind you to go to bed when you chat after this time."""
         # Convert user timezone to UTC
         try:
@@ -132,7 +130,7 @@ class BedtimeCog(discord.Cog):
                         "discord server, same as us, and that furry over there.",
                     ])
                 await message.channel.send(f"Hey {message.author.mention}, {text}")
-                result.last_notified = utcnow
+                result.last_notified = utcnow  # type: ignore
                 await result.save(update_fields=["last_notified"])
                 _log.info(f"Notified {message.author} about bedtime.")
         except discord.Forbidden:

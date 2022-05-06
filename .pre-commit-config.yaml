@@ -15,12 +15,13 @@ repos:
     hooks:
       - id: flake8
 # No mypy because pycord uses invalid syntax intentionally
-#  - repo: https://github.com/pre-commit/mirrors-mypy
-#    rev: v0.931
-#    hooks:
-#      - id: mypy
-#        additional_dependencies:
-#          - types-orjson>=3.6.0<4.0.0
-#          - types-pyyaml
-#          - types-pytz
-#          - types-toml
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.950
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-orjson>=3.6.0<4.0.0
+          - types-pyyaml
+          - types-pytz
+          - types-toml
+          - pydantic

@@ -35,11 +35,12 @@ class TriggerTextReply(BaseModel):
 
 class RandomTextChoice(BaseModel):
     content: str
-    probability: confloat(gt=0) = 1.0  #: Note: probabilities don't have to add up to 1. They'll be normalized.
+    probability: confloat(gt=0) = 1.0  # type: ignore
+    #: Note: probabilities don't have to add up to 1. They'll be normalized.
 
 
 class RandomTextChoiceList(BaseModel):
-    __root__: List[RandomTextChoice | str]
+    __root__: List[RandomTextChoice]
     _weights: List[float] = PrivateAttr()
 
     def __init__(self, __root__: List[RandomTextChoice | str], **kwargs):
@@ -80,11 +81,8 @@ class TextCog(discord.Cog):
             self._random_replies = {k: RandomTextReply.parse_obj(v) for k, v in yaml.safe_load(data).items()}
 
     @slash(cooldown=True)
-    async def hug(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to hug"),
-    ) -> None:
+    @discord.option('bonk', description="Who to hug")
+    async def hug(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone hugs!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} is lonely and can't stop hugging themselves.")
@@ -92,11 +90,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "hug", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def pat(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to pat"),
-    ) -> None:
+    @discord.option('bonk', description="Who to pat")
+    async def pat(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone pats!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} gives themselves a pat on the back!")
@@ -104,11 +99,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "pat", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def bonk(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to bonk"),
-    ) -> None:
+    @discord.option('bonk', description="Who to bonk")
+    async def bonk(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone bonks!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} tries to bonk themselves. They appear to really enjoy it.")
@@ -118,11 +110,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "bonk", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def bap(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to bap"),
-    ) -> None:
+    @discord.option('user', description="Who to bap")
+    async def bap(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone baps!"""
         if ctx.author == user:
             await ctx.respond("Aw, don't be so rough on yourself.")
@@ -132,11 +121,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "bonk", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def boop(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to boop"),
-    ) -> None:
+    @discord.option('user', description="Who to boop")
+    async def boop(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone boops!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} walks into a glass door and end up booping themselves.")
@@ -144,11 +130,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "boop", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def smooch(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to smooch"),
-    ) -> None:
+    @discord.option('user', description="Who to smooch")
+    async def smooch(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone smooches!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} tries to smooch themselves... How is that possible?")
@@ -157,11 +140,8 @@ class TextCog(discord.Cog):
                                           post="Bzzzt. A shocking experience." if user == self._bot.user else "")
 
     @slash(cooldown=True)
-    async def cuddle(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to cuddle"),
-    ) -> None:
+    @discord.option('user', description="Who to cuddle")
+    async def cuddle(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Cuddle with someone."""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} can't find anyone to cuddle, so they decided to pull their "
@@ -170,11 +150,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "cuddle", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def snug(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to snug"),
-    ) -> None:
+    @discord.option('user', description="Who to snug")
+    async def snug(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone snugs."""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} can't find a hot werewolf boyfriend to snuggle, so they "
@@ -183,11 +160,8 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "snug", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def tuck(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to tuck in"),
-    ) -> None:
+    @discord.option('user', description="Who to tuck in")
+    async def tuck(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Tuck someone in for the night."""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} gets into bed and rolls up into a cozy burrito.")
@@ -197,11 +171,8 @@ class TextCog(discord.Cog):
                 post="The bot overheats and burns their beans." if user == self._bot.user else "")
 
     @slash(cooldown=True)
-    async def tacklehug(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to tacklehug"),
-    ) -> None:
+    @discord.option('user', description="Who to tacklehug")
+    async def tacklehug(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         if user == ctx.author:
             await ctx.respond(f"{ctx.author.display_name} trips over and somehow tackles themselves. Oh wait, they "
                               f"tied both their shoes together.")
@@ -222,11 +193,8 @@ class TextCog(discord.Cog):
         await ctx.respond("Awoo" + "o" * random.randint(0, 25) + "!")
 
     @slash(cooldown=True)
-    async def cute(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "The cutie"),
-    ) -> None:
+    @discord.option('user', description="Name of the cutie")
+    async def cute(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Call someone cute!"""
         if user == self._bot.user:
             await ctx.respond("No U.")
@@ -234,16 +202,10 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "cute", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    async def roll(
-            self,
-            ctx: discord.ApplicationContext,
-            sides: discord.Option(int, "Number of sides", default=6),
-    ) -> None:
+    @discord.option('sides', description="Number of sides", min_value=1)
+    async def roll(self, ctx: discord.ApplicationContext, sides: int = 6) -> None:
         """Roll a die."""
-        if sides <= 1:
-            await ctx.respond(f"{ctx.author.display_name} tries to roll a {sides}-sided die, but created a black hole "
-                              f"instead, because it can't possibly exist. ")
-        elif random.random() < 0.01:
+        if random.random() < 0.01:
             await ctx.respond(f"{ctx.author.display_name} rolls a... darn it. It bounced down the stairs into the "
                               f"dungeon.")
         else:
@@ -263,11 +225,8 @@ class TextCog(discord.Cog):
             await ctx.respond("It's... hecc, it went under the couch.")
 
     @slash(cooldown=True)
-    async def snipe(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to shoot"),
-    ) -> None:
+    @discord.option('user', description="Who to shoot at")
+    async def snipe(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """It's bloody MURDERRRRR"""
         if user == self._bot.user:
             await ctx.respond(f"{ctx.author.display_name} dares to snipe {mention_if_needed(ctx, user)}. "
@@ -278,12 +237,10 @@ class TextCog(discord.Cog):
             await self._post_random_reply(ctx, "snipe", target=mention_if_needed(ctx, user))
 
     @slash()
-    async def localtime(
-            self,
-            ctx: discord.ApplicationContext,
-            time: discord.Option(str, "A date and/or time, e.g. 2020/01/01 00:00:00"),
-            timezone: discord.Option(str, "Time zone you are in"),
-    ) -> None:
+    @discord.option('time', description="A date and/or time, e.g. 2020/01/01 00:00:00")
+    @discord.option('timezone', description="Time zone you are in",
+                    autocomplete=discord.utils.basic_autocomplete(pytz.common_timezones))
+    async def localtime(self, ctx: discord.ApplicationContext, time: str, timezone: str) -> None:
         """Display a time you enter for everyone as their local time."""
         try:
             tz = pytz.timezone(timezone.strip())
@@ -301,12 +258,9 @@ class TextCog(discord.Cog):
         await ctx.respond(f"{time} in {tz} is <t:{int(time_obj.timestamp())}:f> your local time.")
 
     @slash(cooldown=True)
-    async def pour(
-            self,
-            ctx: discord.ApplicationContext,
-            drink: discord.Option(str, "What drink?", choices=["coffee", "tea", "orangina"]),
-            user: discord.Option(discord.User, "Who to pour for?"),
-    ) -> None:
+    @discord.option('drink', description="What drink?", choices=["coffee", "tea", "orangina"])
+    @discord.option('user', description="Who to pour for?")
+    async def pour(self, ctx: discord.ApplicationContext, drink: str, user: discord.User) -> None:
         """Pour someone a nice drink."""
         mention = "themselves" if user == ctx.author else mention_if_needed(ctx, user)
         if drink == "coffee":
@@ -322,11 +276,8 @@ class TextCog(discord.Cog):
         await self._post_random_reply(ctx, "waffle")
 
     @slash(cooldown=True)
-    async def brush(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who to brush"),
-    ) -> None:
+    @discord.option('user', description="Who to brush")
+    async def brush(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone a nice brushing!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} brushes themselves... Got to look your best!")

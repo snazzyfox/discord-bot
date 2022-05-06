@@ -59,20 +59,11 @@ class PollCog(discord.Cog):
         self.poll_message_pin.stop()
 
     @poll.command()
+    @discord.option('title', description="Title of poll")
     async def start(
-            self,
-            ctx: discord.ApplicationContext,
-            title: discord.Option(str, "Title of the poll"),
-            option1: discord.Option(str, "The first option"),
-            option2: discord.Option(str, "The second option"),
-            option3: discord.Option(str, "The third option", required=False),
-            option4: discord.Option(str, "The fourth option", required=False),
-            option5: discord.Option(str, "The fifth option", required=False),
-            option6: discord.Option(str, "The sixth option", required=False),
-            option7: discord.Option(str, "The seventh option", required=False),
-            option8: discord.Option(str, "The eighth option", required=False),
-            option9: discord.Option(str, "The ninth option", required=False),
-            option10: discord.Option(str, "The tenth option", required=False),
+            self, ctx: discord.ApplicationContext, title: str,
+            option1: str, option2: str, option3: str = None, option4: str = None, option5: str = None,
+            option6: str = None, option7: str = None, option8: str = None, option9: str = None, option10: str = None,
     ) -> None:
         """Start a new poll."""
         options = [o for o in (option1, option2, option3, option4, option5,

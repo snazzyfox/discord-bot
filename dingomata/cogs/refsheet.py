@@ -27,16 +27,13 @@ class RefSheetCog(discord.Cog):
         self._bot = bot
 
     @ref.command()
-    async def get(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, description="Whose ref to get", required=True),
-            id_: discord.Option(int, name='id', description="Which specific ref to get", required=False, default=None),
-    ) -> None:
+    @discord.option('user', description="Whose ref to get")
+    @discord.option('ref_id', description="Which specific ref to get")
+    async def get(self, ctx: discord.ApplicationContext, user: discord.User, ref_id: int = None) -> None:
         """Get someone's ref sheet."""
         query = RefSheet.filter(guild_id=ctx.guild.id, user_id=user.id)
-        if id_:
-            query = query.filter(id=id_)
+        if ref_id:
+            query = query.filter(id=ref_id)
         refs = await query.all()
         await self._send_get_response(ctx, refs)
 
@@ -63,23 +60,17 @@ class RefSheetCog(discord.Cog):
         return embed
 
     @ref.command()
-    async def add(
-            self,
-            ctx: discord.ApplicationContext,
-            url: discord.Option(str, description="URL to your ref sheet. Must be an image URL posted on Discord."),
-            name: discord.Option(str, description="Name for this ref sheet", required=False),
-    ) -> None:
+    @discord.option('url', description="URL to your ref sheet. Must be an image URL posted on Discord.")
+    @discord.option('name', description="Name for this ref sheet")
+    async def add(self, ctx: discord.ApplicationContext, url: str, name: str = None) -> None:
         """Add a new ref sheet for yourself."""
         return await self._add_ref(ctx, ctx.user, url, name)
 
     @ref_admin.command(name="add")
-    async def admin_add(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, description="User to add ref sheet for"),
-            url: discord.Option(str, description="URL to your ref sheet. Must be an image URL posted on Discord."),
-            name: discord.Option(str, description="Name for this ref sheet", required=False),
-    ) -> None:
+    @discord.option('user', description="User to add ref sheet for")
+    @discord.option('url', description="URL to your ref sheet. Must be an image URL posted on Discord.")
+    @discord.option('name', description="Name for this ref sheet")
+    async def admin_add(self, ctx: discord.ApplicationContext, user: discord.User, url: str, name: str = None) -> None:
         """Add a new ref sheet for a given user."""
         return await self._add_ref(ctx, user, url, name)
 
@@ -108,13 +99,10 @@ class RefSheetCog(discord.Cog):
         await self._update_list(ctx)
 
     @ref.command()
-    async def remove(
-            self,
-            ctx: discord.ApplicationContext,
-            id_: discord.Option(int, name="id", description="Which specific ref to delete"),
-    ) -> None:
+    @discord.option('ref_id', description="Which specific ref to delete")
+    async def remove(self, ctx: discord.ApplicationContext, ref_id: int) -> None:
         """Remove one of your own ref sheets."""
-        ref = await RefSheet.get_or_none(guild_id=ctx.guild.id, id=id_)
+        ref = await RefSheet.get_or_none(guild_id=ctx.guild.id, id=ref_id)
         if not ref:
             raise DingomataUserError("There is no ref sheet with that ID.")
         elif ref.user_id != ctx.user.id:
@@ -124,13 +112,10 @@ class RefSheetCog(discord.Cog):
         await self._update_list(ctx)
 
     @ref_admin.command(name="remove")
-    async def admin_remove(
-            self,
-            ctx: discord.ApplicationContext,
-            id_: discord.Option(int, name="id", description="Which specific ref to delete"),
-    ) -> None:
+    @discord.option('ref_id', description="Which specific ref to delete")
+    async def admin_remove(self, ctx: discord.ApplicationContext, ref_id: int) -> None:
         """Remove a ref sheet."""
-        ref = await RefSheet.get_or_none(guild_id=ctx.guild.id, id=id_)
+        ref = await RefSheet.get_or_none(guild_id=ctx.guild.id, id=ref_id)
         if not ref:
             raise DingomataUserError("There is no ref sheet with that ID.")
         await ref.delete()

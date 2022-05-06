@@ -2,7 +2,7 @@ import logging
 import re
 from datetime import timedelta
 from enum import Enum
-from typing import List, Set
+from typing import List, Optional, Set
 
 import discord
 from unidecode import unidecode
@@ -22,8 +22,8 @@ class AutomodAction(Enum):
 
 class AutomodActionView(View):
     def __init__(self):
-        self.action: AutomodAction | None = None
-        self.confirmed_by: discord.Member | None = None
+        self.action: Optional[AutomodAction] = None
+        self.confirmed_by: Optional[discord.Member] = None
         super().__init__(timeout=None)
 
     @discord.ui.select(placeholder='Select an action', options=[
@@ -139,18 +139,19 @@ class AutomodCog(discord.Cog):
                 embed=embed, view=view
             )
             await view.wait()
-            if view.action is AutomodAction.BAN:
-                await message.author.ban(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
-                actions.append(f'Banned user, confirmed by {view.confirmed_by.display_name}')
-            elif view.action is AutomodAction.KICK:
-                await message.author.kick(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
-                actions.append(f'Kicked user, confirmed by {view.confirmed_by.display_name}')
-            elif view.action is AutomodAction.UNDO:
-                await message.author.remove_timeout(
-                    reason=f'False detection reviewed by {view.confirmed_by.display_name}')
-                actions.append(f'Timeout removed, reviewed by {view.confirmed_by.display_name}')
-            embed.set_field_at(3, name="Action(s) taken", value="\n".join(actions))
-            await notify_message.edit(embed=embed, view=None)
+            if view.confirmed_by:
+                if view.action is AutomodAction.BAN:
+                    await message.author.ban(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
+                    actions.append(f'Banned user, confirmed by {view.confirmed_by.display_name}')
+                elif view.action is AutomodAction.KICK:
+                    await message.author.kick(reason=f'Scam message confirmed by {view.confirmed_by.display_name}')
+                    actions.append(f'Kicked user, confirmed by {view.confirmed_by.display_name}')
+                elif view.action is AutomodAction.UNDO:
+                    await message.author.remove_timeout(
+                        reason=f'False detection reviewed by {view.confirmed_by.display_name}')
+                    actions.append(f'Timeout removed, reviewed by {view.confirmed_by.display_name}')
+                embed.set_field_at(3, name="Action(s) taken", value="\n".join(actions))
+                await notify_message.edit(embed=embed, view=None)
         self._processing_message_ids.discard(message.id)
 
     @staticmethod
@@ -163,7 +164,8 @@ class AutomodCog(discord.Cog):
         return next(matches, None)
 
     @roles.command()
-    async def add(self, ctx: discord.ApplicationContext, role: discord.Option(discord.Role, "Role to add")) -> None:
+    @discord.option('role', description="Role to add")
+    async def add(self, ctx: discord.ApplicationContext, role: discord.Role) -> None:
         """Assign yourself a role in this server"""
         if role.id in service_config.server[ctx.guild.id].roles.self_assign:
             await ctx.author.add_roles(role, reason="Requested via bot")
@@ -172,11 +174,8 @@ class AutomodCog(discord.Cog):
             await ctx.respond("You cannot change that role yourself. Please ask a moderator for help.", ephemeral=True)
 
     @roles.command()
-    async def remove(
-            self,
-            ctx: discord.ApplicationContext,
-            role: discord.Option(discord.Role, "Role to remove"),
-    ) -> None:
+    @discord.option('role', description="Role to remove")
+    async def remove(self, ctx: discord.ApplicationContext, role: discord.Role) -> None:
         """Remove a role from yourself in this server"""
         if role.id in service_config.server[ctx.guild.id].roles.self_assign:
             await ctx.author.remove_roles(role, reason="Requested via bot")

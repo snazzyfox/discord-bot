@@ -23,12 +23,9 @@ class QuoteCog(discord.Cog):
         self._bot = bot
 
     @quotes.command()
-    async def add(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Who said it?"),
-            content: discord.Option(str, "What did they say?"),
-    ) -> None:
+    @discord.option('user', description="Who said it?")
+    @discord.option('content', description="What did they say?")
+    async def add(self, ctx: discord.ApplicationContext, user: discord.User, content: str) -> None:
         """Add a new quote."""
         qid = await self._add_quote(ctx.guild, ctx.author, user, content)
         await ctx.respond(f"Quote has been added. New quote ID is {qid}.", ephemeral=True)
@@ -57,14 +54,11 @@ class QuoteCog(discord.Cog):
             raise DingomataUserError("This quote already exists.") from e
 
     @quotes.command()
-    async def find(
-            self,
-            ctx: discord.ApplicationContext,
-            user: discord.Option(discord.User, "Find quotes by a particular user", required=False) = None,
-            search: discord.Option(str, "Find quotes including this phrase", required=False) = None,
-    ) -> None:
+    @discord.option('user', description="Find quotes by a particular user")
+    @discord.option('search', description="Find quotes including this phrase")
+    async def find(self, ctx: discord.ApplicationContext, user: discord.User = None, search: str = None) -> None:
         """Find existing quotes."""
-        query = Quote.all().limit(11)
+        query = Quote.filter(guild_id=ctx.guild.id).limit(11)
         if user:
             query = query.filter(user_id=user.id)
         if search:
@@ -81,33 +75,32 @@ class QuoteCog(discord.Cog):
                                     "Enter a more specific search query to find more quotes."
             await ctx.respond(embed=embed, ephemeral=True)
         else:
-            await ctx.respond(f"{user.display_name} has no quotes.", ephemeral=True)
+            await ctx.respond("Your search found no quotes.", ephemeral=True)
 
     @quotes.command()
-    async def get(self, ctx: discord.ApplicationContext, quote_id: discord.Option(int, "ID of quote to post")) -> None:
+    @discord.option('quote_id', description="ID of quote to post")
+    async def get(self, ctx: discord.ApplicationContext, quote_id: int) -> None:
         """Get a specific quote and post it publicly."""
         try:
-            quote = await Quote.get(id=quote_id)
+            quote = await Quote.get(guild_id=ctx.guild.id, id=quote_id)
             user = self._bot.get_user(quote.user_id)
             await ctx.respond(f"{user.display_name} said:\n>>> {quote.content}")
         except tortoise.exceptions.IntegrityError as e:
             raise DingomataUserError(f"Quote ID {quote_id} does not exist.") from e
 
     @quotes.command()
-    async def delete(
-            self, ctx: discord.ApplicationContext, quote_id: discord.Option(int, "ID of quote to delete")
-    ) -> None:
+    @discord.option('quote_id', description="ID of quote to delete")
+    async def delete(self, ctx: discord.ApplicationContext, quote_id: int) -> None:
         """Delete a quote."""
-        deleted_count = await Quote.filter(id=quote_id).delete()
+        deleted_count = await Quote.filter(guild_id=ctx.guild.id, id=quote_id).delete()
         if deleted_count:
             await ctx.respond(f"Deleted quote with ID {id}.", ephemeral=True)
         else:
             raise DingomataUserError(f"Quote ID {quote_id} does not exist.")
 
     @slash(cooldown=True)
-    async def quote(
-            self, ctx: discord.ApplicationContext, user: discord.Option(discord.User, "User to get quotes for")
-    ) -> None:
+    @discord.option('user', description="User to get quotes for")
+    async def quote(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Print a random quote from a user."""
         quote = await self._get_quote(ctx.guild.id, user.id)
         await ctx.respond(f"{user.display_name} said: \n>>> " + quote)
@@ -116,12 +109,12 @@ class QuoteCog(discord.Cog):
     @slash(cooldown=True, default_available=False)
     async def whiskey(self, ctx: discord.ApplicationContext) -> None:
         """What does the Dingo say?"""
-        quote = await self._get_quote(178042794386915328, 178041504508542976)
+        quote = await self._get_quote(ctx.guild.id, 178041504508542976)
         await ctx.respond(quote)
 
     @slash(cooldown=True, default_available=False)
     async def corgi(self, ctx: discord.ApplicationContext) -> None:
-        quote = await self._get_quote(768208778780475447, 168916479306235914)
+        quote = await self._get_quote(ctx.guild.id, 168916479306235914)
         await ctx.respond(quote)
 
     async def _get_quote(self, guild_id: int, user_id: int) -> str:
