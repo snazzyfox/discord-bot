@@ -163,39 +163,38 @@ class AutomodCog(discord.Cog):
         )
         return next(matches, None)
 
+    @staticmethod
+    def role_autocomplete(ctx: discord.AutocompleteContext) -> List[str]:
+        assignable = [ctx.interaction.guild.get_role(role_id)
+                      for role_id in service_config.server[ctx.interaction.guild.id].roles.self_assign]
+        return [role.name for role in assignable if role.name.lower().startswith(ctx.value.lower())]
+
     @roles.command()
-    @discord.option('role', description="Role to add")
-    async def add(self, ctx: discord.ApplicationContext, role: discord.Role) -> None:
+    @discord.option('role', description="Role to add", autocomplete=role_autocomplete)
+    async def add(self, ctx: discord.ApplicationContext, role: str) -> None:
         """Assign yourself a role in this server"""
-        if role.id in service_config.server[ctx.guild.id].roles.self_assign:
-            await ctx.author.add_roles(role, reason="Requested via bot")
-            await ctx.respond(f"You've been given the {role.name} role.", ephemeral=True)
-        else:
-            await ctx.respond("You cannot change that role yourself. Please ask a moderator for help.", ephemeral=True)
+        try:
+            role_obj = next(r for r in ctx.guild.roles if r.name == role)
+            if role_obj.id in service_config.server[ctx.guild.id].roles.self_assign:
+                await ctx.author.add_roles(role_obj, reason="Requested via bot")
+                await ctx.respond(f"You now have the {role_obj.name} role.", ephemeral=True)
+            else:
+                await ctx.respond("You cannot change that role yourself. Please ask a moderator for help.",
+                                  ephemeral=True)
+        except StopIteration:
+            await ctx.respond(f"There is no role called {role} in this server.", ephemeral=True)
 
     @roles.command()
-    @discord.option('role', description="Role to remove")
-    async def remove(self, ctx: discord.ApplicationContext, role: discord.Role) -> None:
+    @discord.option('role', description="Role to remove", autocomplete=role_autocomplete)
+    async def remove(self, ctx: discord.ApplicationContext, role: str) -> None:
         """Remove a role from yourself in this server"""
-        if role.id in service_config.server[ctx.guild.id].roles.self_assign:
-            await ctx.author.remove_roles(role, reason="Requested via bot")
-            await ctx.respond(f"You've been removed from the {role.name} role.", ephemeral=True)
-        else:
-            await ctx.respond("You cannot change that role yourself. Please ask a moderator for help.", ephemeral=True)
-
-    @roles.command(name='list')
-    async def list_roles(self, ctx: discord.ApplicationContext):
-        """Show the list of roles you can add yourself."""
-        roles = service_config.server[ctx.guild.id].roles.self_assign
-        if roles:
-            await ctx.respond(
-                "You can assign yourself the following roles: \n"
-                + "\n".join(ctx.guild.get_role(role_id).mention for role_id in roles),
-                ephemeral=True,
-            )
-        else:
-            await ctx.respond(
-                "This server is not configured to allow self-adding any roles. Please speak to a "
-                "moderator if you think this is wrong.",
-                ephemeral=True,
-            )
+        try:
+            role_obj = next(r for r in ctx.guild.roles if r.name == role)
+            if role_obj.id in service_config.server[ctx.guild.id].roles.self_assign:
+                await ctx.author.remove_roles(role_obj, reason="Requested via bot")
+                await ctx.respond(f"You've been removed from the {role_obj.name} role.", ephemeral=True)
+            else:
+                await ctx.respond("You cannot change that role yourself. Please ask a moderator for help.",
+                                  ephemeral=True)
+        except StopIteration:
+            await ctx.respond(f"There is no role called {role} in this server.", ephemeral=True)
