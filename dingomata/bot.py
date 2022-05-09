@@ -56,7 +56,7 @@ def create_bot():
             location = f"{interaction.guild.name}/#{interaction.channel.name}"
         else:
             location = "DM"
-        log.info(f"Received {interaction.type.name} {interaction.data.get('name')} "
+        log.info(f"Bot {bot.user.name} received {interaction.type.name} {interaction.data.get('name')} "
                  f"from {interaction.user} at {location} with options {interaction.data.get('options')}.")
 
     @bot.listen()
