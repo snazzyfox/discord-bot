@@ -167,9 +167,9 @@ class RefSheetCog(BaseCog):
         # Write the new list
         refs = await RefSheet.filter(guild_id=ctx.guild.id).order_by("user_id").all()
         lines = []
-        for user_id, refs in groupby(refs, key=lambda ref: ref.user_id):
+        for user_id, user_refs in groupby(refs, key=lambda ref: ref.user_id):
             user = ctx.guild.get_member(user_id)
-            links = ', '.join(f'[{ref.name or ("Unnamed" + str(i + 1))}]({ref.url})' for i, ref in enumerate(refs))
+            links = ', '.join(f'[{ref.name or ("Unnamed" + str(i + 1))}]({ref.url})' for i, ref in enumerate(user_refs))
             lines.append(f'{user.display_name if user else user_id} {links}')
         lines.sort()  # by username instead of id
 

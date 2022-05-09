@@ -43,7 +43,7 @@ class QuoteCog(BaseCog):
         if quoted_user == self._bot_for(guild.id).user:
             raise DingomataUserError("Don't quote me on that.")
         # Compute a digest of the quote message to prevent duplicates.
-        digest = md5(self._NON_ALPHANUM.sub("", content.lower()).encode()).hexdigest()
+        digest = md5(self._NON_ALPHANUM.sub("", content.lower()).encode(), usedforsecurity=False).hexdigest()
         try:
             quote = await Quote.create(guild_id=guild.id, user_id=quoted_user.id, added_by=source_user.id,
                                        content=content, content_digest=digest)

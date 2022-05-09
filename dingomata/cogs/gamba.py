@@ -384,8 +384,8 @@ class GambaCog(BaseCog):
         SELECT rank
         FROM ({all_query}) a
         WHERE user_id = $2
-        """
-        top_query = f"SELECT * FROM ({all_query}) a WHERE rank < 10"
+        """  # noqa: S608
+        top_query = f"SELECT * FROM ({all_query}) a WHERE rank < 10"  # noqa: S608
 
         conn = tortoise.Tortoise.get_connection("default")
         data = await conn.execute_query_dict(current_user_query, [ctx.guild.id, ctx.author.id])
@@ -397,7 +397,7 @@ class GambaCog(BaseCog):
 
         if user_rank and user_rank > 10:
             # Plus everyone near the given user
-            nearby_query = f"SELECT * FROM ({all_query}) a WHERE rank BETWEEN $2 AND $3"
+            nearby_query = f"SELECT * FROM ({all_query}) a WHERE rank BETWEEN $2 AND $3"  # noqa: S608
             data = await conn.execute_query_dict(nearby_query, [ctx.guild.id, max(11, user_rank - 3), user_rank + 3])
             table.add_row(("...", "...", "..."))
             self._generate_leaderboard_rows(ctx.guild, data, table)

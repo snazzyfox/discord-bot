@@ -21,7 +21,7 @@ class Dingomata(discord.Bot):
             guild_commands = [cmd for cmd in commands if cmd.guild_ids is not None and guild_id in cmd.guild_ids]
             registered_guild_commands[guild_id] = await self.register_commands(guild_commands, guild_id=guild_id)
 
-        for guild_id, commands in registered_guild_commands.items():
+        for _, commands in registered_guild_commands.items():
             for i in commands:
                 cmd = next((cmd for cmd in self.pending_application_commands if cmd.name == i["name"]
                             and cmd.type == i["type"]

@@ -155,10 +155,12 @@ class GameCodeCog(BaseCog):
             )
             message = await ctx.channel.send(embed=embed, view=self._join_views[ctx.guild.id])
 
-            await GamePool.update_or_create(dict(is_accepting_entries=True, title=title, mode=allow,
-                                                 channel_id=ctx.channel.id, message_id=message.id),
-                                            guild_id=ctx.guild.id,
-                                            using_db=tx)
+            await GamePool.update_or_create(
+                {
+                    'is_accepting_entries': True, 'title': title, 'mode': allow, 'channel_id': ctx.channel.id,
+                    'message_id': message.id, 'guild_id': ctx.guild.id
+                },
+                using_db=tx)
             await ctx.respond("Pool is now open.", ephemeral=True)
             log.debug(f"Game pool opened: {title}")
 

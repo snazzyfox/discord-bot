@@ -14,7 +14,13 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-# No mypy because pycord uses invalid syntax intentionally
+        additional_dependencies:
+          - flake8-print
+          - flake8-bandit
+          - flake8-bugbear
+          - flake8-comprehensions
+          - flake8-eradicate
+          - flake8-noqa
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.950
     hooks:
