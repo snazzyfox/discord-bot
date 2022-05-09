@@ -7,6 +7,7 @@ from typing import List, Optional, Set
 import discord
 from unidecode import unidecode
 
+from dingomata.cogs.base import BaseCog
 from dingomata.config.bot import service_config
 from dingomata.decorators import slash_group
 from dingomata.utils import View
@@ -43,7 +44,7 @@ class AutomodActionView(View):
             interaction.response.send_message("You can't do this, you're not a mod.")
 
 
-class AutomodCog(discord.Cog):
+class AutomodCog(BaseCog):
     """Message filtering."""
 
     _URL_REGEX = re.compile(r"\bhttps?://(?!(?:[^/]+\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
@@ -55,7 +56,7 @@ class AutomodCog(discord.Cog):
     roles = slash_group(name="roles", description="Add or remove roles for yourself.")
 
     def __init__(self, bot: discord.Bot):
-        self._bot = bot
+        super().__init__(bot)
 
         #: Message IDs that are already being deleted - skip to avoid double posting
         self._processing_message_ids: Set[int] = set()
@@ -134,7 +135,7 @@ class AutomodCog(discord.Cog):
             embed.add_field(name="Action(s) taken", value="\n".join(actions), inline=False)
             embed.add_field(name="Original Message", value=message.content, inline=False)
             view = AutomodActionView()
-            notify_message = await self._bot.get_channel(log_channel).send(
+            notify_message = await self._bot_for(message.guild.id).get_channel(log_channel).send(
                 content=service_config.server[message.guild.id].automod.text_prefix,
                 embed=embed, view=view
             )

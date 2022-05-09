@@ -7,16 +7,14 @@ from tortoise import functions as func
 from ..decorators import slash_group
 from ..models import Collect
 from ..utils import mention_if_needed
+from .base import BaseCog
 
 _log = logging.getLogger(__name__)
 
 
-class CollectionCog(discord.Cog):
+class CollectionCog(BaseCog):
     """Collect some cuties."""
     collection = slash_group("collection", "Collect some cuties!")
-
-    def __init__(self, bot: discord.Bot):
-        self._bot = bot
 
     @collection.command()
     @discord.option('user', description="Who to collect")
@@ -50,5 +48,5 @@ class CollectionCog(discord.Cog):
         await ctx.respond(
             f"{ctx.author.display_name} has a collection of {len(collected)} cutie(s). "
             "Their collection includes: "
-            + ", ".join(self._bot.get_user(c.target_user_id).display_name for c in collected)
+            + ", ".join(self._bot_for(ctx.guild.id).get_user(c.target_user_id).display_name for c in collected)
         )

@@ -15,6 +15,7 @@ from ..decorators import slash_group
 from ..exceptions import DingomataUserError
 from ..models import GambaGame, GambaUser
 from ..utils import View
+from .base import BaseCog
 
 _log = logging.getLogger(__name__)
 
@@ -44,14 +45,14 @@ class GambaView(View):
         await interaction.response.send_message(f"Success! You've bet a total of {total}.", ephemeral=True)
 
 
-class GambaCog(discord.Cog):
+class GambaCog(BaseCog):
     """Gamble with server points."""
 
     gamba = slash_group("gamba", "Gamble your points away!")
     gamble = slash_group("gamble", "Give people the opportunity to gamble their points away!", config_group="gamba")
 
     def __init__(self, bot: discord.Bot) -> None:
-        self._bot = bot
+        super().__init__(bot)
         self._views: Dict[int, View] = {}
 
     @discord.Cog.listener()
@@ -128,7 +129,7 @@ class GambaCog(discord.Cog):
             field_id = 0 if outcome == "believe" else 0
             field = embed.fields[field_id]
             embed.set_field_at(field_id, name="☑ " + field.name, value=field.value, inline=field.inline)
-            message = self._bot.get_channel(game.channel_id).get_partial_message(game.message_id)
+            message = self._bot_for(ctx.guild.id).get_channel(game.channel_id).get_partial_message(game.message_id)
             await message.edit(embed=embed)
             await ctx.respond("Payout is complete. Users are being sent private updates about their bet results. "
                               "Do not start a new gamba until this process is complete.", ephemeral=True)
@@ -178,7 +179,8 @@ class GambaCog(discord.Cog):
                 bet_believe=0,
                 bet_doubt=0,
             )
-            await self._bot.get_channel(game.channel_id).get_partial_message(game.message_id).edit(embed=embed)
+            await self._bot_for(ctx.guild.id).get_channel(game.channel_id).get_partial_message(game.message_id).edit(
+                embed=embed)
             await game.delete(using_db=tx)
             await ctx.respond("The current gamba has been cancelled and all points are refunded.", ephemeral=True)
 
@@ -202,7 +204,7 @@ class GambaCog(discord.Cog):
                             view = GambaView(timeout=(game.open_until - now).total_seconds())
                             self._views[game.guild_id] = view
                     embed = await self._generate_gamba_embed(game)
-                    channel = self._bot.get_channel(game.channel_id)
+                    channel = self._bot_for(game.guild_id).get_channel(game.channel_id)
                     message = channel.get_partial_message(game.message_id)
                     await message.edit(embed=embed, view=view)
                     await game.save(using_db=tx)
@@ -216,7 +218,7 @@ class GambaCog(discord.Cog):
                 games = await GambaGame.select_for_update().filter(
                     is_open=True, guild_id__in=self.gamba.guild_ids).using_db(tx).all()
                 for game in games:
-                    channel = self._bot.get_channel(game.channel_id)
+                    channel = self._bot_for(game.guild_id).get_channel(game.channel_id)
                     if channel.last_message_id != game.message_id:
                         embed = await self._generate_gamba_embed(game)
                         view = self._views.get(game.guild_id)

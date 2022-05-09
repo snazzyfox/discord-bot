@@ -9,18 +9,16 @@ from dingomata.exceptions import DingomataUserError
 
 from ..models import Quote
 from ..utils import Random
+from .base import BaseCog
 
 
-class QuoteCog(discord.Cog):
+class QuoteCog(BaseCog):
     """Text commands."""
 
     _NEXT_BUTTON = "quote_next"
     _NON_ALPHANUM = re.compile(r"[^\w]")
 
     quotes = slash_group("quotes", "Manage quotes", config_group="quote")
-
-    def __init__(self, bot: discord.Bot):
-        self._bot = bot
 
     @quotes.command()
     @discord.option('user', description="Who said it?")
@@ -42,7 +40,7 @@ class QuoteCog(discord.Cog):
             quoted_user: discord.User,
             content: str,
     ) -> int:
-        if quoted_user == self._bot.user:
+        if quoted_user == self._bot_for(guild.id).user:
             raise DingomataUserError("Don't quote me on that.")
         # Compute a digest of the quote message to prevent duplicates.
         digest = md5(self._NON_ALPHANUM.sub("", content.lower()).encode()).hexdigest()
@@ -68,7 +66,7 @@ class QuoteCog(discord.Cog):
         if results:
             embed = discord.Embed()
             for quote in results[:10]:
-                embed.add_field(name=f"[{quote.id}] {self._bot.get_user(quote.user_id).display_name}",
+                embed.add_field(name=f"[{quote.id}] {self._bot_for(ctx.guild.id).get_user(quote.user_id).display_name}",
                                 value=quote.content, inline=False)
             if len(results) > 10:
                 embed.description = "Only the first 10 quotes are displayed, but more are available. " \
@@ -83,7 +81,7 @@ class QuoteCog(discord.Cog):
         """Get a specific quote and post it publicly."""
         try:
             quote = await Quote.get(guild_id=ctx.guild.id, id=quote_id)
-            user = self._bot.get_user(quote.user_id)
+            user = self._bot_for(ctx.guild.id).get_user(quote.user_id)
             await ctx.respond(f"{user.display_name} said:\n>>> {quote.content}")
         except tortoise.exceptions.IntegrityError as e:
             raise DingomataUserError(f"Quote ID {quote_id} does not exist.") from e
@@ -123,4 +121,4 @@ class QuoteCog(discord.Cog):
         if quote:
             return quote.content
         else:
-            raise DingomataUserError(f"{self._bot.get_user(user_id).display_name} has no quotes.")
+            raise DingomataUserError(f"{self._bot_for(guild_id).get_user(user_id).display_name} has no quotes.")

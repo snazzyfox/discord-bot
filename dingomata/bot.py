@@ -44,11 +44,11 @@ def create_bot():
 
     @bot.listen()
     async def on_ready():
-        log.info(f'Bot "{bot.user}" is now up and running in {bot.guilds}.')
+        log.info(f'Bot connected: "{bot.user}" {[guild.name for guild in bot.guilds]}.')
 
     @bot.listen()
     async def on_disconnect():
-        log.info(f'Bot "{bot.user}" has disconnected.')
+        log.info(f'Bot disconnected: "{bot.user}"')
 
     @bot.listen()
     async def on_interaction(interaction: discord.Interaction):
@@ -56,8 +56,8 @@ def create_bot():
             location = f"{interaction.guild.name}/#{interaction.channel.name}"
         else:
             location = "DM"
-        log.info(f"Bot {bot.user.name} received {interaction.type.name} {interaction.data.get('name')} "
-                 f"from {interaction.user} at {location} with options {interaction.data.get('options')}.")
+        log.info(f"Interaction: {bot.user.name} {interaction.type.name} {interaction.data.get('name')} "
+                 f"{interaction.user} {location} ({interaction.data.get('options')})")
 
     @bot.listen()
     async def on_application_command_error(ctx: discord.ApplicationContext, exc: Exception):

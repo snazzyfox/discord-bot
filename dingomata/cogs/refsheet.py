@@ -11,20 +11,18 @@ from dingomata.exceptions import DingomataUserError
 
 from ..models import RefSheet, RefSheetMessages
 from ..utils import Random
+from .base import BaseCog
 
 _log = logging.getLogger(__name__)
 
 
-class RefSheetCog(discord.Cog):
+class RefSheetCog(BaseCog):
     """Ref sheet list."""
 
     _DISCORD_IMAGE_URL = re.compile(
         r'https://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/\d+/\d+/.*\.(?:jpg|png|webp|gif)', re.IGNORECASE)
     ref_admin = slash_group("ref_admin", "Manage ref sheets", config_group="ref", default_available=False)
     ref = slash_group("ref", "Manage and look at ref sheets", default_available=False)
-
-    def __init__(self, bot: discord.Bot):
-        self._bot = bot
 
     @ref.command()
     @discord.option('user', description="Whose ref to get")
