@@ -65,7 +65,7 @@ snipe.enabled = false
 [[server]]
 id = 970811039635628072
 [server.roles]
-self_assign = [873029553918967889, 908451036308590593]
+self_assign = [971942005871640666, 971942064843542548]
 no_pings = []
 [server.cooldown]
 default_seconds = 15

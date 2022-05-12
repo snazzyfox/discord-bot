@@ -11,6 +11,7 @@ from ..decorators import slash_group
 from ..exceptions import DingomataUserError
 from ..models import Poll, PollEntry
 from ..utils import View
+from .base import BaseCog
 
 _log = logging.getLogger(__name__)
 
@@ -40,13 +41,13 @@ class PollVoteView(View):
             self.add_item(PollVoteButton(i))
 
 
-class PollCog(discord.Cog):
+class PollCog(BaseCog):
     """Run polls in Discord. Each channel can only have one active poll at a time."""
 
     poll = slash_group("poll", "Run polls in a channel.")
 
     def __init__(self, bot: discord.Bot):
-        self._bot = bot
+        super().__init__(bot)
         self._views: Dict[Tuple[int, int], PollVoteView] = {}
 
     @discord.Cog.listener()
@@ -93,7 +94,7 @@ class PollCog(discord.Cog):
             except tortoise.exceptions.DoesNotExist as e:
                 raise PollUserError("There is no poll running in this channel.") from e
             options = orjson.loads(poll.options)
-            channel = self._bot.get_channel(poll.channel_id)
+            channel = self._bot_for(ctx.guild.id).get_channel(poll.channel_id)
             message = channel.get_partial_message(poll.message_id)
             embed = await self._generate_embed(poll, options, False)
 
@@ -116,7 +117,7 @@ class PollCog(discord.Cog):
         try:
             polls = await Poll.filter(guild_id__in=self.poll.guild_ids, message_id__not_isnull=True)
             for poll in polls:
-                channel = self._bot.get_channel(poll.channel_id)
+                channel = self._bot_for(poll.guild_id).get_channel(poll.channel_id)
                 message = channel.get_partial_message(poll.message_id)
                 options = orjson.loads(poll.options)
                 embed = await self._generate_embed(poll, options, True)
@@ -138,7 +139,7 @@ class PollCog(discord.Cog):
                 polls = await Poll.select_for_update().filter(
                     guild_id__in=self.poll.guild_ids, message_id__not_isnull=True).using_db(tx).all()
                 for poll in polls:
-                    channel = self._bot.get_channel(poll.channel_id)
+                    channel = self._bot_for(poll.guild_id).get_channel(poll.channel_id)
                     if channel.last_message_id != poll.message_id:
                         options = orjson.loads(poll.options)
                         embed = await self._generate_embed(poll, options, True)

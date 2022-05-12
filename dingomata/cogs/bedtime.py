@@ -13,6 +13,7 @@ from ..config import service_config
 from ..decorators import slash_group
 from ..exceptions import DingomataUserError
 from ..models import Bedtime
+from .base import BaseCog
 
 _log = logging.getLogger(__name__)
 _calendar = parsedatetime.Calendar()
@@ -24,14 +25,14 @@ class BedtimeSpecificationError(DingomataUserError):
     pass
 
 
-class BedtimeCog(discord.Cog):
+class BedtimeCog(BaseCog):
     """Remind users to go to bed."""
 
     bedtime = slash_group(name="bedtime", description="Get a reminder to go to bed when you're up late.")
     _BEDTIME_KWDS = {"bed", "sleep", "bye", "cya", "see y", "night", "nini", "nite", "comf"}
 
     def __init__(self, bot: discord.Bot):
-        self._bot = bot
+        super().__init__(bot)
         self._cache: Dict[int, Bedtime] = {}
 
     @bedtime.command()
@@ -132,7 +133,7 @@ class BedtimeCog(discord.Cog):
                 await message.channel.send(f"Hey {message.author.mention}, {text}")
                 result.last_notified = utcnow  # type: ignore
                 await result.save(update_fields=["last_notified"])
-                _log.info(f"Notified {message.author} about bedtime.")
+                _log.debug(f"Bedtime notified: {message.author}")
         except discord.Forbidden:
             _log.warning(f"Failed to notify {message.author} in {message.guild} about bedtime. The bot doesn't "
                          f"have permissions to post there.")

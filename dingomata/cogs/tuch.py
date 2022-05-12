@@ -8,15 +8,13 @@ from tortoise import functions as func
 
 from ..decorators import slash
 from ..models import Tuch
+from .base import BaseCog
 
 _log = logging.getLogger(__name__)
 
 
-class TuchCog(discord.Cog):
+class TuchCog(BaseCog):
     """Tuch some butts."""
-
-    def __init__(self, bot: discord.Bot):
-        self._bot = bot
 
     @slash(cooldown=True)
     async def tuch(self, ctx: discord.ApplicationContext) -> None:

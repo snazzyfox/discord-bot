@@ -11,20 +11,18 @@ from dingomata.exceptions import DingomataUserError
 
 from ..models import RefSheet, RefSheetMessages
 from ..utils import Random
+from .base import BaseCog
 
 _log = logging.getLogger(__name__)
 
 
-class RefSheetCog(discord.Cog):
+class RefSheetCog(BaseCog):
     """Ref sheet list."""
 
     _DISCORD_IMAGE_URL = re.compile(
         r'https://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/\d+/\d+/.*\.(?:jpg|png|webp|gif)', re.IGNORECASE)
     ref_admin = slash_group("ref_admin", "Manage ref sheets", config_group="ref", default_available=False)
     ref = slash_group("ref", "Manage and look at ref sheets", default_available=False)
-
-    def __init__(self, bot: discord.Bot):
-        self._bot = bot
 
     @ref.command()
     @discord.option('user', description="Whose ref to get")
@@ -169,9 +167,9 @@ class RefSheetCog(discord.Cog):
         # Write the new list
         refs = await RefSheet.filter(guild_id=ctx.guild.id).order_by("user_id").all()
         lines = []
-        for user_id, refs in groupby(refs, key=lambda ref: ref.user_id):
+        for user_id, user_refs in groupby(refs, key=lambda ref: ref.user_id):
             user = ctx.guild.get_member(user_id)
-            links = ', '.join(f'[{ref.name or ("Unnamed" + str(i + 1))}]({ref.url})' for i, ref in enumerate(refs))
+            links = ', '.join(f'[{ref.name or ("Unnamed" + str(i + 1))}]({ref.url})' for i, ref in enumerate(user_refs))
             lines.append(f'{user.display_name if user else user_id} {links}')
         lines.sort()  # by username instead of id
 

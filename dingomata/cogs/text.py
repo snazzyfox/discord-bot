@@ -17,6 +17,7 @@ from ..config import service_config
 from ..decorators import slash
 from ..exceptions import DingomataUserError
 from ..utils import mention_if_needed
+from .base import BaseCog
 
 _calendar = Calendar()
 
@@ -66,11 +67,11 @@ class RandomTextReply(BaseModel):
         return template.format(**fragments, **kwargs)
 
 
-class TextCog(discord.Cog):
+class TextCog(BaseCog):
     """Text commands."""
 
     def __init__(self, bot: discord.Bot):
-        self._bot = bot
+        super().__init__(bot)
 
         with (Path(__file__).parent / "text_responses.bin").open("rb") as bindata:
             bindata.seek(2, 0)
@@ -104,7 +105,7 @@ class TextCog(discord.Cog):
         """Give someone bonks!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} tries to bonk themselves. They appear to really enjoy it.")
-        elif user == self._bot.user or user.id == 749862270129143880:
+        elif user == self._bot_for(ctx.guild.id).user or user.id == 749862270129143880:
             await ctx.respond("How dare you.")
         else:
             await self._post_random_reply(ctx, "bonk", target=mention_if_needed(ctx, user))
@@ -115,7 +116,7 @@ class TextCog(discord.Cog):
         """Give someone baps!"""
         if ctx.author == user:
             await ctx.respond("Aw, don't be so rough on yourself.")
-        elif user == self._bot.user or user.id == 749862270129143880:
+        elif user == self._bot_for(ctx.guild.id).user or user.id == 749862270129143880:
             await ctx.respond("How dare you.")
         else:
             await self._post_random_reply(ctx, "bonk", target=mention_if_needed(ctx, user))
@@ -136,8 +137,9 @@ class TextCog(discord.Cog):
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} tries to smooch themselves... How is that possible?")
         else:
-            await self._post_random_reply(ctx, "smooch", target=mention_if_needed(ctx, user),
-                                          post="Bzzzt. A shocking experience." if user == self._bot.user else "")
+            await self._post_random_reply(
+                ctx, "smooch", target=mention_if_needed(ctx, user),
+                post="Bzzzt. A shocking experience." if user == self._bot_for(ctx.guild.id).user else "")
 
     @slash(cooldown=True)
     @discord.option('user', description="Who to cuddle")
@@ -168,7 +170,7 @@ class TextCog(discord.Cog):
         else:
             await self._post_random_reply(
                 ctx, "tuck", target=mention_if_needed(ctx, user),
-                post="The bot overheats and burns their beans." if user == self._bot.user else "")
+                post="The bot overheats and burns their beans." if user == self._bot_for(ctx.guild.id).user else "")
 
     @slash(cooldown=True)
     @discord.option('user', description="Who to tacklehug")
@@ -179,7 +181,9 @@ class TextCog(discord.Cog):
         else:
             await self._post_random_reply(
                 ctx, "tacklehug", target=mention_if_needed(ctx, user),
-                post="The bot lets out some sparks and burns their beans." if user == self._bot.user else "")
+                post="The bot lets out some sparks and burns their beans."
+                if user == self._bot_for(ctx.guild.id).user else ""
+            )
 
     @slash(cooldown=True)
     async def scream(self, ctx: discord.ApplicationContext) -> None:
@@ -196,7 +200,7 @@ class TextCog(discord.Cog):
     @discord.option('user', description="Name of the cutie")
     async def cute(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Call someone cute!"""
-        if user == self._bot.user:
+        if user == self._bot_for(ctx.guild.id).user:
             await ctx.respond("No U.")
         else:
             await self._post_random_reply(ctx, "cute", target=mention_if_needed(ctx, user))
@@ -228,7 +232,7 @@ class TextCog(discord.Cog):
     @discord.option('user', description="Who to shoot at")
     async def snipe(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """It's bloody MURDERRRRR"""
-        if user == self._bot.user:
+        if user == self._bot_for(ctx.guild.id).user:
             await ctx.respond(f"{ctx.author.display_name} dares to snipe {mention_if_needed(ctx, user)}. "
                               f"The rifle explodes, taking their paws with it.")
         elif user == ctx.author:
@@ -282,16 +286,17 @@ class TextCog(discord.Cog):
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} brushes themselves... Got to look your best!")
         else:
-            await self._post_random_reply(ctx, "brush", target=mention_if_needed(ctx, user),
-                                          post="Ahhhhhh. That feels nice, thank you!" if user == self._bot.user else "")
+            await self._post_random_reply(
+                ctx, "brush", target=mention_if_needed(ctx, user),
+                post="Ahhhhhh. That feels nice, thank you!" if user == self._bot_for(ctx.guild.id).user else "")
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if (
                 message.guild
                 and message.guild.id in service_config.get_command_guilds("replies")
-                and self._bot.user in message.mentions
-                and message.author != self._bot.user
+                and self._bot_for(message.guild.id).user in message.mentions
+                and message.author != self._bot_for(message.guild.id).user
         ):
             for reply in self._rawtext_replies:
                 if reply.regex.search(message.content):
