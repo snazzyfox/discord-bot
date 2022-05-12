@@ -41,7 +41,7 @@ hug:
   templates:
     - '{author} gives {target} a {adj} hug!'
     - probability: 0.02
-      content: '{author} wants to give {target} a hug, So they give them a gaint friendly hug!'
+      content: '{author} wants to give {target} a hug, So they give them a giant fluffy, friendly hug!'
   fragments:
     adj: [ great big, giant, big bear, friendly, loving, nice warm, floofy, free, suplex and a, rambunctious,
            therapeutic, heavenly, tender, dazzling, joyous, tremendous, remarkable, magical, kind, delightful,
