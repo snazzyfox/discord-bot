@@ -30,10 +30,10 @@ class BedtimeCog(BaseCog):
 
     bedtime = slash_group(name="bedtime", description="Get a reminder to go to bed when you're up late.")
     _BEDTIME_KWDS = {"bed", "sleep", "bye", "cya", "see y", "night", "nini", "nite", "comf"}
+    _CACHE: Dict[int, Bedtime] = {}
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)
-        self._cache: Dict[int, Bedtime] = {}
 
     @bedtime.command()
     @discord.option('time', description="Your usual bedtime, for example 11:00pm, or 23:00")
@@ -56,7 +56,7 @@ class BedtimeCog(BaseCog):
             )
         time_obj = datetime_obj.time()
         await Bedtime.update_or_create({"bedtime": time_obj, "timezone": str(tz)}, user_id=ctx.author.id)
-        self._cache.pop(ctx.author.id, None)
+        self._CACHE.pop(ctx.author.id, None)
 
         await ctx.respond(f"Done! I've saved your bedtime as {time_obj} {tz}.", ephemeral=True)
 
@@ -65,7 +65,7 @@ class BedtimeCog(BaseCog):
         """Clears your existing bed time."""
         deleted_count = await Bedtime.filter(user_id=ctx.author.id).delete()
         if deleted_count:
-            self._cache.pop(ctx.author.id, None)
+            self._CACHE.pop(ctx.author.id, None)
             await ctx.respond("Done! I've removed your bedtime preferences.", ephemeral=True)
         else:
             await ctx.respond("You did not have a bedtime set.", ephemeral=True)
@@ -144,9 +144,9 @@ class BedtimeCog(BaseCog):
         return timedelta(minutes=service_config.server[guild_id].bedtime.cooldown_minutes)
 
     async def _get_bedtime(self, user_id: int) -> Optional[Bedtime]:
-        if user_id in self._cache:
-            return self._cache[user_id]
+        if user_id in self._CACHE:
+            return self._CACHE[user_id]
         else:
             bedtime = await Bedtime.get_or_none(user_id=user_id)
-            self._cache[user_id] = bedtime
+            self._CACHE[user_id] = bedtime
             return bedtime
