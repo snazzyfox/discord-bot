@@ -110,12 +110,15 @@ class PollCog(BaseCog):
                 pass  # it's already gone by some other means
             if view:
                 view.stop()
-            await channel.send(embed=embed)
+            await ctx.respond(embed=embed)
 
     @loop(seconds=2)
     async def poll_message_updater(self):
         try:
-            polls = await Poll.filter(guild_id__in=self.poll.guild_ids, message_id__not_isnull=True)
+            polls = await Poll.filter(
+                guild_id__in=[guild.id for guild in self._bot.guilds],
+                message_id__not_isnull=True,
+            )
             for poll in polls:
                 channel = self._bot_for(poll.guild_id).get_channel(poll.channel_id)
                 message = channel.get_partial_message(poll.message_id)
@@ -137,7 +140,9 @@ class PollCog(BaseCog):
         try:
             async with tortoise.transactions.in_transaction() as tx:
                 polls = await Poll.select_for_update().filter(
-                    guild_id__in=self.poll.guild_ids, message_id__not_isnull=True).using_db(tx).all()
+                    guild_id__in=[guild.id for guild in self._bot.guilds],
+                    message_id__not_isnull=True,
+                ).using_db(tx).all()
                 for poll in polls:
                     channel = self._bot_for(poll.guild_id).get_channel(poll.channel_id)
                     if channel.last_message_id != poll.message_id:
