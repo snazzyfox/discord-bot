@@ -169,8 +169,10 @@ class RefSheetCog(BaseCog):
         lines = []
         for user_id, user_refs in groupby(refs, key=lambda ref: ref.user_id):
             user = ctx.guild.get_member(user_id)
-            links = ', '.join(f'[{ref.name or ("Unnamed" + str(i + 1))}]({ref.url})' for i, ref in enumerate(user_refs))
-            lines.append(f'{user.display_name if user else user_id} {links}')
+            if user:
+                links = ', '.join(f'[{ref.name or ("Unnamed" + str(i + 1))}]({ref.url})'
+                                  for i, ref in enumerate(user_refs))
+                lines.append(f'{user.display_name} {links}')
         lines.sort()  # by username instead of id
 
         # Divide the lines into groups of 4096 bytes (max size per embed)
