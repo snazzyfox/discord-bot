@@ -17,6 +17,7 @@ collect.enabled = false
 [server.logging]
 log_channel = 552398918865125376
 message_deleted = true
+user_banned = true
 
 # Lycaon
 [[server]]
