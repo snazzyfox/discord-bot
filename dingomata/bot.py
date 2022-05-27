@@ -36,7 +36,7 @@ class Dingomata(discord.Bot):
 
 def create_bot():
     bot = Dingomata(
-        intents=discord.Intents(guilds=True, messages=True, message_content=True, members=True),
+        intents=discord.Intents(guilds=True, messages=True, message_content=True, members=True, bans=True),
         max_messages=4096
     )
     for cog in all_cogs:

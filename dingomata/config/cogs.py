@@ -31,3 +31,4 @@ class GameCodeConfig(CogConfig):
 class LoggingConfig(CogConfig):
     log_channel: Optional[int] = None  #: If none, all logging disabled
     message_deleted: bool = False
+    user_banned: bool = False
