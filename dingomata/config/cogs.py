@@ -17,6 +17,8 @@ class AutomodConfig(CogConfig):
     #: List of role or user IDs where unnecessary pings are suppressed.
     text_prefix: str = ""
     log_channel: Optional[int] = None
+    scam_filter: bool = False
+    age_filter: bool = False
 
 
 class GambaConfig(CogConfig):

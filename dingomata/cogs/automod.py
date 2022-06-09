@@ -82,6 +82,8 @@ class AutomodCog(BaseCog):
             await self._notify_mods(message, notify_reasons, ['Notified mods'])
 
     def _check_likely_discord_scam(self, message: discord.Message) -> List[str]:
+        if not service_config.server[message.guild.id].automod.scam_filter:
+            return []
         reasons = []
         if isinstance(message.author, discord.Member) and message.author.guild_permissions.manage_messages:
             return []
@@ -106,6 +108,8 @@ class AutomodCog(BaseCog):
             return []
 
     def _check_underage(self, message: discord.Message) -> List[str]:
+        if not service_config.server[message.guild.id].automod.age_filter:
+            return []
         if match := self._UNDERAGE_REGEX.search(message.content):
             return [f'Possibly underage user: {match.group()}']
         else:
