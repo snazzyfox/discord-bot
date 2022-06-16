@@ -49,7 +49,7 @@ class AutomodCog(BaseCog):
 
     _URL_REGEX = re.compile(r"\bhttps?://(?!(?:[^/]+\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
     _SCAM_KEYWORD_REGEX = re.compile(r"nitro|subscription", re.IGNORECASE)
-    _UNDERAGE_REGEX = re.compile(r"\bI(?:am|'m)\s+(?:[1-9]|1[1-7]|a minor)\b", re.IGNORECASE)
+    _UNDERAGE_REGEX = re.compile(r"\bI(?:am|'m)\s+(?:(?:[1-9]|1[1-7])(?!'|/|\.\d)|a minor)\b", re.IGNORECASE)
     _BLOCK_LIST = re.compile(r'\b(?:' + '|'.join([
         r'cozy\.tv', 'groypers', 'burn in hell'
     ]) + r')\b', re.IGNORECASE)
