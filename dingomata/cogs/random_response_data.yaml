@@ -178,6 +178,6 @@ brush:
   templates:
     - "{author} {adv} brushes {target}'s {bodyPart}. {post}"
   fragments:
-    adv: [ lightly, gently, frantically, heavily, loudly, deliberately, dutifully,
+    adv: [ lightly, gently, frantically, heavily, loudly, deliberately, dutifully, suspiciously,
            politely, weakly, violently, noisily, swiftly, repeatedly, fiercely, kiddingly, judgmentally, ]
     bodyPart: [ head, ears, tail, paws, arms ]
