@@ -63,6 +63,10 @@ age_filter = true
 corgi.enabled = true
 roles.enabled = false
 waffle.enabled = true
+[[server.twitter.rules]]
+filter = "from:TheCorgiCam -is:reply"
+channel = 834538416427237376
+message = "<@&768650292644282408> Corgi just posted a new tweet!"
 
 # GlexSiba
 [[server]]
@@ -99,6 +103,10 @@ message_deleted = true
 echo.enabled = true
 collect.enabled = true
 ref.enabled = true
+[[server.twitter.rules]]
+filter = "from:SnazzyTest -is:reply"
+channel = 970811039635628075
+message = "This is a test tweet from my test account."
 
 # Test bot 2
 [[server]]

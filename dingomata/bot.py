@@ -7,6 +7,7 @@ import tortoise
 from .cogs import all_cogs
 from .config import service_config
 from .exceptions import DingomataUserError
+from .integrations.twitter import TwitterStream
 
 log = logging.getLogger(__name__)
 
@@ -80,8 +81,10 @@ async def run():
     await tortoise.Tortoise.generate_schemas()
     tokens = service_config.token.get_secret_value().split(',')
     bots = [create_bot() for _ in tokens]
+    twitter = TwitterStream(bots)
     try:
-        await asyncio.wait([bot.start(token) for bot, token in zip(bots, tokens)])
+        await asyncio.wait([bot.start(token) for bot, token in zip(bots, tokens)] + [twitter.run()])
     finally:
         log.info("Disconnecting bots...")
+        twitter.disconnect()
         await asyncio.wait([bot.close() for bot in bots if not bot.is_closed()])

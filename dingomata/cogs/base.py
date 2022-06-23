@@ -10,14 +10,15 @@ class BaseCog(discord.Cog):
     def __init__(self, bot: discord.Bot) -> None:
         self._bot = bot
 
-    def _bot_for(self, guild_id: int) -> discord.Bot:
+    @classmethod
+    def _bot_for(cls, guild_id: int) -> discord.Bot:
         """Fetch bot object for a specific guild.
 
         This is necessary to get around limitations imposed by pycord syntax where command objects are static
         class objects and cannot be reused for multiple bots importing the same cog. This should always be preferred
         over accessing self._bot directly.
         """
-        return self._BOTS[guild_id]
+        return cls._BOTS[guild_id]
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:

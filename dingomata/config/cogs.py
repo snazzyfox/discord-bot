@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -34,3 +34,13 @@ class LoggingConfig(CogConfig):
     log_channel: Optional[int] = None  #: If none, all logging disabled
     message_deleted: bool = False
     user_banned: bool = False
+
+
+class TwitterRule(BaseModel):
+    filter: str
+    channel: int
+    message: str = ''
+
+
+class TwitterConfig(BaseModel):
+    rules: List[TwitterRule] = []

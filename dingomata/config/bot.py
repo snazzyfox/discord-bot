@@ -42,6 +42,7 @@ class GuildConfig(BaseModel):
     gamba: cogs.GambaConfig = cogs.GambaConfig()
     game_code: cogs.GameCodeConfig = cogs.GameCodeConfig()
     logging: cogs.LoggingConfig = cogs.LoggingConfig()
+    twitter: cogs.TwitterConfig = cogs.TwitterConfig()
 
     class Config:
         keep_untouched = (cached_property,)
@@ -64,7 +65,8 @@ class GuildConfig(BaseModel):
 
 class ServiceConfig(BaseSettings):
     token: SecretStr = Field(..., env="token")
-    database_url: SecretStr = Field(..., env="database_Url")
+    database_url: SecretStr = Field(..., env="database_url")
+    twitter_bearer_token: SecretStr = Field(None, env="twitter_bearer_token")
     config_file: FilePath = Field('config/config.toml', env="config_file")
 
     class Config:

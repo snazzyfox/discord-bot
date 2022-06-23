@@ -18,6 +18,7 @@ py-cord = { version = "2.0.0rc1", extras = ["speed"] }
 tortoise-orm = { extras = ["asyncpg"], version = "^0.18.1" }
 toml = "^0.10.2"
 orjson = "^3.6.6"
+tweepy = {extras = ["async"], version = "^4.10.0"}
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.17.0"
