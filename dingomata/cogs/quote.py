@@ -92,7 +92,7 @@ class QuoteCog(BaseCog):
         """Delete a quote."""
         deleted_count = await Quote.filter(guild_id=ctx.guild.id, id=quote_id).delete()
         if deleted_count:
-            await ctx.respond(f"Deleted quote with ID {id}.", ephemeral=True)
+            await ctx.respond(f"Deleted quote with ID {quote_id}.", ephemeral=True)
         else:
             raise DingomataUserError(f"Quote ID {quote_id} does not exist.")
 
