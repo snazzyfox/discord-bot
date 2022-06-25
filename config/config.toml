@@ -2,9 +2,7 @@
 [[server]]
 id = 178042794386915328
 gamba.points_name = "cheddar"
-[server.roles]
-self_assign = [ 745821300987002912, 862135223072194571 ]
-no_pings = [552399444105232384, 492485748071727129]
+no_pings = [ 552399444105232384, 492485748071727129 ]
 [server.cooldown]
 default_seconds = 15
 exempt = [876683421601136650]
@@ -20,6 +18,14 @@ collect.enabled = false
 log_channel = 552398918865125376
 message_deleted = true
 user_banned = true
+[[server.self_assign_roles]]
+id = 745821300987002912
+description = "Get notified for movie nights!"
+emoji = "🎬"
+[[server.self_assign_roles]]
+id = 908285057498751007
+description = "Get notified about gaming events on the server!"
+emoji = "🎮"
 
 # Lycaon
 [[server]]
@@ -29,27 +35,51 @@ gamba.points_name = "lycoins"
 [server.cooldown]
 default_seconds = 5
 exempt = [ 895922436250406912 ]
-[server.roles]
-self_assign = [
-    908285057498751007,
-    875679251704193037,
-    878827554222538854,
-    890676584867049482,
-    911082035978858556,
-    975088367408644177,
-    975088699845013504,
-    984907652163309598,
-    985980186019389461,
-    988646156131262513,
-]
 [server.commands]
 ref.enabled = true
+
+[[server.self_assign_roles]]
+id = 908285057498751007
+description = "Get notified about VRChat events"
+emoji = "🥽"
+[[server.self_assign_roles]]
+id = 911082035978858556
+description = "Get notified when someone here wants to announce anything"
+emoji = "🔔"
+[[server.self_assign_roles]]
+id = 975088367408644177
+description = "Get notified for tabletop game events"
+emoji = "♟️"
+[[server.self_assign_roles]]
+id = 975088699845013504
+description = "Get notified for BOTC games"
+emoji = "🕰️"
+[[server.self_assign_roles]]
+id = 985980186019389461
+descriptions = "Get notified when you're available for betrayal."
+emoji = "🏠"
+[[server.self_assign_roles]]
+id = 984907652163309598
+description = "Get notified for Furality related information."
+emoji = "🎊"
+[[server.self_assign_roles]]
+id = 988646156131262513
+description = "Use this role to show you can provide help with Unity."
+emoji = "🎊"
+[[server.self_assign_roles]]
+id = 875679251704193037
+emoji = "❤️"
+[[server.self_assign_roles]]
+id = 878827554222538854
+emoji = "❤️"
+[[server.self_assign_roles]]
+id = 890676584867049482
+emoji = "❤️"
 
 # Discorg
 [[server]]
 id = 768208778780475447
 gamba.points_name = "nuggies"
-[server.roles]
 no_pings = [768232863043682314, 768233366889300028]
 [server.cooldown]
 default_seconds = 15
@@ -67,14 +97,16 @@ waffle.enabled = true
 filter = "from:TheCorgiCam -is:reply"
 channel = 834538416427237376
 message = "<@&768650292644282408> Corgi just posted a new tweet!"
+[[server.self_assign_roles]]
+id = 768650292644282408
+description = "Get notified when Corgi tweets!"
+emoji = "🛎️"
 
 # GlexSiba
 [[server]]
 id = 840467720695971840
 gamba.points_name = "shiba stars"
-[server.roles]
 no_pings = [863866217445326858]
-self_assign = [968735501194494002]
 [servere.automod]
 log_channel = 863865546684497960
 scam_filter = true
@@ -83,18 +115,20 @@ default_seconds = 15
 exempt = [859278418511003698]
 [server.commands]
 snipe.enabled = false
+[[server.self_assign_roles]]
+id = 968735501194494002
+description = "Use this role to get pinged for movie nights!"
+emoji = "🍿"
 
 # Test bot
 [[server]]
 id = 970811039635628072
-[server.roles]
-self_assign = [971942005871640666, 971942064843542548]
-no_pings = []
 [server.cooldown]
 default_seconds = 15
 exempt = [840021184589856778]
 [server.automod]
 log_channel = 970811039635628075
+age_filter = true
 [server.logging]
 log_channel = 970811039635628075
 user_banned = true
@@ -103,6 +137,14 @@ message_deleted = true
 echo.enabled = true
 collect.enabled = true
 ref.enabled = true
+[[server.self_assign_roles]]
+id = 971942005871640666
+description = "First Role"
+emoji = "👌"
+[[server.self_assign_roles]]
+id = 971942064843542548
+description = "Second Role"
+emoji = "🍞"
 [[server.twitter.rules]]
 filter = "from:SnazzyTest -is:reply"
 channel = 970811039635628075
