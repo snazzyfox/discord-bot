@@ -21,19 +21,23 @@ class RoleListDropdown(discord.ui.Select):
         super().__init__(
             placeholder="Select a role to give or remove from yourself.",
             options=options,
+            min_values=0,
             custom_id=f"roles:{guild.id}",
         )
 
     async def callback(self, interaction: discord.Interaction) -> None:
-        selected_role_id = int(self.values[0])
-        if role := interaction.user.get_role(selected_role_id):
-            # User has role, remove it
-            await interaction.user.remove_roles(role, reason='Requested via bot dropdown')
-            await interaction.response.send_message(f"You have removed the {role.name} role.", ephemeral=True)
+        if self.values:
+            selected_role_id = int(self.values[0])
+            if role := interaction.user.get_role(selected_role_id):
+                # User has role, remove it
+                await interaction.user.remove_roles(role, reason='Requested via bot dropdown')
+                await interaction.response.send_message(f"You have removed the {role.name} role.", ephemeral=True)
+            else:
+                role = interaction.guild.get_role(selected_role_id)
+                await interaction.user.add_roles(role, reason='Requested via bot dropdown')
+                await interaction.response.send_message(f"You have added the {role.name} role.", ephemeral=True)
         else:
-            role = interaction.guild.get_role(selected_role_id)
-            await interaction.user.add_roles(role, reason='Requested via bot dropdown')
-            await interaction.response.send_message(f"You have added the {role.name} role.", ephemeral=True)
+            await interaction.response.defer()
 
 
 class RoleListView(discord.ui.View):
