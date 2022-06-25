@@ -44,7 +44,7 @@ description = "Get notified about VRChat events"
 emoji = "🥽"
 [[server.self_assign_roles]]
 id = 911082035978858556
-description = "Get notified when someone here wants to announce anything"
+description = "Let everyone else on the server ping you."
 emoji = "🔔"
 [[server.self_assign_roles]]
 id = 975088367408644177
@@ -56,7 +56,7 @@ description = "Get notified for BOTC games"
 emoji = "🕰️"
 [[server.self_assign_roles]]
 id = 985980186019389461
-descriptions = "Get notified when you're available for betrayal."
+description = "Get notified when you're available for betrayal."
 emoji = "🏠"
 [[server.self_assign_roles]]
 id = 984907652163309598
@@ -65,7 +65,7 @@ emoji = "🎊"
 [[server.self_assign_roles]]
 id = 988646156131262513
 description = "Use this role to show you can provide help with Unity."
-emoji = "🎊"
+emoji = "🧊"
 [[server.self_assign_roles]]
 id = 875679251704193037
 emoji = "❤️"
@@ -91,7 +91,6 @@ scam_filter = true
 age_filter = true
 [server.commands]
 corgi.enabled = true
-roles.enabled = false
 waffle.enabled = true
 [[server.twitter.rules]]
 filter = "from:TheCorgiCam -is:reply"
