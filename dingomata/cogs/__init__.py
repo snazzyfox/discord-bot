@@ -8,6 +8,7 @@ from .logging import LoggingCog
 from .poll import PollCog
 from .quote import QuoteCog
 from .refsheet import RefSheetCog
+from .role_picker import RolePickerCog
 from .text import TextCog
 from .tuch import TuchCog
 
@@ -22,6 +23,7 @@ all_cogs = [
     PollCog,
     QuoteCog,
     RefSheetCog,
+    RolePickerCog,
     TextCog,
     TuchCog,
 ]
@@ -37,6 +39,7 @@ __all__ = [
     "PollCog",
     "QuoteCog",
     "RefSheetCog",
+    "RolePickerCog",
     "TextCog",
     "TuchCog",
     "all_cogs",

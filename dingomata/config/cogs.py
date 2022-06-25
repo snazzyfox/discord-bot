@@ -44,3 +44,14 @@ class TwitterRule(BaseModel):
 
 class TwitterConfig(BaseModel):
     rules: List[TwitterRule] = []
+
+
+class SelfAssignRole(BaseModel):
+    id: int
+    # name should be read from discord so not configured here
+    description: str = ""
+    emoji: str  #: Must be a single unicode emoji supported by discord
+
+
+class RolePickerConfig(BaseModel):
+    __root__: List[SelfAssignRole] = []

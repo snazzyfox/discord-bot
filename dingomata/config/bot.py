@@ -24,18 +24,13 @@ class CommandConfig(BaseModel):
     cooldown_seconds: Optional[int] = None
 
 
-class RoleConfig(BaseModel):
-    no_pings: List[int] = []
-    self_assign: List[int] = []
-
-
 class GuildConfig(BaseModel):
     """Per-guild configs"""
 
     id: int
-    roles: RoleConfig = RoleConfig()
     cooldown: CooldownConfig = CooldownConfig()
     commands: Dict[str, CommandConfig] = {}
+    no_pings: List[int] = []
 
     bedtime: cogs.BedtimeConfig = cogs.BedtimeConfig()
     automod: cogs.AutomodConfig = cogs.AutomodConfig()
@@ -43,6 +38,7 @@ class GuildConfig(BaseModel):
     game_code: cogs.GameCodeConfig = cogs.GameCodeConfig()
     logging: cogs.LoggingConfig = cogs.LoggingConfig()
     twitter: cogs.TwitterConfig = cogs.TwitterConfig()
+    self_assign_roles: cogs.RolePickerConfig = cogs.RolePickerConfig()
 
     class Config:
         keep_untouched = (cached_property,)
@@ -77,7 +73,7 @@ class ServiceConfig(BaseSettings):
 
     @cached_property
     def server(self) -> Dict[int, GuildConfig]:
-        config_data = toml.load(self.config_file.open())
+        config_data = toml.load(self.config_file.open(encoding='utf-8'))
         config_list = pydantic.parse_obj_as(List[GuildConfig], config_data["server"])
         return {server.id: server for server in config_list}
 

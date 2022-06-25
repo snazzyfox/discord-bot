@@ -81,7 +81,7 @@ class View(discord.ui.View):
 
 def mention_if_needed(ctx: discord.ApplicationContext, user: discord.User) -> str:
     """Return a user's mention string, or display name if they're in the no-ping list"""
-    no_pings = service_config.server[ctx.guild.id].roles.no_pings
+    no_pings = service_config.server[ctx.guild.id].no_pings
     member = ctx.guild.get_member(user.id)
     if member and member.id in no_pings or any(role.id in no_pings for role in member.roles):
         return user.display_name
