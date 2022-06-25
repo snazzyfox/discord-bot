@@ -122,11 +122,12 @@ class GamePoolEntry(Model):
     weight = fields.IntField()
 
 
-class RefSheetMessages(Model):
+class BotMessages(Model):
     class Meta:
-        table = "ref_sheet_messages"
-        unique_together = (('guild_id', 'message_seq_num'),)
+        table = "bot_messages"
+        unique_together = (('message_type', 'guild_id', 'message_seq_num'),)
 
+    message_type = fields.TextField(null=False)
     guild_id = fields.BigIntField(null=False)
     message_seq_num = fields.IntField(null=False)
     channel_id = fields.BigIntField(null=False)

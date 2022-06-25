@@ -9,7 +9,7 @@ import tortoise.exceptions
 from dingomata.decorators import slash_group
 from dingomata.exceptions import DingomataUserError
 
-from ..models import RefSheet, RefSheetMessages
+from ..models import BotMessages, RefSheet
 from ..utils import Random
 from .base import BaseCog
 
@@ -19,6 +19,7 @@ _log = logging.getLogger(__name__)
 class RefSheetCog(BaseCog):
     """Ref sheet list."""
 
+    _MSG_TYPE = 'REFSHEET'
     _DISCORD_IMAGE_URL = re.compile(
         r'https://(?:cdn|media)\.discordapp\.(?:com|net)/attachments/\d+/\d+/.*\.(?:jpg|png|webp|gif)', re.IGNORECASE)
     ref_admin = slash_group("ref_admin", "Manage ref sheets", config_group="ref", default_available=False)
@@ -125,7 +126,7 @@ class RefSheetCog(BaseCog):
         """Post a list of all refs on this server. Deletes the existing list if there is one."""
         # Delete the existing message if there is one
         async with tortoise.transactions.in_transaction() as tx:
-            old_messages = await RefSheetMessages.filter(guild_id=ctx.guild.id).all()
+            old_messages = await BotMessages.filter(guild_id=ctx.guild.id, message_type=self._MSG_TYPE).all()
             for msg in old_messages:
                 try:
                     channel = ctx.guild.get_channel(msg.channel_id)
@@ -137,7 +138,8 @@ class RefSheetCog(BaseCog):
             embeds = await self._make_list_embeds(ctx)
             for i, embed in enumerate(embeds):
                 new_message = await ctx.channel.send(embed=embed)
-                msg = RefSheetMessages(
+                msg = BotMessages(
+                    message_type=self._MSG_TYPE,
                     guild_id=ctx.guild.id,
                     message_seq_num=i,
                     channel_id=new_message.channel.id,
@@ -147,7 +149,8 @@ class RefSheetCog(BaseCog):
             await ctx.respond('All done!', ephemeral=True)
 
     async def _update_list(self, ctx: discord.ApplicationContext) -> None:
-        messages = await RefSheetMessages.filter(guild_id=ctx.guild.id).order_by('message_seq_num').all()
+        messages = await BotMessages.filter(
+            guild_id=ctx.guild.id, message_type=self._MSG_TYPE).order_by('message_seq_num').all()
         if messages:
             embeds = await self._make_list_embeds(ctx)
             if len(messages) != len(embeds):

@@ -100,6 +100,14 @@ message = "<@&768650292644282408> Corgi just posted a new tweet!"
 id = 768650292644282408
 description = "Get notified when Corgi tweets!"
 emoji = "🛎️"
+[[server.self_assign_roles]]
+id = 990196640000376874
+description = "Get notified when Julune posts about commissions!"
+emoji = "🎨"
+[[server.self_assign_roles]]
+id = 990196515144368168
+description = "Get notified about movie nights!"
+emoji = "🍿"
 
 # GlexSiba
 [[server]]

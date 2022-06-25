@@ -1,10 +1,12 @@
 import logging
 
 import discord
+import tortoise
 
 from dingomata.cogs.base import BaseCog
 from dingomata.config import service_config
 from dingomata.decorators import slash_group
+from dingomata.models import BotMessages
 
 _log = logging.getLogger(__name__)
 
@@ -47,15 +49,48 @@ class RoleListView(discord.ui.View):
 
 
 class RolePickerCog(BaseCog):
+    _MSG_TYPE = 'ROLE_PICKER'
     roles = slash_group(name="roles", description='Manage roles')
 
     @roles.command()
     async def post_list(self, ctx: discord.ApplicationContext):
-        await ctx.channel.send(view=RoleListView(self._bot, ctx.guild))
+        async with tortoise.transactions.in_transaction() as tx:
+            bot_message = await BotMessages.get_or_none(message_type=self._MSG_TYPE, guild_id=ctx.guild.id)
+            if bot_message:
+                # Delete and repost
+                try:
+                    message = ctx.guild.get_channel(bot_message.channel_id).get_partial_message(bot_message.message_id)
+                    await message.delete()
+                except discord.NotFound:
+                    pass  # already deleted externally
+            new_message = await ctx.channel.send(view=RoleListView(self._bot, ctx.guild))
+            msg = BotMessages(
+                message_type=self._MSG_TYPE,
+                guild_id=ctx.guild.id,
+                message_seq_num=1,
+                channel_id=new_message.channel.id,
+                message_id=new_message.id,
+            )
+            await msg.save(using_db=tx)
         await ctx.respond("All done.", ephemeral=True)
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:
-        if not any(isinstance(view, RoleListView) for view in self._bot.persistent_views):
-            for guild in self._bot.guilds:
-                self._bot.add_view(RoleListView(self._bot, guild))
+        known_messages = await BotMessages.filter(message_type=self._MSG_TYPE).all()
+        for bot_message in known_messages:
+            if guild := self._bot.get_guild(bot_message.guild_id):
+                try:
+                    message = self._bot.get_channel(bot_message.channel_id).get_partial_message(bot_message.message_id)
+                    await message.edit(view=RoleListView(self._bot, guild))
+                except discord.NotFound:
+                    pass
+
+    @discord.Cog.listener()
+    async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
+        # Rewrite the dropdown if a role gets updated
+        if bot_message := await BotMessages.get_or_none(message_type=self._MSG_TYPE, guild_id=after.guild.id):
+            try:
+                message = self._bot.get_channel(bot_message.channel_id).get_partial_message(bot_message.message_id)
+                await message.edit(view=RoleListView(self._bot, after.guild))
+            except discord.NotFound:
+                pass
