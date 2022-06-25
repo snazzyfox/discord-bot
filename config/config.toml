@@ -98,7 +98,7 @@ channel = 834538416427237376
 message = "<@&768650292644282408> Corgi just posted a new tweet!"
 [[server.self_assign_roles]]
 id = 768650292644282408
-description = "Get notified when Corgi tweets!"
+description = "Get notified when Corgi tweets and goes live in the Discorg!"
 emoji = "🛎️"
 [[server.self_assign_roles]]
 id = 990196640000376874
