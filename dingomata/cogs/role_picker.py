@@ -64,14 +64,14 @@ class RolePickerCog(BaseCog):
                 except discord.NotFound:
                     pass  # already deleted externally
             new_message = await ctx.channel.send(view=RoleListView(self._bot, ctx.guild))
-            msg = BotMessages(
+            bot_message = BotMessages(
                 message_type=self._MSG_TYPE,
                 guild_id=ctx.guild.id,
                 message_seq_num=1,
                 channel_id=new_message.channel.id,
                 message_id=new_message.id,
             )
-            await msg.save(using_db=tx)
+            await bot_message.save(using_db=tx)
         await ctx.respond("All done.", ephemeral=True)
 
     @discord.Cog.listener()

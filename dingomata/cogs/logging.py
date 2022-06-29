@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import List
 
@@ -25,7 +26,7 @@ class LoggingCog(BaseCog):
 
     async def _log_deleted_message(self, message: discord.Message) -> None:
         """Send a message to the log channel with the deleted message."""
-        if message.author.bot:
+        if message.author.bot or not message.content:
             return
         log_channel = service_config.server[message.guild.id].logging.log_channel
         if log_channel:
@@ -42,6 +43,7 @@ class LoggingCog(BaseCog):
         if service_config.server[guild.id].logging.user_banned:
             if log_channel := service_config.server[guild.id].logging.log_channel:
                 try:
+                    await asyncio.sleep(1)  # Wait a second for discord audit logs to catch up
                     audits = guild.audit_logs(limit=20, action=discord.AuditLogAction.ban)
                     async for audit in audits:
                         if audit.target == user:
