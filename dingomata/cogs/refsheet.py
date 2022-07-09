@@ -113,7 +113,7 @@ class RefSheetCog(BaseCog):
 
     @ref_admin.command(name="remove")
     @discord.option('ref_id', description="Which specific ref to rename")
-    async def admin_remove(self, ctx: discord.ApplicationContext, ref_id: int, name: str) -> None:
+    async def admin_rename(self, ctx: discord.ApplicationContext, ref_id: int, name: str) -> None:
         """Rename a ref sheet."""
         ref = await RefSheet.get_or_none(guild_id=ctx.guild.id, id=ref_id)
         if not ref:
