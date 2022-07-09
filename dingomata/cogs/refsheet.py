@@ -109,7 +109,7 @@ class RefSheetCog(BaseCog):
         ref.name = name
         await RefSheet.update_or_create(ref)
         await ctx.respond("This ref has been renamed.", ephemeral=True)
-        await self._update_list(ctx)    
+        await self._update_list(ctx)
 
     @ref_admin.command(name="remove")
     @discord.option('ref_id', description="Which specific ref to rename")
