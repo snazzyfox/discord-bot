@@ -98,6 +98,32 @@ class RefSheetCog(BaseCog):
         await self._update_list(ctx)
 
     @ref.command()
+    @discord.option('ref_id', description="Which specific ref to rename")
+    async def rename(self, ctx: discord.ApplicationContext, ref_id: int, name: str) -> None:
+        """Rename one of your own ref sheets."""
+        ref = await RefSheet.get_or_none(guild_id=ctx.guild.id, id=ref_id)
+        if not ref:
+            raise DingomataUserError("There is no ref sheet with that ID.")
+        elif ref.user_id != ctx.user.id:
+            raise DingomataUserError("You cannot rename that ref because it doesn't belong to you.")
+        ref.name = name
+        await RefSheet.update_or_create(ref)
+        await ctx.respond("This ref has been renamed.", ephemeral=True)
+        await self._update_list(ctx)    
+
+    @ref_admin.command(name="remove")
+    @discord.option('ref_id', description="Which specific ref to rename")
+    async def admin_remove(self, ctx: discord.ApplicationContext, ref_id: int, name: str) -> None:
+        """Rename a ref sheet."""
+        ref = await RefSheet.get_or_none(guild_id=ctx.guild.id, id=ref_id)
+        if not ref:
+            raise DingomataUserError("There is no ref sheet with that ID.")
+        ref.name = name
+        await RefSheet.update_or_create(ref)
+        await ctx.respond("This ref has been renamed.", ephemeral=True)
+        await self._update_list(ctx)
+
+    @ref.command()
     @discord.option('ref_id', description="Which specific ref to delete")
     async def remove(self, ctx: discord.ApplicationContext, ref_id: int) -> None:
         """Remove one of your own ref sheets."""
