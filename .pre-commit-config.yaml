@@ -30,4 +30,5 @@ repos:
           - types-pyyaml
           - types-pytz
           - types-toml
+          - types-cachetools
           - pydantic

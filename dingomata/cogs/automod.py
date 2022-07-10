@@ -2,9 +2,10 @@ import logging
 import re
 from datetime import timedelta
 from enum import Enum
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Tuple
 
 import discord
+from cachetools import TTLCache
 from unidecode import unidecode
 
 from dingomata.cogs.base import BaseCog
@@ -52,6 +53,7 @@ class AutomodCog(BaseCog):
     _BLOCK_LIST = re.compile(r'\b(?:' + '|'.join([
         r'cozy\.tv', 'groypers', 'burn in hell'
     ]) + r')\b', re.IGNORECASE)
+    _TTL: TTLCache[Tuple[int, int], discord.TextChannel] = TTLCache(maxsize=1024, ttl=60)
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)
@@ -71,7 +73,11 @@ class AutomodCog(BaseCog):
         if message.id in self._processing_message_ids or not message.guild:
             return  # It's already in the process of being deleted.
         message.content = unidecode(message.content)
-        timeout_reasons = self._check_likely_discord_scam(message) + self._check_blocklist(message)
+        timeout_reasons = (
+            self._check_likely_discord_scam(message)
+            + self._check_blocklist(message)
+            + self._check_repeated_spam(message)
+        )
         notify_reasons = self._check_underage(message)
         if timeout_reasons:
             await self._timeout_user(message, timeout_reasons + notify_reasons)
@@ -111,6 +117,17 @@ class AutomodCog(BaseCog):
             return [f'Possibly underage user: {match.group()}']
         else:
             return []
+
+    def _check_repeated_spam(self, message: discord.Message) -> List[str]:
+        if max_channels := service_config.server[message.guild.id].automod.max_channels_per_min:
+            key = (message.guild.id, message.author.id)
+            channels = self._TTL.get(key) or set()
+            channels.add(message.channel)
+            self._TTL[key] = channels
+            if len(channels) >= max_channels:
+                return [f'Posted a message in {len(channels)} channels '
+                        f'({", ".join(channel.mention for channel in channels)}) in under 1 minute.']
+        return []
 
     async def _timeout_user(self, message: discord.Message, reasons: List[str]):
         # Consider the message scam likely if two matches

@@ -19,6 +19,7 @@ class AutomodConfig(CogConfig):
     log_channel: Optional[int] = None
     scam_filter: bool = False
     age_filter: bool = False
+    max_channels_per_min: int = 0
 
 
 class GambaConfig(CogConfig):
