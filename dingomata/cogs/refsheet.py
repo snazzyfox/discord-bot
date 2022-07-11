@@ -111,7 +111,7 @@ class RefSheetCog(BaseCog):
         await ctx.respond("This ref has been renamed.", ephemeral=True)
         await self._update_list(ctx)
 
-    @ref_admin.command(name="remove")
+    @ref_admin.command()
     @discord.option('ref_id', description="Which specific ref to rename")
     async def admin_rename(self, ctx: discord.ApplicationContext, ref_id: int, name: str) -> None:
         """Rename a ref sheet."""
