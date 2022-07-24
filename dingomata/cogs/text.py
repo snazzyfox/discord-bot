@@ -68,7 +68,7 @@ class RandomTextReply(BaseModel):
     
     def renderSpecificAdv(self, bodyPart: str, **kwargs) -> str:
         fragments = {k: v.choose() for k, v in self.fragments.items()}
-        template = self.templates.choose().replace("{bodyPart}",bodyPart)
+        template = self.templates.choose().replace("{bodyPart}", bodyPart)
         return template.format(**fragments, **kwargs)
 
 
@@ -286,7 +286,7 @@ class TextCog(BaseCog):
 
     @slash(cooldown=True)
     @discord.option('user', description="Who to brush")
-    @discord.option('Body Part', description="What to brush", choices=[ "Head", "Ears", "Tail", "Paws", "Arms" ])
+    @discord.option('Body Part', description="What to brush", choices=["Head", "Ears", "Tail", "Paws", "Arms"])
     async def brush(self, ctx: discord.ApplicationContext, user: discord.User, bodyPart: Optional[str],) -> None:
         """Give someone a nice brushing!"""
         if ctx.author == user:
@@ -317,5 +317,7 @@ class TextCog(BaseCog):
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
 
-    async def _post_random_reply_with_specific_bodyPart(self, ctx: discord.ApplicationContext, key: str, bodyPart: str, **kwargs) -> None:
-        await ctx.respond(self._random_replies[key].renderSpecificAdv(author=ctx.author.display_name, bodyPart=bodyPart, **kwargs))
+    async def _post_random_reply_with_specific_bodyPart(self, ctx: discord.ApplicationContext, key: str,
+                                                        bodyPart: str, **kwargs) -> None:
+        await ctx.respond(self._random_replies[key].renderSpecificAdv(author=ctx.author.display_name,
+                            bodyPart=bodyPart, **kwargs))
