@@ -65,7 +65,7 @@ class RandomTextReply(BaseModel):
         fragments = {k: v.choose() for k, v in self.fragments.items()}
         template = self.templates.choose()
         return template.format(**fragments, **kwargs)
-    
+
     def renderSpecificAdv(self, bodyPart: str, **kwargs) -> str:
         fragments = {k: v.choose() for k, v in self.fragments.items()}
         template = self.templates.choose().replace("{bodyPart}", bodyPart)
@@ -320,4 +320,4 @@ class TextCog(BaseCog):
     async def _post_random_reply_with_specific_bodyPart(self, ctx: discord.ApplicationContext, key: str,
                                                         bodyPart: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].renderSpecificAdv(author=ctx.author.display_name,
-                            bodyPart=bodyPart, **kwargs))
+                                                                      bodyPart=bodyPart, **kwargs))
