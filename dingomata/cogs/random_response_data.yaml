@@ -67,9 +67,9 @@ boop:
     adv: [ lightly, gently, lovingly, aggressively, kindly, tenderly ]
 smooch:
   templates:
-    - "{author} gives {target} a {adj} smooch on the {location}. {post}"
+    - "{author} gives {target} a {adj} smooch on the {bodyPart}. {post}"
   fragments:
-    location: [ cheek, head, booper, snoot, face, lips, tail, neck, paws, beans, ears, tummy, shoulder, forehead,
+    bodyPart: [ cheek, head, booper, snoot, face, lips, tail, neck, paws, beans, ears, tummy, shoulder, forehead,
                 eyeball, arms ]
     adj: [ lovely, sweet, affectionate, delightful, friendly, warm, wet, loud ]
 cuddle:

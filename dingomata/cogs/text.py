@@ -4,7 +4,7 @@ from datetime import datetime
 from functools import cached_property
 from itertools import accumulate
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 from zlib import decompress
 
 import discord
@@ -64,6 +64,11 @@ class RandomTextReply(BaseModel):
     def render(self, **kwargs) -> str:
         fragments = {k: v.choose() for k, v in self.fragments.items()}
         template = self.templates.choose()
+        return template.format(**fragments, **kwargs)
+    
+    def renderSpecificAdv(self, bodyPart: str, **kwargs) -> str:
+        fragments = {k: v.choose() for k, v in self.fragments.items()}
+        template = self.templates.choose().replace("{bodyPart}",bodyPart)
         return template.format(**fragments, **kwargs)
 
 
@@ -281,14 +286,20 @@ class TextCog(BaseCog):
 
     @slash(cooldown=True)
     @discord.option('user', description="Who to brush")
-    async def brush(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
+    @discord.option('Body Part', description="What to brush", choices=[ "Head", "Ears", "Tail", "Paws", "Arms" ])
+    async def brush(self, ctx: discord.ApplicationContext, user: discord.User, bodyPart: Optional[str],) -> None:
         """Give someone a nice brushing!"""
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} brushes themselves... Got to look your best!")
         else:
-            await self._post_random_reply(
-                ctx, "brush", target=mention_if_needed(ctx, user),
-                post="Ahhhhhh. That feels nice, thank you!" if user == self._bot_for(ctx.guild.id).user else "")
+            if bodyPart is not None:
+                await self._post_random_reply_with_specific_bodyPart(
+                    ctx, "brush", bodyPart=bodyPart, target=mention_if_needed(ctx, user),
+                    post="Ahhhhhh. That feels nice, thank you!" if user == self._bot_for(ctx.guild.id).user else "")
+            else:
+                await self._post_random_reply(
+                    ctx, "brush", target=mention_if_needed(ctx, user),
+                    post="Ahhhhhh. That feels nice, thank you!" if user == self._bot_for(ctx.guild.id).user else "")
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -305,3 +316,6 @@ class TextCog(BaseCog):
 
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
+
+    async def _post_random_reply_with_specific_bodyPart(self, ctx: discord.ApplicationContext, key: str, bodyPart: str, **kwargs) -> None:
+        await ctx.respond(self._random_replies[key].renderSpecificAdv(author=ctx.author.display_name, bodyPart=bodyPart, **kwargs))
