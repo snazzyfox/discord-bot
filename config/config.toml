@@ -122,6 +122,7 @@ gamba.points_name = "shiba stars"
 no_pings = [863866217445326858]
 [servere.automod]
 log_channel = 863865546684497960
+text_prefix = "<@&863866859061379133> "
 scam_filter = true
 max_channels_per_min = 5
 [server.cooldown]
