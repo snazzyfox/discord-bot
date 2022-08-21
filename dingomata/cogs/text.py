@@ -286,8 +286,8 @@ class TextCog(BaseCog):
         if ctx.author == user:
             await ctx.respond(f"{ctx.author.display_name} brushes themselves... Got to look your best!")
         elif user.id == 150808402128273408:  # Barnabus
-            await ctx.respond(f"{ctx.author.display_name}" + self._random_replies["brush"].fragments["adv"].choose() +
-                              f" brushes" + mention_if_needed(ctx, user) + f"'s tail")
+            await ctx.respond(f"{ctx.author.display_name}" + self._random_replies["brush"].fragments["adv"].choose()
+                              + " brushes" + mention_if_needed(ctx, user) + "'s tail")
         else:
             await self._post_random_reply(
                 ctx, "brush", target=mention_if_needed(ctx, user),
