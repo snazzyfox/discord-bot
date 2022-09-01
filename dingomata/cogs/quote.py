@@ -104,13 +104,13 @@ class QuoteCog(BaseCog):
         await ctx.respond(f"{user.display_name} said: \n>>> " + quote)
 
     # ### Shortcut commands for specific servers
-    @slash(cooldown=True, default_available=False, config_group='quote')
+    @slash(cooldown=True, default_available=False)
     async def whiskey(self, ctx: discord.ApplicationContext) -> None:
         """What does the Dingo say?"""
         quote = await self._get_quote(ctx.guild.id, 178041504508542976)
         await ctx.respond(quote)
 
-    @slash(cooldown=True, default_available=False, config_group='quote')
+    @slash(cooldown=True, default_available=False)
     async def corgi(self, ctx: discord.ApplicationContext) -> None:
         quote = await self._get_quote(ctx.guild.id, 168916479306235914)
         await ctx.respond(quote)
