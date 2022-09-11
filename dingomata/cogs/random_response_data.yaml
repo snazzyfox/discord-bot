@@ -59,7 +59,7 @@ bap:
   templates:
     - '{author} rolls up a {thing} and baps {target} on the snoot.'
   fragments:
-    item: [ magazine, newspaper, mousepad, phonebook, pancake, pillow, pizza, towel ]
+    thing: [ magazine, newspaper, mousepad, phonebook, pancake, pillow, pizza, towel ]
 boop:
   templates:
     - "{author} {adv} boops {target}'s snoot. Aaaaaa!"

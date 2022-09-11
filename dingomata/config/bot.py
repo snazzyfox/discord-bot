@@ -1,6 +1,7 @@
 import logging.config
 import os
 from functools import cached_property
+from pathlib import Path
 from typing import Dict, List, Optional, Set
 
 import pydantic
@@ -62,8 +63,8 @@ class GuildConfig(BaseModel):
 class ServiceConfig(BaseSettings):
     token: SecretStr = Field(..., env="token")
     database_url: SecretStr = Field(..., env="database_url")
-    twitter_bearer_token: SecretStr = Field(None, env="twitter_bearer_token")
-    config_file: FilePath = Field('config/config.toml', env="config_file")
+    twitter_bearer_token: Optional[SecretStr] = Field(None, env="twitter_bearer_token")
+    config_file: FilePath = Field(Path('config/config.toml'), env="config_file")
 
     class Config:
         env_prefix = "dingomata"

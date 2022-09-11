@@ -11,11 +11,10 @@ _log = logging.getLogger(__name__)
 
 class TwitterStream(tweepy.asynchronous.AsyncStreamingClient):
     def __init__(self, bots: List[discord.Bot]):
-        token = service_config.twitter_bearer_token.get_secret_value()
-        if not token:
+        if not service_config.twitter_bearer_token:
             _log.warning('TWITTER_BEARER_TOKEN is unset. Twitter integration will not be enabled.')
             return
-
+        token = service_config.twitter_bearer_token.get_secret_value()
         super(TwitterStream, self).__init__(token, wait_on_rate_limit=True)
 
         self._discord_bots: Dict[int, discord.Bot] = {}
@@ -32,6 +31,7 @@ class TwitterStream(tweepy.asynchronous.AsyncStreamingClient):
         async def on_ready():
             for guild in bot.guilds:
                 self._discord_bots[guild.id] = bot
+
         return on_ready
 
     async def sync_rules(self):

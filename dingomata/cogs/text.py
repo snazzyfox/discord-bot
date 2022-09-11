@@ -87,7 +87,7 @@ class TextCog(BaseCog):
             self._random_replies = {k: RandomTextReply.parse_obj(v) for k, v in yaml.safe_load(data).items()}
 
     @slash(cooldown=True)
-    @discord.option('bonk', description="Who to hug")
+    @discord.option('user', description="Who to hug")
     async def hug(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone hugs!"""
         if ctx.author == user:
@@ -96,7 +96,7 @@ class TextCog(BaseCog):
             await self._post_random_reply(ctx, "hug", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    @discord.option('bonk', description="Who to pat")
+    @discord.option('user', description="Who to pat")
     async def pat(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone pats!"""
         if ctx.author == user:
@@ -105,7 +105,7 @@ class TextCog(BaseCog):
             await self._post_random_reply(ctx, "pat", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
-    @discord.option('bonk', description="Who to bonk")
+    @discord.option('user', description="Who to bonk")
     async def bonk(self, ctx: discord.ApplicationContext, user: discord.User) -> None:
         """Give someone bonks!"""
         if ctx.author == user:
@@ -124,7 +124,7 @@ class TextCog(BaseCog):
         elif user == self._bot_for(ctx.guild.id).user or user.id == 749862270129143880:
             await ctx.respond("How dare you.")
         else:
-            await self._post_random_reply(ctx, "bonk", target=mention_if_needed(ctx, user))
+            await self._post_random_reply(ctx, "bap", target=mention_if_needed(ctx, user))
 
     @slash(cooldown=True)
     @discord.option('user', description="Who to boop")
