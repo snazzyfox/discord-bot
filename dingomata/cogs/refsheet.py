@@ -158,9 +158,9 @@ class RefSheetCog(BaseCog):
                     channel = ctx.guild.get_channel(msg.channel_id)
                     message = channel.get_partial_message(msg.message_id)
                     await message.delete()
-                    await msg.delete(tx)
                 except (discord.NotFound, discord.Forbidden):
                     pass  # don't worry if the channel or message is gone
+                await msg.delete(tx)
             embeds = await self._make_list_embeds(ctx)
             for i, embed in enumerate(embeds):
                 new_message = await ctx.channel.send(embed=embed)
