@@ -52,6 +52,14 @@ id = 975088367408644177
 description = "Get notified for tabletop game events"
 emoji = "♟️"
 [[server.self_assign_roles]]
+id = 1026704638155694110
+description = "Get notified for D&D RPG game events"
+emoji = "🐲"
+[[server.self_assign_roles]]
+id = 1026700452626169856
+description = "Get notified for Pokemon D&D RPG game events"
+emoji = "🌕"
+[[server.self_assign_roles]]
 id = 975088699845013504
 description = "Get notified for BOTC games"
 emoji = "🕰️"
