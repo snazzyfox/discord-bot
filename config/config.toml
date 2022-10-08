@@ -33,12 +33,12 @@ emoji = "🎮"
 id = 351122293105229835
 automod.log_channel = 895922436250406912
 gamba.points_name = "lycoins"
+profile.channel = 1028131083105095680
 [server.cooldown]
 default_seconds = 5
 exempt = [ 895922436250406912 ]
 [server.commands]
-ref.enabled = true
-
+profile.enabled = true
 [[server.self_assign_roles]]
 id = 908285057498751007
 description = "Get notified about VRChat events"
@@ -146,6 +146,7 @@ emoji = "🍿"
 # Test bot
 [[server]]
 id = 970811039635628072
+profile.channel = 995749304453050428
 [server.cooldown]
 default_seconds = 15
 exempt = [840021184589856778]
@@ -158,7 +159,7 @@ message_deleted = true
 [server.commands]
 echo.enabled = true
 collect.enabled = true
-ref.enabled = true
+profile.enabled = true
 [[server.self_assign_roles]]
 id = 971942005871640666
 description = "First Role"

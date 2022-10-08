@@ -125,22 +125,17 @@ class GamePoolEntry(Model):
 class BotMessages(Model):
     class Meta:
         table = "bot_messages"
-        unique_together = (('message_type', 'guild_id', 'message_seq_num'),)
 
-    message_type = fields.TextField(null=False)
-    guild_id = fields.BigIntField(null=False)
-    message_seq_num = fields.IntField(null=False)
+    id = fields.TextField(pk=True)
     channel_id = fields.BigIntField(null=False)
     message_id = fields.BigIntField(null=False)
 
 
-class RefSheet(Model):
+class Profile(Model):
     class Meta:
-        table = "ref_sheets"
-        indexes = (("guild_id", "user_id"), ("guild_id", "url"))
+        table = "profiles"
+        unique_together = (("guild_id", "user_id"),)
 
     guild_id = fields.BigIntField(null=False)
-    name = fields.TextField(null=True)
     user_id = fields.BigIntField(null=False)
-    url = fields.CharField(256, null=False)
-    added_by = fields.BigIntField(null=False)
+    data = fields.JSONField(null=False)

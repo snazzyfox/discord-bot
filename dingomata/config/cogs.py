@@ -56,3 +56,7 @@ class SelfAssignRole(BaseModel):
 
 class RolePickerConfig(BaseModel):
     __root__: List[SelfAssignRole] = []
+
+
+class ProfileConfig(BaseModel):
+    channel: int = 0

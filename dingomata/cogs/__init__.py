@@ -6,8 +6,8 @@ from .gamba import GambaCog
 from .game_code import GameCodeCog
 from .logging import LoggingCog
 from .poll import PollCog
+from .profile import ProfileCog
 from .quote import QuoteCog
-from .refsheet import RefSheetCog
 from .role_picker import RolePickerCog
 from .text import TextCog
 from .tuch import TuchCog
@@ -22,7 +22,7 @@ all_cogs = [
     LoggingCog,
     PollCog,
     QuoteCog,
-    RefSheetCog,
+    ProfileCog,
     RolePickerCog,
     TextCog,
     TuchCog,
@@ -38,7 +38,6 @@ __all__ = [
     "LoggingCog",
     "PollCog",
     "QuoteCog",
-    "RefSheetCog",
     "RolePickerCog",
     "TextCog",
     "TuchCog",

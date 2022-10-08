@@ -103,3 +103,11 @@ def slash_group(
         name, description,
         guild_ids=service_config.get_command_guilds(config_name, default_available),
     )
+
+
+def slash_subgroup(
+        group: discord.SlashCommandGroup,
+        name: str,
+        description: str,
+):
+    return group.create_subgroup(name, description, guild_ids=group.guild_ids)

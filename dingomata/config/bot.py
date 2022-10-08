@@ -40,6 +40,7 @@ class GuildConfig(BaseModel):
     logging: cogs.LoggingConfig = cogs.LoggingConfig()
     twitter: cogs.TwitterConfig = cogs.TwitterConfig()
     self_assign_roles: cogs.RolePickerConfig = cogs.RolePickerConfig()
+    profile: cogs.ProfileConfig = cogs.ProfileConfig()
 
     class Config:
         keep_untouched = (cached_property,)
