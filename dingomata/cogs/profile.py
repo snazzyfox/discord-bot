@@ -191,6 +191,7 @@ class ProfileCog(BaseCog):
                     message_id=message.id,
                 )
                 await bot_message.save(using_db=tx)
+        await ctx.respond('All done!', ephemeral=True)
 
     @discord.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member) -> None:
@@ -230,9 +231,8 @@ class ProfileCog(BaseCog):
             month, day = bday
             embed.add_field(name='Birthday', value=f'{calendar.month_name[month]} {day}', inline=False)
         if codes := prof.data.get('friendcode'):
-            line_len = max(len(key) for key in codes)
-            lines = '\n'.join(f'{key:{line_len}} {value}' for key, value in codes.items())
-            embed.add_field(name='Friend Codes', value=f'```\n{lines}\n```', inline=False)
+            lines = '\n'.join(f'**{key}**: {value}' for key, value in codes.items())
+            embed.add_field(name='Friend Codes', value=lines, inline=False)
         if refs := prof.data.get('refsheet'):
             lines = '\n'.join(f'[{name}]({url})' for name, url in refs.items())
             embed.add_field(name='Ref Sheets', value=lines, inline=False)
