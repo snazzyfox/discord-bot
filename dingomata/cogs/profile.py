@@ -2,7 +2,7 @@ import calendar
 import logging
 import re
 from datetime import datetime
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Optional, Sequence
 
 import discord
 import tortoise
@@ -182,6 +182,8 @@ class ProfileCog(BaseCog):
             all_profiles = await Profile.filter(guild_id=ctx.guild.id).using_db(tx).all()
             for prof in all_profiles:
                 embed = self._generate_profile_embed(prof)
+                if not embed:
+                    continue
                 message = await channel.send(embed=embed)
                 bot_message = BotMessages(
                     id=f'{self._MSG_TYPE}:{ctx.guild.id}:{prof.user_id}',
@@ -218,10 +220,10 @@ class ProfileCog(BaseCog):
             await channel.get_partial_message(bot_message.message_id).delete()
             await bot_message.delete()
 
-    def _generate_profile_embed(self, prof: Profile) -> discord.Embed:
+    def _generate_profile_embed(self, prof: Profile) -> Optional[discord.Embed]:
         user = self._bot_for(prof.guild_id).get_guild(prof.guild_id).get_member(prof.user_id)
         if not user:
-            raise DingomataUserError(f'User {prof.user_id} does not exist.')
+            return None
         embed = discord.Embed(title=user.display_name)
         embed.set_thumbnail(url=user.display_avatar.url)
         if bday := prof.data.get('birthday'):
