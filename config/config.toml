@@ -126,7 +126,6 @@ emoji = "🍿"
 # GlexSiba
 [[server]]
 id = 840467720695971840
-gamba.points_name = "shiba stars"
 no_pings = [863866217445326858]
 [servere.automod]
 log_channel = 863865546684497960
@@ -138,6 +137,7 @@ default_seconds = 15
 exempt = [859278418511003698]
 [server.commands]
 snipe.enabled = false
+gamba.enabled = false
 [[server.self_assign_roles]]
 id = 968735501194494002
 description = "Use this role to get pinged for movie nights!"
