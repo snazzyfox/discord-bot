@@ -80,6 +80,10 @@ id = 993291228416323644
 description = "Get pinged for convention-related messages."
 emoji = "🫂"
 [[server.self_assign_roles]]
+id = 1032382194829754419
+description = "Did you know that it has a free trial?"
+emoji = "⚔️"
+[[server.self_assign_roles]]
 id = 875679251704193037
 emoji = "❤️"
 [[server.self_assign_roles]]
