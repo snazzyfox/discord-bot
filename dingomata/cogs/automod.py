@@ -71,6 +71,7 @@ class AutomodCog(BaseCog):
 
     async def _check_message(self, message: discord.Message) -> None:
         if (message.id in self._processing_message_ids  # It's already in the process of being deleted.
+                or message.is_system()  # Discord system message
                 or not message.guild  # DM
                 or message.author.guild_permissions.manage_messages):  # is a mod
             return
