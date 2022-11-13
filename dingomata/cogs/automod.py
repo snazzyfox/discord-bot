@@ -70,8 +70,10 @@ class AutomodCog(BaseCog):
         await self._check_message(after)
 
     async def _check_message(self, message: discord.Message) -> None:
-        if message.id in self._processing_message_ids or not message.guild:
-            return  # It's already in the process of being deleted.
+        if (message.id in self._processing_message_ids  # It's already in the process of being deleted.
+                or not message.guild  # DM
+                or message.author.guild_permissions.manage_messages):  # is a mod
+            return
         message.content = unidecode(message.content)
         timeout_reasons = (
             self._check_likely_discord_scam(message)
