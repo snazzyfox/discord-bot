@@ -150,9 +150,9 @@ class AutomodCog(BaseCog):
             self._JOIN_CACHES[guild_id][0] = None
             embed = discord.Embed(
                 title='⚠️ Possible raid detected.',
-                description=f"A total of {recent_joins} has joined this server in the last "
+                description=f"A total of {recent_joins} users has joined this server in the last "
                             f"{settings.raid_window_hours} hour(s), which is above the configured limit of "
-                            f"{settings.raid_min_users}. This may be an indication of a raid. \n\n"
+                            f"{settings.raid_min_users} users. This may be an indication of a raid. \n\n"
                             f"Please manually check the profiles of the last few users who joined the server to make "
                             f"sure they appear legitimate. If several suspicious accounts joined, consider monitoring "
                             f"the server closely, kicking/banning these users, or possibly pausing invites. \n\n"
