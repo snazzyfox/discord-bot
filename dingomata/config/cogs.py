@@ -20,6 +20,8 @@ class AutomodConfig(CogConfig):
     scam_filter: bool = False
     age_filter: bool = False
     max_channels_per_min: int = 0
+    raid_min_users: int = 5
+    raid_window_hours: float = 2
 
 
 class GambaConfig(CogConfig):

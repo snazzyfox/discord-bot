@@ -2,7 +2,7 @@ import logging
 import re
 from datetime import timedelta
 from enum import Enum
-from typing import List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import discord
 from cachetools import TTLCache
@@ -53,7 +53,11 @@ class AutomodCog(BaseCog):
     _BLOCK_LIST = re.compile(r'\b(?:' + '|'.join([
         r'cozy\.tv', 'groypers', 'burn in hell'
     ]) + r')\b', re.IGNORECASE)
-    _TTL: TTLCache[Tuple[int, int], discord.TextChannel] = TTLCache(maxsize=1024, ttl=60)
+    _SPAM_CACHE: TTLCache[Tuple[int, int], discord.TextChannel] = TTLCache(maxsize=1024, ttl=60)
+    _JOIN_CACHES: Dict[int, TTLCache[int, None]] = {
+        guild_id: TTLCache(maxsize=64, ttl=config.automod.raid_window_hours * 3600)
+        for guild_id, config in service_config.server.items()
+    }
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)
@@ -68,6 +72,10 @@ class AutomodCog(BaseCog):
     @discord.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
         await self._check_message(after)
+
+    @discord.Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        await self._check_raid_join(member)
 
     async def _check_message(self, message: discord.Message) -> None:
         if (message.id in self._processing_message_ids  # It's already in the process of being deleted.
@@ -124,13 +132,37 @@ class AutomodCog(BaseCog):
     def _check_repeated_spam(self, message: discord.Message) -> List[str]:
         if max_channels := service_config.server[message.guild.id].automod.max_channels_per_min:
             key = (message.guild.id, message.author.id)
-            channels = self._TTL.get(key) or set()
+            channels = self._SPAM_CACHE.get(key) or set()
             channels.add(message.channel)
-            self._TTL[key] = channels
+            self._SPAM_CACHE[key] = channels
             if len(channels) >= max_channels:
                 return [f'Posted a message in {len(channels)} channels '
                         f'({", ".join(channel.mention for channel in channels)}) in under 1 minute.']
         return []
+
+    async def _check_raid_join(self, member: discord.Member) -> None:
+        guild_id = member.guild.id
+        self._JOIN_CACHES[guild_id][member.id] = None
+        recent_joins = len(self._JOIN_CACHES[guild_id])
+        settings = service_config.server[guild_id].automod
+        if recent_joins >= settings.raid_min_users and 0 not in self._JOIN_CACHES[guild_id]:
+            # user id 0 is cooldown timer so we dont notify multiple times in same window
+            self._JOIN_CACHES[guild_id][0] = None
+            embed = discord.Embed(
+                title='⚠️ Possible raid detected.',
+                description=f"A total of {recent_joins} has joined this server in the last "
+                            f"{settings.raid_window_hours} hour(s), which is above the configured limit of "
+                            f"{settings.raid_min_users}. This may be an indication of a raid. \n\n"
+                            f"Please manually check the profiles of the last few users who joined the server to make "
+                            f"sure they appear legitimate. If several suspicious accounts joined, consider monitoring "
+                            f"the server closely, kicking/banning these users, or possibly pausing invites. \n\n"
+                            f"This is only a warning; no action was taken. You will not be warned again in the "
+                            f"next {settings.raid_window_hours} hour(s). If this warning is triggered frequently, "
+                            f"consider changing bot settings.",
+            )
+            await self._bot_for(guild_id).get_channel(settings.log_channel).send(
+                content=service_config.server[guild_id].automod.text_prefix,
+                embed=embed)
 
     async def _timeout_user(self, message: discord.Message, reasons: List[str]):
         # Consider the message scam likely if two matches
