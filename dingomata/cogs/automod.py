@@ -81,7 +81,8 @@ class AutomodCog(BaseCog):
         if (message.id in self._processing_message_ids  # It's already in the process of being deleted.
                 or message.is_system()  # Discord system message
                 or not message.guild  # DM
-                or message.author.guild_permissions.manage_messages):  # is a mod
+                or (isinstance(message.author, discord.Member) and message.author.guild_permissions.manage_messages)):
+            # is a mod
             return
         message.content = unidecode(message.content)
         timeout_reasons = (
