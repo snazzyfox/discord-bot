@@ -12,7 +12,7 @@ log_channel = 552398918865125376
 scam_filter = true
 age_filter = true
 max_channels_per_min = 5
-raid_min_users = 10
+raid_min_users = 15
 raid_window_hours = 1
 [server.commands]
 whiskey.enabled = true
@@ -109,7 +109,7 @@ text_prefix = "<@&768232863043682314>"
 scam_filter = true
 age_filter = true
 max_channels_per_min = 5
-raid_min_users = 8
+raid_min_users = 12
 raid_window_hours = 1
 [server.commands]
 corgi.enabled = true
