@@ -104,13 +104,17 @@ no_pings = [768232863043682314, 768233366889300028]
 default_seconds = 15
 exempt = [903465905630089236]
 [server.automod]
-log_channel = 790632143037399070
+log_channel = 1058457200445632522
 text_prefix = "<@&768232863043682314>"
 scam_filter = true
 age_filter = true
 max_channels_per_min = 5
 raid_min_users = 12
 raid_window_hours = 1
+[server.logging]
+log_channel = 1058457200445632522
+message_deleted = true
+user_banned = true
 [server.commands]
 corgi.enabled = true
 waffle.enabled = true
