@@ -16,25 +16,34 @@ class LoggingCog(BaseCog):
     @discord.Cog.listener()
     async def on_message_delete(self, message: discord.Message) -> None:
         if service_config.server[message.guild.id].logging.message_deleted:
-            await self._log_deleted_message(message)
+            await self._log_message('Message deleted', message)
 
     @discord.Cog.listener()
     async def on_bulk_message_delete(self, messages: List[discord.Message]) -> None:
         if service_config.server[messages[0].guild.id].logging.message_deleted:
             for message in messages:
-                await self._log_deleted_message(message)
+                await self._log_message('Message deleted', message)
 
-    async def _log_deleted_message(self, message: discord.Message) -> None:
+    @discord.Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
+        if service_config.server[after.guild.id].logging.message_edited:
+            if before.content != after.content:
+                # This also triggers for embed add/changes, pins, etc
+                await self._log_message('Message edited', before, after)
+
+    async def _log_message(self, title: str, message: discord.Message, edited: discord.Message | None = None) -> None:
         """Send a message to the log channel with the deleted message."""
         if message.author.bot or not message.content:
             return
         log_channel = service_config.server[message.guild.id].logging.log_channel
         if log_channel:
-            embed = discord.Embed(title='Message deleted.', color=discord.Color.yellow())
+            embed = discord.Embed(title=title, color=discord.Color.yellow())
             embed.add_field(name='Channel', value=message.channel.mention)
             embed.add_field(name='Author', value=message.author.mention)
             embed.add_field(name='Sent At', value=f'<t:{int(message.created_at.timestamp())}:f>')
             embed.add_field(name='Content', value=message.clean_content, inline=False)
+            if edited:
+                embed.add_field(name='Changed to', value=edited.clean_content, inline=False)
             embed.set_thumbnail(url=message.author.display_avatar.url)
             await self._bot_for(message.guild.id).get_channel(log_channel).send(embed=embed)
 

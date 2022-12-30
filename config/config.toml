@@ -114,6 +114,7 @@ raid_window_hours = 1
 [server.logging]
 log_channel = 1058457200445632522
 message_deleted = true
+message_edited = true
 user_banned = true
 [server.commands]
 corgi.enabled = true
@@ -168,6 +169,7 @@ log_channel = 970811039635628075
 log_channel = 970811039635628075
 user_banned = true
 message_deleted = true
+message_edited = true
 [server.commands]
 echo.enabled = true
 collect.enabled = true
