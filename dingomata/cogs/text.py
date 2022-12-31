@@ -306,7 +306,8 @@ class TextCog(BaseCog):
         elif (
                 message.author != self._bot_for(message.guild.id)
                 and service_config.server[message.guild.id].commands.get('password_strength')
-                and any(len(word) > 16 for word in message.content.split() if word[0].isalpha())
+                and any(len(word) > 16 for word in message.content.split()
+                        if word[0].isalpha() and not word.startswith('http'))
         ):
             strength = PasswordStats(message.content).strength()
             if strength > 0.65:
