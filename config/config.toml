@@ -41,6 +41,7 @@ default_seconds = 5
 exempt = [ 895922436250406912 ]
 [server.commands]
 profile.enabled = true
+password_strength.enabled = true
 [[server.self_assign_roles]]
 id = 908285057498751007
 description = "Get notified about VRChat events"
@@ -174,6 +175,7 @@ message_edited = true
 echo.enabled = true
 collect.enabled = true
 profile.enabled = true
+password_strength.enabled = true
 [[server.self_assign_roles]]
 id = 971942005871640666
 description = "First Role"

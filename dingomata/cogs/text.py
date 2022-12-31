@@ -11,6 +11,7 @@ import discord
 import pytz
 import yaml
 from parsedatetime import Calendar
+from password_strength import PasswordStats
 from pydantic import BaseModel, PrivateAttr, confloat
 
 from ..config import service_config
@@ -302,6 +303,14 @@ class TextCog(BaseCog):
                 if reply.regex.search(message.content):
                     await message.reply(random.choice(reply.responses))
                     break  # Stop after first match
+        elif (
+                message.author != self._bot_for(message.guild.id)
+                and service_config.server[message.guild.id].commands.get('password_strength')
+                and any(len(word) > 16 for word in message.content.split() if word[0].isalpha())
+        ):
+            strength = PasswordStats(message.content).strength()
+            if strength > 0.65:
+                await message.reply(self._random_replies['password'].render(strength=f'{strength:.0%}'))
 
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
