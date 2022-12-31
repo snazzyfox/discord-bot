@@ -309,7 +309,8 @@ class TextCog(BaseCog):
                 and any(len(word) > 16 for word in message.content.split()
                         if word[0].isalpha() and not word.startswith('http'))
         ):
-            strength = PasswordStats(message.content).strength()
+            stats = PasswordStats(message.content)
+            strength = (1 - stats.weakness_factor) * stats.strength(36)
             if strength > 0.65:
                 await message.reply(self._random_replies['password'].render(strength=f'{strength:.0%}'))
 
