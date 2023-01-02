@@ -293,6 +293,8 @@ class TextCog(BaseCog):
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
+        if message.is_system():
+            return
         if (
                 message.guild
                 and message.guild.id in service_config.get_command_guilds("replies")
