@@ -21,6 +21,7 @@ from ..utils import mention_if_needed
 from .base import BaseCog
 
 _calendar = Calendar()
+_includes = re.compile(r'http.+|<.+>')
 
 
 class TriggerTextReply(BaseModel):
@@ -308,7 +309,7 @@ class TextCog(BaseCog):
         elif (
                 message.author != self._bot_for(message.guild.id)
                 and service_config.server[message.guild.id].commands.get('password_strength')
-                and any(len(word) > 16 for word in message.content.split()
+                and any(len(word) > 16 for word in _includes.sub('', message.content).split()
                         if word[0].isalpha() and not word.startswith('http'))
         ):
             stats = PasswordStats(message.content)
