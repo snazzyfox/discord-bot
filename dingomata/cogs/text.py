@@ -15,6 +15,7 @@ from password_strength import PasswordStats
 from pydantic import BaseModel, PrivateAttr, confloat
 
 from ..config import service_config
+from ..config.bot import CommandConfig
 from ..decorators import slash
 from ..exceptions import DingomataUserError
 from ..utils import mention_if_needed
@@ -307,15 +308,19 @@ class TextCog(BaseCog):
                     await message.reply(random.choice(reply.responses))
                     break  # Stop after first match
         elif (
-                message.author != self._bot_for(message.guild.id)
-                and service_config.server[message.guild.id].commands.get('password_strength')
-                and any(len(word) > 16 for word in _includes.sub('', message.content).split()
-                        if word[0].isalpha() and not word.startswith('http'))
+                not message.author.bot
+                and not message.is_system()
+                and service_config.server[message.guild.id].commands.get('password_strength', CommandConfig()).enabled
         ):
+            words = _includes.sub('', message.content).split()
+            word = words[0] if len(words[0]) > 16 else words[-1] if len(words[-1]) > 16 else None
+            if not word:
+                return
             stats = PasswordStats(message.content)
             strength = (1 - stats.weakness_factor) * stats.strength(36)
-            if strength > 0.65:
-                await message.reply(self._random_replies['password'].render(strength=f'{strength:.0%}'))
+            if strength > 0.50:
+                await message.reply(self._random_replies['password'].render(strength=f'{strength:.0%}'),
+                                    mention_author=False)
 
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
