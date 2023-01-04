@@ -311,6 +311,7 @@ class TextCog(BaseCog):
                 and service_config.server[message.guild.id].commands.get('password_strength')
                 and any(len(word) > 16 for word in _includes.sub('', message.content).split()
                         if word[0].isalpha() and not word.startswith('http'))
+                and (len(message.content.split()) <= 4)
         ):
             stats = PasswordStats(message.content)
             strength = (1 - stats.weakness_factor) * stats.strength(36)
