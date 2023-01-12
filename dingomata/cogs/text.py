@@ -72,6 +72,7 @@ class RandomTextReply(BaseModel):
 
 class TextCog(BaseCog):
     """Text commands."""
+    __slots__ = '_rawtext_replies', '_random_replies'
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)

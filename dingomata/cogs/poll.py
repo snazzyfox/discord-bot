@@ -21,6 +21,8 @@ class PollUserError(DingomataUserError):
 
 
 class PollVoteButton(discord.ui.Button["PollVoteView"]):
+    __slots__ = 'index',
+
     def __init__(self, index: int):
         self.index = index
         action_row = min((index // 5), 4)
@@ -45,6 +47,7 @@ class PollCog(BaseCog):
     """Run polls in Discord. Each channel can only have one active poll at a time."""
 
     poll = slash_group("poll", "Run polls in a channel.")
+    __slots__ = '_views',
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)

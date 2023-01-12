@@ -6,6 +6,7 @@ import discord
 class BaseCog(discord.Cog):
     """An extension of discord.Cog that works better with multiple bots."""
     _BOTS: Dict[int, discord.Bot] = {}
+    __slots__ = '_bot',
 
     def __init__(self, bot: discord.Bot) -> None:
         self._bot = bot

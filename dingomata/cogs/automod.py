@@ -22,6 +22,8 @@ class AutomodAction(Enum):
 
 
 class AutomodActionView(View):
+    __slots__ = 'action', 'confirmed_by'
+
     def __init__(self):
         self.action: Optional[AutomodAction] = None
         self.confirmed_by: Optional[discord.Member] = None
@@ -58,6 +60,7 @@ class AutomodCog(BaseCog):
         guild_id: TTLCache(maxsize=64, ttl=config.automod.raid_window_hours * 3600)
         for guild_id, config in service_config.server.items()
     }
+    __slots__ = '_processing_message_ids',
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)

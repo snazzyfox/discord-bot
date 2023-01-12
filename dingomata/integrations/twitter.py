@@ -10,6 +10,8 @@ _log = logging.getLogger(__name__)
 
 
 class TwitterStream(tweepy.asynchronous.AsyncStreamingClient):
+    __slots__ = '_discord_bots', '_computed_rules',
+
     def __init__(self, bots: List[discord.Bot]):
         if not service_config.twitter_bearer_token:
             _log.warning('TWITTER_BEARER_TOKEN is unset. Twitter integration will not be enabled.')

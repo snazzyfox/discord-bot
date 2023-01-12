@@ -32,9 +32,6 @@ class BedtimeCog(BaseCog):
     _BEDTIME_KWDS = {"bed", "sleep", "bye", "cya", "see y", "night", "nini", "nite", "comf"}
     _CACHE: Dict[int, Bedtime] = {}
 
-    def __init__(self, bot: discord.Bot):
-        super().__init__(bot)
-
     @bedtime.command()
     @discord.option('time', description="Your usual bedtime, for example 11:00pm, or 23:00")
     @discord.option('timezone', description="Your timezone",

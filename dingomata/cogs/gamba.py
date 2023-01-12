@@ -50,6 +50,7 @@ class GambaCog(BaseCog):
 
     gamba = slash_group("gamba", "Gamble your points away!")
     gamble = slash_group("gamble", "Give people the opportunity to gamble their points away!", config_group="gamba")
+    __slots__ = '_views',
 
     def __init__(self, bot: discord.Bot) -> None:
         super().__init__(bot)

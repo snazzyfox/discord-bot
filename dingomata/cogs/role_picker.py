@@ -12,6 +12,8 @@ _log = logging.getLogger(__name__)
 
 
 class RoleListDropdown(discord.ui.Select):
+    __slots__ = '_bot',
+
     def __init__(self, bot: discord.Bot, guild: discord.Guild):
         role_options = service_config.server[guild.id].self_assign_roles.__root__
         self._bot = bot

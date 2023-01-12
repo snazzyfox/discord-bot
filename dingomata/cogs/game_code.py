@@ -29,6 +29,8 @@ class GameMode(Enum):
 
 
 class LeaveButton(discord.ui.Button):
+    __slots__ = '_guild_id',
+
     def __init__(self, guild_id: int):
         self._guild_id = guild_id
         super().__init__(label="Leave", style=discord.ButtonStyle.red, custom_id=f"gamecode.leave:{guild_id}")
@@ -54,6 +56,8 @@ class LeaveView(View):
 
 
 class JoinButton(discord.ui.Button):
+    __slots__ = '_guild_id', '_leave_view'
+
     def __init__(self, guild_id: int, leave_view: LeaveView):
         self._guild_id = guild_id
         self._leave_view = leave_view
@@ -108,6 +112,7 @@ class GameCodeCog(BaseCog):
     """Randomly send game codes to people who join a game."""
 
     game = slash_group("game", "Manage game codes")
+    __slots__ = '_join_views', '_leave_views'
 
     def __init__(self, bot: discord.Bot):
         """Initialize application state."""
