@@ -92,6 +92,24 @@ def message_command(
     return decorator
 
 
+def user_command(
+        name: Optional[str] = None,
+        default_available: bool = True,
+        config_group: Optional[str] = None,
+):
+    def decorator(f: Callable):
+        command_name = name or f.__name__
+        config_name = config_group or f.__name__
+        guild_ids = service_config.get_command_guilds(config_name, default=default_available)
+        if guild_ids:
+            decorated = discord.user_command(name=command_name, guild_ids=guild_ids)(f)
+            return decorated
+        else:
+            return f  # do not register the command if no guilds
+
+    return decorator
+
+
 def slash_group(
         name: str,
         description: str,

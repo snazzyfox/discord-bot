@@ -8,6 +8,7 @@ import tortoise.exceptions
 import tortoise.functions as func
 from discord.ext.tasks import loop
 from prettytable import PrettyTable
+from tortoise import Tortoise
 from tortoise.expressions import F, Q
 
 from ..config import service_config
@@ -50,16 +51,18 @@ class GambaCog(BaseCog):
 
     gamba = slash_group("gamba", "Gamble your points away!")
     gamble = slash_group("gamble", "Give people the opportunity to gamble their points away!", config_group="gamba")
-    __slots__ = '_views',
+    __slots__ = '_views', '_connection'
 
     def __init__(self, bot: discord.Bot) -> None:
         super().__init__(bot)
         self._views: Dict[int, View] = {}
+        self._connection: tortoise.BaseDBAsyncClient = None
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:
         self.gamba_message_updater.start()
         self.gamba_message_pin.start()
+        self._connection = Tortoise.get_connection("default")
 
     def cog_unload(self) -> None:
         self.gamba_message_updater.stop()
@@ -242,8 +245,7 @@ class GambaCog(BaseCog):
         ORDER BY balance DESC
         LIMIT 10
         """
-        conn = tortoise.Tortoise.get_connection("default")
-        data = await conn.execute_query_dict(sql, [ctx.guild.id])
+        data = await self._connection.execute_query_dict(sql, [ctx.guild.id])
         table = self._generate_leaderboard_rows(ctx.guild, data)
         await ctx.respond(f"**{points_name.title()} Holder Leaderboard**\n```{table}```")
 
@@ -388,18 +390,18 @@ class GambaCog(BaseCog):
         """  # noqa: S608
         top_query = f"SELECT * FROM ({all_query}) a WHERE rank < 10"  # noqa: S608
 
-        conn = tortoise.Tortoise.get_connection("default")
-        data = await conn.execute_query_dict(current_user_query, [ctx.guild.id, ctx.author.id])
+        data = await self._connection.execute_query_dict(current_user_query, [ctx.guild.id, ctx.author.id])
         user_rank = data[0]["rank"] if data else None
 
         # Always print top 10
-        data = await conn.execute_query_dict(top_query, [ctx.guild.id])
+        data = await self._connection.execute_query_dict(top_query, [ctx.guild.id])
         table = self._generate_leaderboard_rows(ctx.guild, data)
 
         if user_rank and user_rank > 10:
             # Plus everyone near the given user
             nearby_query = f"SELECT * FROM ({all_query}) a WHERE rank BETWEEN $2 AND $3"  # noqa: S608
-            data = await conn.execute_query_dict(nearby_query, [ctx.guild.id, max(11, user_rank - 3), user_rank + 3])
+            data = await self._connection.execute_query_dict(
+                nearby_query, [ctx.guild.id, max(11, user_rank - 3), user_rank + 3])
             table.add_row(("...", "...", "..."))
             self._generate_leaderboard_rows(ctx.guild, data, table)
         await ctx.respond(f"**{points_name.title()} Holder Leaderboard**\n```{table}```", ephemeral=True)

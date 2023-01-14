@@ -63,3 +63,15 @@ class RolePickerConfig(BaseModel):
 
 class ProfileConfig(BaseModel):
     channel: int = 0
+
+
+class ManagedRoleConfig(BaseModel):
+    id: int
+    remove_after_hours: int = 0  #: auto remove the role after this many hours of it being applied
+    min_messages: int = 0  #: min number of messages in chat, not including embed/link/image only
+    min_days: int = 0  #: min number of days since the member joined
+    min_active_days: int = 0  #: min number of days the member is active in chat
+
+
+class RoleManageConfig(BaseModel):
+    roles: List[ManagedRoleConfig] = []

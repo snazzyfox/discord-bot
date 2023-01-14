@@ -120,6 +120,7 @@ user_banned = true
 [server.commands]
 corgi.enabled = true
 waffle.enabled = true
+roles.enabled = true
 [[server.twitter.rules]]
 filter = "from:TheCorgiCam -is:reply"
 channel = 834538416427237376
@@ -136,6 +137,14 @@ emoji = "🎨"
 id = 990196515144368168
 description = "Get notified about movie nights!"
 emoji = "🍿"
+[[server.role_manage.roles]]
+id = 838089380865507358
+min_days = 7
+min_active_days = 3
+min_messages = 10
+[[server.role_manage.roles]]
+id = 897339301212323860
+remove_after_hours = 1
 
 # GlexSiba
 [[server]]
@@ -188,6 +197,14 @@ emoji = "🍞"
 filter = "from:SnazzyTest -is:reply"
 channel = 970811039635628075
 message = "This is a test tweet from my test account."
+[[server.role_manage.roles]]
+id = 971942005871640666
+min_days = 7
+min_active_days = 3
+min_messages = 10
+[[server.role_manage.roles]]
+id = 971942064843542548
+remove_after_hours = 1
 
 # Test bot 2
 [[server]]

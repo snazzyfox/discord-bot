@@ -12,7 +12,7 @@ from dingomata.decorators import slash_group, slash_subgroup
 
 from ..config import service_config
 from ..exceptions import DingomataUserError
-from ..models import BotMessages, Profile
+from ..models import BotMessage, Profile
 from ..utils import Random
 from .base import BaseCog
 
@@ -167,7 +167,7 @@ class ProfileCog(BaseCog):
         await ctx.defer(ephemeral=True)
         # Find all existing messages and delete them
         async with tortoise.transactions.in_transaction() as tx:
-            messages = await BotMessages.select_for_update().using_db(tx).filter(
+            messages = await BotMessage.select_for_update().using_db(tx).filter(
                 id__startswith=f'{self._MSG_TYPE}:{ctx.guild.id}:').all()
             bot = self._bot_for(ctx.guild.id)
             for message in messages:
@@ -176,7 +176,7 @@ class ProfileCog(BaseCog):
                     await discord_message.delete()
                 except discord.NotFound:
                     pass
-            await BotMessages.filter(id__startswith=f'{self._MSG_TYPE}:{ctx.guild.id}:').using_db(tx).delete()
+            await BotMessage.filter(id__startswith=f'{self._MSG_TYPE}:{ctx.guild.id}:').using_db(tx).delete()
 
             # Repost new messages for all members who have a profile
             all_profiles = await Profile.filter(guild_id=ctx.guild.id).using_db(tx).all()
@@ -185,7 +185,7 @@ class ProfileCog(BaseCog):
                 if not embed:
                     continue
                 message = await channel.send(embed=embed)
-                bot_message = BotMessages(
+                bot_message = BotMessage(
                     id=f'{self._MSG_TYPE}:{ctx.guild.id}:{prof.user_id}',
                     channel_id=profile_channel_id,
                     message_id=message.id,
@@ -205,7 +205,7 @@ class ProfileCog(BaseCog):
             channel = self._bot_for(prof.guild_id).get_channel(profile_channel_id)
         else:
             raise DingomataUserError('This server is not configured for profiles. Please contact your bot manager.')
-        bot_message = await BotMessages.select_for_update().using_db(tx).get_or_none(
+        bot_message = await BotMessage.select_for_update().using_db(tx).get_or_none(
             id=f'{self._MSG_TYPE}:{prof.guild_id}:{prof.user_id}')
         if prof.data:
             embed = self._generate_profile_embed(prof)
@@ -213,8 +213,8 @@ class ProfileCog(BaseCog):
                 await channel.get_partial_message(bot_message.message_id).edit(embed=embed)
             else:
                 message = await channel.send(embed=embed)
-                bot_message = BotMessages(id=f'{self._MSG_TYPE}:{message.guild.id}:{prof.user_id}',
-                                          channel_id=message.channel.id, message_id=message.id)
+                bot_message = BotMessage(id=f'{self._MSG_TYPE}:{message.guild.id}:{prof.user_id}',
+                                         channel_id=message.channel.id, message_id=message.id)
                 await bot_message.save(using_db=tx)
         elif bot_message:
             # Profile data is empty - delete the existing message

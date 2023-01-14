@@ -15,7 +15,7 @@ class LoggingCog(BaseCog):
 
     @discord.Cog.listener()
     async def on_message_delete(self, message: discord.Message) -> None:
-        if service_config.server[message.guild.id].logging.message_deleted:
+        if message.guild and service_config.server[message.guild.id].logging.message_deleted:
             await self._log_message('Message deleted', message)
 
     @discord.Cog.listener()

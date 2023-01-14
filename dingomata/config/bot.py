@@ -41,6 +41,7 @@ class GuildConfig(BaseModel):
     twitter: cogs.TwitterConfig = cogs.TwitterConfig()
     self_assign_roles: cogs.RolePickerConfig = cogs.RolePickerConfig()
     profile: cogs.ProfileConfig = cogs.ProfileConfig()
+    role_manage: cogs.RoleManageConfig = cogs.RoleManageConfig()
 
     class Config:
         keep_untouched = (cached_property,)

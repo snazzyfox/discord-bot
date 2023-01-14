@@ -4,6 +4,7 @@ from random import betavariate, choice, random
 import discord
 import tortoise.transactions
 from prettytable import PrettyTable
+from tortoise import Tortoise
 from tortoise import functions as func
 
 from ..decorators import slash
@@ -15,6 +16,15 @@ _log = logging.getLogger(__name__)
 
 class TuchCog(BaseCog):
     """Tuch some butts."""
+    __slots__ = '_connection'
+
+    def __init__(self, bot):
+        super(TuchCog, self).__init__(bot)
+        self._connection = None
+
+    @discord.Cog.listener()
+    async def on_ready(self) -> None:
+        self._connection = Tortoise.get_connection("default")
 
     @slash(cooldown=True)
     async def tuch(self, ctx: discord.ApplicationContext) -> None:
@@ -56,8 +66,7 @@ class TuchCog(BaseCog):
         WHERE rank <= 10
         """
 
-        conn = tortoise.Tortoise.get_connection("default")
-        data = await conn.execute_query_dict(query, [ctx.guild.id])
+        data = await self._connection.execute_query_dict(query, [ctx.guild.id])
         table = PrettyTable()
         table.field_names = ("Rank", "User", "Max Butts", "Total Butts")
         table.align["Rank"] = "r"

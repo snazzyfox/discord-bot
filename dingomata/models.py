@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 from tortoise import Model, fields
 
 from dingomata.utils import DatetimeField, TimeField
@@ -122,7 +124,7 @@ class GamePoolEntry(Model):
     weight = fields.IntField()
 
 
-class BotMessages(Model):
+class BotMessage(Model):
     class Meta:
         table = "bot_messages"
 
@@ -139,3 +141,30 @@ class Profile(Model):
     guild_id = fields.BigIntField(null=False)
     user_id = fields.BigIntField(null=False)
     data = fields.JSONField(null=False)
+
+
+class MessageMetric(Model):
+    class Meta:
+        table = "message_metrics"
+        unique_together = (("guild_id", "user_id"),)
+
+    guild_id = fields.BigIntField(null=False)
+    user_id = fields.BigIntField(null=False)
+    message_count = fields.IntField(null=False, default=1)
+    distinct_days = fields.IntField(null=False, default=1)
+    last_distinct_day_boundary = fields.DatetimeField(null=False, auto_now_add=True)
+
+
+class TaskType(IntEnum):
+    REMOVE_ROLE = 0
+
+
+class ScheduledTask(Model):
+    class Meta:
+        table = "scheduled_tasks"
+        indexes = (('guild_id', 'task_type', 'process_after'),)
+
+    guild_id = fields.BigIntField(null=False, unique=True)
+    task_type = fields.IntEnumField(TaskType, null=False)
+    process_after = fields.DatetimeField(null=False)
+    payload = fields.JSONField(null=False)
