@@ -63,8 +63,8 @@ class RoleListDropdown(discord.ui.Select):
         metrics = await MessageMetric.get_or_none(guild_id=self._member.guild.id, user_id=self._member.id)
         if (
                 not metrics
-                or metrics.distinct_days < config.min_active_days
-                or metrics.message_count < config.min_messages
+                or (config.min_active_days and metrics.distinct_days < config.min_active_days)
+                or (config.min_messages and metrics.message_count < config.min_messages)
         ):
             return 'member does not meet the minimum activity requirement.'
         return None
