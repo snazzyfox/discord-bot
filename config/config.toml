@@ -184,9 +184,6 @@ log_channel = 1070479248579633253
 message_deleted = true
 message_edited = true
 user_banned = true
-[server.cooldown]
-default_seconds = 15
-exempt = [848586988554289172]
 
 # Test bot
 [[server]]

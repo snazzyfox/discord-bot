@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 
 class CooldownConfig(BaseModel):
     exempt: Set[int] = set()  # Channels that are exempt from cooldown
-    defualt_seconds: int = 30  # Global command cooldown period for this server
+    default_seconds: int = 30  # Global command cooldown period for this server
 
 
 class CommandConfig(BaseModel):
@@ -57,9 +57,9 @@ class GuildConfig(BaseModel):
     def command_cooldown_seconds(self, command: str) -> int:
         cmd_config = self.commands.get(command)
         if cmd_config:
-            return cmd_config.cooldown_seconds or self.cooldown.defualt_seconds
+            return cmd_config.cooldown_seconds or self.cooldown.default_seconds
         else:
-            return self.cooldown.defualt_seconds
+            return self.cooldown.default_seconds
 
 
 class ServiceConfig(BaseSettings):
