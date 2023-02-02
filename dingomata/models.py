@@ -157,6 +157,7 @@ class MessageMetric(Model):
 
 class TaskType(IntEnum):
     REMOVE_ROLE = 0
+    REMINDER = 1
 
 
 class ScheduledTask(Model):
@@ -164,7 +165,7 @@ class ScheduledTask(Model):
         table = "scheduled_tasks"
         indexes = (('guild_id', 'task_type', 'process_after'),)
 
-    guild_id = fields.BigIntField(null=False, unique=True)
+    guild_id = fields.BigIntField(null=False)
     task_type = fields.IntEnumField(TaskType, null=False)
     process_after = fields.DatetimeField(null=False)
     payload = fields.JSONField(null=False)

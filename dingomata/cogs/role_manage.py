@@ -140,5 +140,8 @@ last_distinct_day_boundary = CASE
                 guild = self._bot.get_guild(task.guild_id)
                 member = guild.get_member(task.payload['user'])
                 role = guild.get_role(task.payload['role'])
-                await member.remove_roles(role, reason='Automatic role expiration')
+                try:
+                    await member.remove_roles(role, reason='Automatic role expiration')
+                except discord.HTTPException:
+                    _log.exception(f'Scheduled Task: Failed to remove role {task}')
                 await task.delete(using_db=tx)
