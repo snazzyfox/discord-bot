@@ -186,7 +186,7 @@ message_edited = true
 user_banned = true
 [server.cooldown]
 default_seconds = 15
-exempt = [848586988554289172]
+exempt = [1070476620462313613]
 
 # Test bot
 [[server]]
