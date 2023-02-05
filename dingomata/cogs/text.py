@@ -314,10 +314,15 @@ class TextCog(BaseCog):
                 and service_config.server[message.guild.id].commands.get('password_strength', CommandConfig()).enabled
         ):
             words = _includes.sub('', message.content).split()
-            word = words[0] if len(words[0]) > 16 else words[-1] if len(words[-1]) > 16 else None
-            if not word:
+            if not words:
                 return
-            stats = PasswordStats(message.content)
+            elif len(words[0]) > 16:
+                word = words[0]
+            elif len(words[-1]) > 16:
+                word = words[-1]
+            else:
+                return
+            stats = PasswordStats(word)
             strength = (1 - stats.weakness_factor) * stats.strength(36)
             if strength > 0.50:
                 await message.reply(self._random_replies['password'].render(strength=f'{strength:.0%}'),
