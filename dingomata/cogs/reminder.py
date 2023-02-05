@@ -39,6 +39,9 @@ class ReminderCog(BaseCog):
             raise DingomataUserError(f'"{in_} is not a valid relative time. Try something like "3 minutes" or "2 days"')
         if time <= datetime.now():
             raise DingomataUserError("You need to specify a time in the future.")
+        if not ctx.channel.can_send():
+            raise DingomataUserError("I don't have permissions to send you messages in this channel. Please run this "
+                                     "command in a different channel.")
         async with tortoise.transactions.in_transaction() as tx:
             task = ScheduledTask(guild_id=ctx.guild.id, task_type=TaskType.REMINDER, process_after=time,
                                  payload={'channel': ctx.channel.id, 'user': ctx.user.id, 'reason': about})
