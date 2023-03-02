@@ -17,11 +17,10 @@ class AutomodConfig(CogConfig):
     #: List of role or user IDs where unnecessary pings are suppressed.
     text_prefix: str = ""
     log_channel: Optional[int] = None
-    scam_filter: bool = False
-    age_filter: bool = False
     max_channels_per_min: int = 0
     raid_min_users: int = 5
     raid_window_hours: float = 2
+    rules: Dict[str, bool] = {}
 
 
 class GambaConfig(CogConfig):

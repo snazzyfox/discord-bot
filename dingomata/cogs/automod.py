@@ -1,8 +1,10 @@
 import logging
 import re
+from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple
+from functools import wraps
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 import discord
 from cachetools import TTLCache
@@ -19,6 +21,14 @@ class AutomodAction(Enum):
     BAN = 'ban'
     KICK = 'kick'
     ALLOW = 'undo'
+
+
+@dataclass
+class AutomodRule:
+    severity: float
+    timeout: bool
+    message: str
+    eval: Callable[[discord.Message], bool]
 
 
 class AutomodActionView(View):
@@ -46,21 +56,78 @@ class AutomodActionView(View):
             await interaction.response.send_message("You can't do this, you're not a mod.", ephemeral=True)
 
 
+_RULES: List[AutomodRule] = []
+
+
+def _rule(name: str, severity: float, timeout: bool, reason: str):
+    def decorator(func: Callable[[discord.Message], bool]):
+        @wraps(func)
+        def decorated(message: discord.Message) -> bool:
+            if service_config.server[message.guild.id].automod.rules.get(name, True):
+                return func(message)
+            return False
+
+        _RULES.append(AutomodRule(severity=severity, timeout=timeout, message=reason, eval=decorated))
+        return decorated
+
+    return decorator
+
+
+@_rule(name='everyone', severity=1.0, timeout=True, reason='Attempts to mention at-everyone or at-here')
+def _rule_mention_everyone(message: discord.Message) -> bool:
+    return message.mention_everyone or '@everyone' in message.content or '@here' in message.content
+
+
+_URL_REGEX = re.compile(r"\bhttps?://(?!(?:[^/]+\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
+
+
+@_rule(name='url', severity=0.4, timeout=True, reason='Includes a link')
+def _rule_url(message: discord.Message) -> bool:
+    return bool(_URL_REGEX.search(message.content))
+
+
+_SCAM_REGEX = re.compile(r"\b(?:nitro|subscriptions?)\b", re.IGNORECASE)
+
+
+@_rule(name='scam', severity=0.6, timeout=True, reason='Includes a scam keyword')
+def _rule_scam(message: discord.Message) -> bool:
+    return bool(_SCAM_REGEX.search(message.content)) or any(
+        (embed.title and _SCAM_REGEX.search(unidecode(embed.title)))
+        or (embed.description and _SCAM_REGEX.search(unidecode(embed.description)))
+        for embed in message.embeds
+    )
+
+
+_UNDERAGE_REGEX = re.compile(r"\bI(?:am|'m)\s+(?:(?:[1-9]|1[1-7])(?!'|/|\.\d)|a minor)\b", re.IGNORECASE)
+
+
+@_rule(name='age', severity=1.0, timeout=False, reason='Potentially underage')
+def _rule_age(message: discord.Message) -> bool:
+    return bool(_UNDERAGE_REGEX.search(message.content))
+
+
+_SPAM_CACHE: TTLCache[Tuple[int, int], discord.TextChannel] = TTLCache(maxsize=1024, ttl=60)
+
+
+@_rule(name='repeat', severity=1.0, timeout=True, reason='Repeated message spam in multiple channels.')
+def _rule_repeated_spam(message: discord.Message) -> bool:
+    if max_channels := service_config.server[message.guild.id].automod.max_channels_per_min:
+        key = (message.guild.id, message.author.id)
+        channels = _SPAM_CACHE.get(key) or set()
+        channels.add(message.channel)
+        _SPAM_CACHE[key] = channels
+        return len(channels) >= max_channels
+    return False
+
+
 class AutomodCog(BaseCog):
     """Message filtering."""
+    __slots__ = '_processing_message_ids',
 
-    _URL_REGEX = re.compile(r"\bhttps?://(?!(?:[^/]+\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
-    _SCAM_KEYWORD_REGEX = re.compile(r"nitro|subscription", re.IGNORECASE)
-    _UNDERAGE_REGEX = re.compile(r"\bI(?:am|'m)\s+(?:(?:[1-9]|1[1-7])(?!'|/|\.\d)|a minor)\b", re.IGNORECASE)
-    _BLOCK_LIST = re.compile(r'\b(?:' + '|'.join([
-        r'cozy\.tv', 'groypers', 'burn in hell'
-    ]) + r')\b', re.IGNORECASE)
-    _SPAM_CACHE: TTLCache[Tuple[int, int], discord.TextChannel] = TTLCache(maxsize=1024, ttl=60)
     _JOIN_CACHES: Dict[int, TTLCache[int, None]] = {
         guild_id: TTLCache(maxsize=64, ttl=config.automod.raid_window_hours * 3600)
         for guild_id, config in service_config.server.items()
     }
-    __slots__ = '_processing_message_ids',
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)
@@ -81,68 +148,29 @@ class AutomodCog(BaseCog):
         await self._check_raid_join(member)
 
     async def _check_message(self, message: discord.Message) -> None:
-        if (message.id in self._processing_message_ids  # It's already in the process of being deleted.
+        if (
+                message.id in self._processing_message_ids  # It's already in the process of being deleted.
                 or message.is_system()  # Discord system message
-                or not message.guild  # DM
-                or (isinstance(message.author, discord.Member) and message.author.guild_permissions.manage_messages)):
-            # is a mod
+                or not isinstance(message.author, discord.Member) or not message.guild  # DM
+        ):
             return
         message.content = unidecode(message.content)
-        timeout_reasons = (
-            self._check_likely_discord_scam(message)
-            + self._check_blocklist(message)
-            + self._check_repeated_spam(message)
-        )
-        notify_reasons = self._check_underage(message)
-        if timeout_reasons:
-            await self._timeout_user(message, timeout_reasons + notify_reasons)
-        elif notify_reasons:
-            await self._notify_mods(message, notify_reasons, ['Notified mods'])
-
-    def _check_likely_discord_scam(self, message: discord.Message) -> List[str]:
-        if not service_config.server[message.guild.id].automod.scam_filter:
-            return []
+        timeout = False
         reasons = []
-        if isinstance(message.author, discord.Member) and message.author.guild_permissions.manage_messages:
-            return []
-        if message.mention_everyone or "@everyone" in message.content:
-            reasons.append("Mentions at-everyone")
-        if bool(self._URL_REGEX.search(message.content)):
-            reasons.append("Includes URL")
-        if match := self._SCAM_KEYWORD_REGEX.search(message.content):
-            reasons.append(f"Message content includes scam keyword(s): {match.group()}")
-        if match := self._search_embeds(self._SCAM_KEYWORD_REGEX, message):
-            reasons.append(f"Embed content includes scam keyword(s): {match.group()}")
-
-        if len(reasons) >= 2:
-            return reasons
-        else:
-            return []
-
-    def _check_blocklist(self, message: discord.Message) -> List[str]:
-        if match := self._BLOCK_LIST.search(message.content):
-            return [f'Message content includes blocked term: {match.group()}']
-        else:
-            return []
-
-    def _check_underage(self, message: discord.Message) -> List[str]:
-        if not service_config.server[message.guild.id].automod.age_filter:
-            return []
-        if match := self._UNDERAGE_REGEX.search(message.content):
-            return [f'Possibly underage user: {match.group()}']
-        else:
-            return []
-
-    def _check_repeated_spam(self, message: discord.Message) -> List[str]:
-        if max_channels := service_config.server[message.guild.id].automod.max_channels_per_min:
-            key = (message.guild.id, message.author.id)
-            channels = self._SPAM_CACHE.get(key) or set()
-            channels.add(message.channel)
-            self._SPAM_CACHE[key] = channels
-            if len(channels) >= max_channels:
-                return [f'Posted a message in {len(channels)} channels '
-                        f'({", ".join(channel.mention for channel in channels)}) in under 1 minute.']
-        return []
+        score = 0.0
+        for rule in _RULES:
+            if rule.eval(message):
+                timeout = timeout or rule.timeout
+                reasons.append(rule.message)
+                score += rule.severity
+        if score >= 1.0:
+            if message.author.guild_permissions.manage_messages:
+                _log.info(f'Message from {message.author} matched automod rules {reasons}, but no action was taken '
+                          f'because they have mod permissions: {message.guild}/#{message.channel}: {message.content}')
+            elif timeout:
+                await self._timeout_user(message, reasons)
+            elif reasons:
+                await self._notify_mods(message, reasons, ['Notified mods'])
 
     async def _check_raid_join(self, member: discord.Member) -> None:
         guild_id = member.guild.id
@@ -226,12 +254,3 @@ class AutomodCog(BaseCog):
                         actions.append(f'Allowed, reviewed by {view.confirmed_by.display_name}')
                 embed.set_field_at(3, name="Action(s) taken", value="\n".join(actions))
                 await notify_message.edit(embed=embed, view=None)
-
-    @staticmethod
-    def _search_embeds(regex: re.Pattern, message: discord.Message):
-        matches = (
-            (embed.title and regex.search(unidecode(embed.title)))
-            or (embed.description and regex.search(unidecode(embed.description)))
-            for embed in message.embeds
-        )
-        return next(matches, None)

@@ -9,8 +9,6 @@ exempt = [876683421601136650]
 [server.automod]
 text_prefix = "<@&492485748071727129>"
 log_channel = 552398918865125376
-scam_filter = true
-age_filter = true
 max_channels_per_min = 5
 raid_min_users = 15
 raid_window_hours = 1
@@ -33,7 +31,6 @@ emoji = "🎮"
 # Lycaon
 [[server]]
 id = 351122293105229835
-automod.log_channel = 895922436250406912
 gamba.points_name = "lycoins"
 profile.channel = 1028131083105095680
 [server.cooldown]
@@ -107,8 +104,6 @@ exempt = [903465905630089236]
 [server.automod]
 log_channel = 1058457200445632522
 text_prefix = "<@&768232863043682314>"
-scam_filter = true
-age_filter = true
 max_channels_per_min = 5
 raid_min_users = 12
 raid_window_hours = 1
@@ -153,10 +148,10 @@ no_pings = [863866217445326858]
 [server.automod]
 log_channel = 863865546684497960
 text_prefix = "<@&863866859061379133> "
-scam_filter = true
 max_channels_per_min = 5
 raid_min_users = 4
 raid_window_hours = 1
+rules.age = false
 [server.cooldown]
 default_seconds = 15
 exempt = [859278418511003698]
@@ -175,7 +170,7 @@ no_pings = [857468097140359208, 848586988554289172]
 [server.automod]
 log_channel = 1070476620462313613
 text_prefix = "<@&240525169343332353> "
-scam_filter = true
+rules.age = false
 max_channels_per_min = 5
 raid_min_users = 4
 raid_window_hours = 1
