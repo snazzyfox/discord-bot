@@ -34,7 +34,7 @@ class AutomodRule:
 class AutomodActionView(View):
     __slots__ = 'action', 'confirmed_by'
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.action: Optional[AutomodAction] = None
         self.confirmed_by: Optional[discord.Member] = None
         super().__init__(timeout=None)

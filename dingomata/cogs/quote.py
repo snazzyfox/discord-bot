@@ -52,9 +52,10 @@ class QuoteCog(BaseCog):
             raise DingomataUserError("This quote already exists.") from e
 
     @quotes.command()
-    @discord.option('user', description="Find quotes by a particular user")
-    @discord.option('search', description="Find quotes including this phrase")
-    async def find(self, ctx: discord.ApplicationContext, user: discord.User = None, search: str = None) -> None:
+    @discord.option('user', type=discord.User, description="Find quotes by a particular user")
+    @discord.option('search', type=str, description="Find quotes including this phrase")
+    async def find(self, ctx: discord.ApplicationContext, user: discord.User | None = None,
+                   search: str | None = None) -> None:
         """Find existing quotes."""
         query = Quote.filter(guild_id=ctx.guild.id).limit(11)
         if user:
