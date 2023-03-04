@@ -73,7 +73,7 @@ def _rule(name: str, severity: float, timeout: bool, reason: str):
     return decorator
 
 
-@_rule(name='everyone', severity=1.0, timeout=True, reason='Attempts to mention at-everyone or at-here')
+@_rule(name='everyone', severity=0.8, timeout=True, reason='Attempts to mention at-everyone or at-here')
 def _rule_mention_everyone(message: discord.Message) -> bool:
     return message.mention_everyone or '@everyone' in message.content or '@here' in message.content
 
