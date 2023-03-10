@@ -120,7 +120,7 @@ last_distinct_day_boundary = CASE
     async def on_message(self, message: discord.Message) -> None:
         """If the user is missing any roles that require metrics, log those metrics."""
         if (
-                message.guild
+                message.guild and isinstance(message.author, discord.Member)
                 and any(message.author.get_role(role.id) is None
                         and (role.min_messages or role.min_days or role.min_active_days)
                         for role in service_config.server[message.guild.id].role_manage.roles)
