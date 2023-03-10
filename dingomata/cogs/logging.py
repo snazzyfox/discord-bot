@@ -41,6 +41,7 @@ class LoggingCog(BaseCog):
             embed.add_field(name='Channel', value=message.channel.mention)
             embed.add_field(name='Author', value=message.author.mention)
             embed.add_field(name='Sent At', value=f'<t:{int(message.created_at.timestamp())}:f>')
+            embed.add_field(name='Message URL (for T&S Reports)', value=message.jump_url)
             embed.add_field(name='Content', value=message.clean_content, inline=False)
             if edited:
                 embed.add_field(name='Changed to', value=edited.clean_content, inline=False)
