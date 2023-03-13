@@ -81,21 +81,9 @@ def _rule_mention_everyone(message: discord.Message) -> bool:
 _URL_REGEX = re.compile(r"\bhttps?://(?!(?:[^/]+\.)?(?:twitch\.tv/|tenor\.com/view/|youtube\.com/|youtu\.be/))")
 
 
-@_rule(name='url', severity=0.4, timeout=True, reason='Includes a link')
+@_rule(name='url', severity=0.6, timeout=True, reason='Includes a link')
 def _rule_url(message: discord.Message) -> bool:
     return bool(_URL_REGEX.search(message.content))
-
-
-_SCAM_REGEX = re.compile(r"\b(?:nitro|subscriptions?)\b", re.IGNORECASE)
-
-
-@_rule(name='scam', severity=0.6, timeout=True, reason='Includes a scam keyword')
-def _rule_scam(message: discord.Message) -> bool:
-    return bool(_SCAM_REGEX.search(message.content)) or any(
-        (embed.title and _SCAM_REGEX.search(unidecode(embed.title)))
-        or (embed.description and _SCAM_REGEX.search(unidecode(embed.description)))
-        for embed in message.embeds
-    )
 
 
 _UNDERAGE_REGEX = re.compile(r"\bI(?:am|'m)\s+(?:(?:[1-9]|1[1-7])(?!'|/|\.\d)|a minor)\b", re.IGNORECASE)
@@ -199,13 +187,10 @@ class AutomodCog(BaseCog):
     async def _timeout_user(self, message: discord.Message, reasons: List[str]):
         # Consider the message scam likely if two matches
         self._processing_message_ids.add(message.id)
-        _log.info(
-            f"Detected message from {message.author} as scam. Reason: {reasons}. "
-            f"Original message: {message.content}"
-        )
+        _log.info(f'Timed out {message.author}, Reason: {reasons}. Original message: {message.content}')
         actions = []
         try:
-            await message.author.timeout_for(timedelta(days=1), reason="Potential scam message.")
+            await message.author.timeout_for(timedelta(days=1), reason=', '.join(reasons))
             actions.append("Timed out user for 1 day: pending mod review")
         except Exception as e:
             _log.exception(e)
