@@ -86,5 +86,8 @@ async def run():
         await asyncio.wait([bot.start(token) for bot, token in zip(bots, tokens)] + [twitter.run()])
     finally:
         log.info("Disconnecting bots...")
-        twitter.disconnect()
+        try:
+            twitter.disconnect()
+        except AttributeError:
+            pass  # if none have twitter enabled
         await asyncio.wait([bot.close() for bot in bots if not bot.is_closed()])
