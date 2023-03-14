@@ -1,6 +1,6 @@
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import cached_property
 from itertools import accumulate
 from pathlib import Path
@@ -294,6 +294,8 @@ class TextCog(BaseCog):
                 ctx, "brush", target=mention_if_needed(ctx, user),
                 post="Ahhhhhh. That feels nice, thank you!" if user == self._bot_for(ctx.guild.id).user else "")
 
+    _lb = datetime.now()
+
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         if message.is_system():
@@ -327,6 +329,15 @@ class TextCog(BaseCog):
             if strength > 0.50:
                 await message.reply(self._random_replies['password'].render(strength=f'{strength:.0%}'),
                                     mention_author=False)
+
+        # glex3c
+        if (
+                message.guild.id == 840467720695971840
+                and message.author.id == 91721614781071360
+                and (now := datetime.now()) - self.__class__._lb > timedelta(minutes=15)
+        ):
+            await message.reply('Boop!')
+            self.__class__._lb = now
 
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
