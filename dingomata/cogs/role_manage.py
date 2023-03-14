@@ -58,14 +58,10 @@ class RoleListDropdown(discord.ui.Select):
 
     async def _member_eligible(self, config: ManagedRoleConfig) -> str | None:
         joined = self._member.joined_at
-        if config.min_days and joined + timedelta(days=config.min_days) > datetime.now(tz=joined.tzinfo):
+        if joined + timedelta(days=config.min_days) > datetime.now(tz=joined.tzinfo):
             return f'member has not yet been in the server for {config.min_days} days.'
-        metrics = await MessageMetric.get_or_none(guild_id=self._member.guild.id, user_id=self._member.id)
-        if (
-                not metrics
-                or (config.min_active_days and metrics.distinct_days < config.min_active_days)
-                or (config.min_messages and metrics.message_count < config.min_messages)
-        ):
+        metrics, _ = await MessageMetric.get_or_create(guild_id=self._member.guild.id, user_id=self._member.id)
+        if metrics.distinct_days < config.min_active_days or metrics.message_count < config.min_messages:
             return 'member does not meet the minimum activity requirement.'
         return None
 

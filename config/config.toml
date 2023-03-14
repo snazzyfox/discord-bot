@@ -199,6 +199,7 @@ echo.enabled = true
 collect.enabled = true
 profile.enabled = true
 password_strength.enabled = true
+roles.enabled = true
 [[server.self_assign_roles]]
 id = 971942005871640666
 description = "First Role"
