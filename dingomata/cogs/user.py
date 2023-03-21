@@ -102,7 +102,7 @@ class UserCog(BaseCog):
         result = await self._get_bedtime(message.author.id)
         utcnow = datetime.utcnow()
         # Do nothing if the user don't have a bedtime set or if they're in cooldown
-        if not result:
+        if not result or not result.bedtime:
             _log.debug(f"User {message.author.id} does not have a bedtime set.")
             return
         elif result.last_bedtime_notified and utcnow < (
