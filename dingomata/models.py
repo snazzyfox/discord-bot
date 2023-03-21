@@ -5,11 +5,14 @@ from tortoise import Model, fields
 from dingomata.utils import DatetimeField, TimeField
 
 
-class Bedtime(Model):
-    user_id = fields.BigIntField(unique=True, null=False)
-    bedtime = TimeField(null=False)
-    timezone = fields.TextField(null=False)
-    last_notified = DatetimeField(null=True)
+class User(Model):
+    class Meta:
+        table = "users"
+
+    user_id = fields.BigIntField(pk=True, generated=False)
+    timezone = fields.TextField(null=True)
+    bedtime = TimeField(null=True)
+    last_bedtime_notified = DatetimeField(null=True)
 
 
 class GambaUser(Model):
@@ -133,14 +136,18 @@ class BotMessage(Model):
     message_id = fields.BigIntField(null=False)
 
 
-class Profile(Model):
+class GuildMember(Model):
     class Meta:
-        table = "profiles"
+        table = "guild_members"
         unique_together = (("guild_id", "user_id"),)
+        indexes = (("guild_id", "next_birthday_utc"), )
 
     guild_id = fields.BigIntField(null=False)
     user_id = fields.BigIntField(null=False)
-    data = fields.JSONField(null=False)
+    profile_data = fields.JSONField(null=False, default={})
+    birthday_month = fields.SmallIntField(null=True)
+    birthday_day = fields.SmallIntField(null=True)
+    next_birthday_utc = fields.DatetimeField(null=True)
 
 
 class MessageMetric(Model):

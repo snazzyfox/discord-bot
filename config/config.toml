@@ -32,7 +32,8 @@ emoji = "🎮"
 [[server]]
 id = 351122293105229835
 gamba.points_name = "lycoins"
-profile.channel = 1028131083105095680
+member.profile_channel = 1028131083105095680
+member.birthday_channel = 351122293105229837
 [server.cooldown]
 default_seconds = 5
 exempt = [ 895922436250406912 ]
@@ -145,6 +146,7 @@ remove_after_hours = 1
 [[server]]
 id = 840467720695971840
 no_pings = [863866217445326858]
+member.birthday_channel = 918418135927910451
 [server.automod]
 log_channel = 863865546684497960
 text_prefix = "<@&863866859061379133> "
@@ -183,7 +185,8 @@ user_banned = true
 # Test bot
 [[server]]
 id = 970811039635628072
-profile.channel = 995749304453050428
+member.profile_channel = 995749304453050428
+member.birthday_channel = 995749304453050428
 [server.cooldown]
 default_seconds = 15
 exempt = [840021184589856778]

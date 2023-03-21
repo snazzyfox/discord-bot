@@ -8,7 +8,6 @@ from typing import Dict, List
 from zlib import decompress
 
 import discord
-import pytz
 import yaml
 from parsedatetime import Calendar
 from password_strength import PasswordStats
@@ -17,7 +16,6 @@ from pydantic import BaseModel, PrivateAttr, confloat
 from ..config import service_config
 from ..config.bot import CommandConfig
 from ..decorators import slash
-from ..exceptions import DingomataUserError
 from ..utils import mention_if_needed
 from .base import BaseCog
 
@@ -243,27 +241,6 @@ class TextCog(BaseCog):
             await self._post_random_reply(ctx, "snipe.self")
         else:
             await self._post_random_reply(ctx, "snipe", target=mention_if_needed(ctx, user))
-
-    @slash()
-    @discord.option('time', description="A date and/or time, e.g. 2020/01/01 00:00:00")
-    @discord.option('timezone', description="Time zone you are in",
-                    autocomplete=discord.utils.basic_autocomplete(pytz.common_timezones))
-    async def localtime(self, ctx: discord.ApplicationContext, time: str, timezone: str) -> None:
-        """Display a time you enter for everyone as their local time."""
-        try:
-            tz = pytz.timezone(timezone.strip())
-        except pytz.UnknownTimeZoneError as e:
-            raise DingomataUserError(
-                f'{timezone} is not a recognized timezone. Please use one of the "TZ Database Name"s listed here: '
-                f"https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
-            ) from e
-        time_obj, status = _calendar.parseDT(time, datetime.utcnow().astimezone(tz), tzinfo=tz)
-        if status != 3:
-            raise DingomataUserError(
-                f"Can't interpret {time} as a valid date/time. Try using something like `today 5pm`, or for a "
-                f"full date, `2021-12-20 01:05`"
-            )
-        await ctx.respond(f"{time} in {tz} is <t:{int(time_obj.timestamp())}:f> your local time.")
 
     @slash(cooldown=True)
     @discord.option('drink', description="What drink?", choices=["coffee", "tea", "orangina"])

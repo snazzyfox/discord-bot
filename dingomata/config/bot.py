@@ -40,7 +40,7 @@ class GuildConfig(BaseModel):
     logging: cogs.LoggingConfig = cogs.LoggingConfig()
     twitter: cogs.TwitterConfig = cogs.TwitterConfig()
     self_assign_roles: cogs.RolePickerConfig = cogs.RolePickerConfig()
-    profile: cogs.ProfileConfig = cogs.ProfileConfig()
+    member: cogs.MemberConfig = cogs.MemberConfig()
     role_manage: cogs.RoleManageConfig = cogs.RoleManageConfig()
 
     class Config:

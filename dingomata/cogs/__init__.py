@@ -1,30 +1,30 @@
 from .admin import AdminCog
 from .automod import AutomodCog
-from .bedtime import BedtimeCog
 from .collection import CollectionCog
 from .gamba import GambaCog
 from .game_code import GameCodeCog
+from .guild_member import GuildMemberCog
 from .logging import LoggingCog
 from .poll import PollCog
-from .profile import ProfileCog
 from .quote import QuoteCog
 from .reminder import ReminderCog
 from .role_manage import RoleManageCog
 from .role_picker import RolePickerCog
 from .text import TextCog
 from .tuch import TuchCog
+from .user import UserCog
 
 all_cogs = [
     AdminCog,
     AutomodCog,
-    BedtimeCog,
+    UserCog,
     CollectionCog,
     GambaCog,
     GameCodeCog,
     LoggingCog,
     PollCog,
     QuoteCog,
-    ProfileCog,
+    GuildMemberCog,
     ReminderCog,
     RolePickerCog,
     RoleManageCog,
@@ -33,7 +33,7 @@ all_cogs = [
 ]
 
 __all__ = [
-    "BedtimeCog",
+    "UserCog",
     "AdminCog",
     "AutomodCog",
     "CollectionCog",
