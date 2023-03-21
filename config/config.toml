@@ -160,6 +160,7 @@ exempt = [859278418511003698]
 [server.commands]
 snipe.enabled = false
 gamba.enabled = false
+profile.enabled = true
 [[server.self_assign_roles]]
 id = 968735501194494002
 description = "Use this role to get pinged for movie nights!"
