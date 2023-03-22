@@ -332,8 +332,7 @@ class GuildMemberCog(BaseCog):
                 if service_config.server[member.guild_id].member.birthday_channel:
                     channel = guild.get_channel(service_config.server[member.guild_id].member.birthday_channel)
                     try:
-                        await channel.send(f"It is {user.mention}'s birthday today! "
-                                           f"Everyone wish them a happy birthday.")
+                        await channel.send(f"🎂 **Happy birthday, {user.mention}!** 🎂")
                     except discord.HTTPException:
                         _log.exception(f'Birthday: Failed to send birthday message for {member}.')
                 member.next_birthday_utc = await self._get_next_birthday_utc(
