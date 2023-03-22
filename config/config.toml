@@ -15,18 +15,11 @@ raid_window_hours = 1
 [server.commands]
 whiskey.enabled = true
 collect.enabled = false
+roles.enabled = false
 [server.logging]
 log_channel = 552398918865125376
 message_deleted = true
 user_banned = true
-[[server.self_assign_roles]]
-id = 745821300987002912
-description = "Get notified for movie nights!"
-emoji = "🎬"
-[[server.self_assign_roles]]
-id = 908285057498751007
-description = "Get notified about gaming events on the server!"
-emoji = "🎮"
 
 # Lycaon
 [[server]]
@@ -40,59 +33,6 @@ exempt = [ 895922436250406912 ]
 [server.commands]
 profile.enabled = true
 password_strength.enabled = true
-[[server.self_assign_roles]]
-id = 908285057498751007
-description = "Get notified about VRChat events"
-emoji = "🥽"
-[[server.self_assign_roles]]
-id = 911082035978858556
-description = "Let everyone else on the server ping you."
-emoji = "🔔"
-[[server.self_assign_roles]]
-id = 975088367408644177
-description = "Get notified for tabletop game events"
-emoji = "♟️"
-[[server.self_assign_roles]]
-id = 1026704638155694110
-description = "Get notified for D&D RPG game events"
-emoji = "🐲"
-[[server.self_assign_roles]]
-id = 1026700452626169856
-description = "Get notified for Pokemon D&D RPG game events"
-emoji = "🌕"
-[[server.self_assign_roles]]
-id = 975088699845013504
-description = "Get notified for BOTC games"
-emoji = "🕰️"
-[[server.self_assign_roles]]
-id = 985980186019389461
-description = "Get notified when you're available for betrayal."
-emoji = "🏠"
-[[server.self_assign_roles]]
-id = 984907652163309598
-description = "Get notified for Furality related information."
-emoji = "🎊"
-[[server.self_assign_roles]]
-id = 988646156131262513
-description = "Use this role to show you can provide help with Unity."
-emoji = "🧊"
-[[server.self_assign_roles]]
-id = 993291228416323644
-description = "Get pinged for convention-related messages."
-emoji = "🫂"
-[[server.self_assign_roles]]
-id = 1032382194829754419
-description = "Did you know that it has a free trial?"
-emoji = "⚔️"
-[[server.self_assign_roles]]
-id = 875679251704193037
-emoji = "❤️"
-[[server.self_assign_roles]]
-id = 878827554222538854
-emoji = "❤️"
-[[server.self_assign_roles]]
-id = 890676584867049482
-emoji = "❤️"
 
 # Discorg
 [[server]]
@@ -121,18 +61,6 @@ roles.enabled = true
 filter = "from:TheCorgiCam -is:reply"
 channel = 834538416427237376
 message = "<@&768650292644282408> Corgi just posted a new tweet!"
-[[server.self_assign_roles]]
-id = 768650292644282408
-description = "Get notified when Corgi tweets and goes live in the Discorg!"
-emoji = "🛎️"
-[[server.self_assign_roles]]
-id = 990196640000376874
-description = "Get notified when Julune posts about commissions!"
-emoji = "🎨"
-[[server.self_assign_roles]]
-id = 990196515144368168
-description = "Get notified about movie nights!"
-emoji = "🍿"
 [[server.role_manage.roles]]
 id = 838089380865507358
 min_days = 7
@@ -161,10 +89,6 @@ exempt = [859278418511003698]
 snipe.enabled = false
 gamba.enabled = false
 profile.enabled = true
-[[server.self_assign_roles]]
-id = 968735501194494002
-description = "Use this role to get pinged for movie nights!"
-emoji = "🍿"
 
 # VAH
 [[server]]
@@ -182,6 +106,8 @@ log_channel = 1070479248579633253
 message_deleted = true
 message_edited = true
 user_banned = true
+[server.commands]
+roles.enabled = false
 
 # Test bot
 [[server]]
@@ -203,15 +129,6 @@ echo.enabled = true
 collect.enabled = true
 profile.enabled = true
 password_strength.enabled = true
-roles.enabled = true
-[[server.self_assign_roles]]
-id = 971942005871640666
-description = "First Role"
-emoji = "👌"
-[[server.self_assign_roles]]
-id = 971942064843542548
-description = "Second Role"
-emoji = "🍞"
 [[server.twitter.rules]]
 filter = "from:SnazzyTest -is:reply"
 channel = 970811039635628075
