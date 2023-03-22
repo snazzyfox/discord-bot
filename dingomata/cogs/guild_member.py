@@ -167,7 +167,7 @@ class GuildMemberCog(BaseCog):
         members = await GuildMember.filter(
             guild_id=ctx.guild.id,
             next_birthday_utc__gte=today,
-        ).order_by('birthday_month', 'birthday_day').limit(10)
+        ).order_by('next_birthday_utc').limit(10)
         if not members:
             raise DingomataUserError('No one on this server has a birthday set.')
         else:
