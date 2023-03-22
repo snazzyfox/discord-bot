@@ -153,6 +153,8 @@ last_distinct_day_boundary = CASE
         view.add_item(dropdown)
         try:
             message = await ctx.channel.send(view=view)
+        except discord.Forbidden:
+            raise DingomataUserError("I don't have permissions to post in this channel.")
         except discord.HTTPException as e:
             if 'Invalid emoji' in e.text:
                 raise DingomataUserError(f'{emoji} is not a valid emoji.')
