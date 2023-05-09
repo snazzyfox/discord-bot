@@ -39,16 +39,6 @@ class LoggingConfig(CogConfig):
     user_banned: bool = False
 
 
-class TwitterRule(BaseModel):
-    filter: str
-    channel: int
-    message: str = ''
-
-
-class TwitterConfig(BaseModel):
-    rules: List[TwitterRule] = []
-
-
 class SelfAssignRole(BaseModel):
     id: int
     # name should be read from discord so not configured here

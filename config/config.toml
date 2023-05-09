@@ -57,10 +57,6 @@ user_banned = true
 corgi.enabled = true
 waffle.enabled = true
 roles.enabled = true
-[[server.twitter.rules]]
-filter = "from:TheCorgiCam -is:reply"
-channel = 834538416427237376
-message = "<@&768650292644282408> Corgi just posted a new tweet!"
 [[server.role_manage.roles]]
 id = 838089380865507358
 min_days = 7
@@ -129,10 +125,6 @@ echo.enabled = true
 collect.enabled = true
 profile.enabled = true
 password_strength.enabled = true
-[[server.twitter.rules]]
-filter = "from:SnazzyTest -is:reply"
-channel = 970811039635628075
-message = "This is a test tweet from my test account."
 [[server.role_manage.roles]]
 id = 971942005871640666
 min_days = 7

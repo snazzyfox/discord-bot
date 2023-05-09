@@ -38,7 +38,6 @@ class GuildConfig(BaseModel):
     gamba: cogs.GambaConfig = cogs.GambaConfig()
     game_code: cogs.GameCodeConfig = cogs.GameCodeConfig()
     logging: cogs.LoggingConfig = cogs.LoggingConfig()
-    twitter: cogs.TwitterConfig = cogs.TwitterConfig()
     member: cogs.MemberConfig = cogs.MemberConfig()
     role_manage: cogs.RoleManageConfig = cogs.RoleManageConfig()
 
@@ -64,7 +63,6 @@ class GuildConfig(BaseModel):
 class ServiceConfig(BaseSettings):
     token: SecretStr = Field(..., env="token")
     database_url: SecretStr = Field(..., env="database_url")
-    twitter_bearer_token: Optional[SecretStr] = Field(None, env="twitter_bearer_token")
     config_file: FilePath = Field(Path('config/config.toml'), env="config_file")
 
     class Config:

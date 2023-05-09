@@ -18,7 +18,6 @@ py-cord = { version = "^2.3.0", extras = ["speed"] }
 tortoise-orm = { extras = ["asyncpg"], version = "^0.18.1" }
 toml = "^0.10.2"
 orjson = "^3.6.6"
-tweepy = {extras = ["async"], version = "^4.10.0"}
 cachetools = "^5.2.0"
 password-strength = "^0.0.3"
 
