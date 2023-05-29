@@ -332,9 +332,12 @@ class GuildMemberCog(BaseCog):
                 if service_config.server[member.guild_id].member.birthday_channel:
                     channel = guild.get_channel(service_config.server[member.guild_id].member.birthday_channel)
                     try:
+                        member.next_birthday_utc = await self._get_next_birthday_utc(
+                            member.user_id, member.birthday_month, member.birthday_day)
                         await channel.send(f"🎂 **Happy birthday, {user.mention}!** 🎂")
+                    except DingomataUserError:
+                        _log.warning(f'Birthday: did not send birthday note for {member} '
+                                     'because they do not have a timezone.')
                     except discord.HTTPException:
                         _log.exception(f'Birthday: Failed to send birthday message for {member}.')
-                member.next_birthday_utc = await self._get_next_birthday_utc(
-                    member.user_id, member.birthday_month, member.birthday_day)
                 await member.save(using_db=tx)
