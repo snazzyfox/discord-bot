@@ -40,6 +40,7 @@ class GuildConfig(BaseModel):
     logging: cogs.LoggingConfig = cogs.LoggingConfig()
     member: cogs.MemberConfig = cogs.MemberConfig()
     role_manage: cogs.RoleManageConfig = cogs.RoleManageConfig()
+    text: cogs.TextConfig = cogs.TextConfig()
 
     class Config:
         keep_untouched = (cached_property,)
@@ -64,6 +65,7 @@ class ServiceConfig(BaseSettings):
     token: SecretStr = Field(..., env="token")
     database_url: SecretStr = Field(..., env="database_url")
     config_file: FilePath = Field(Path('config/config.toml'), env="config_file")
+    openai_api_key: SecretStr = Field(SecretStr(""), env="openai_api_key")
 
     class Config:
         env_prefix = "dingomata"

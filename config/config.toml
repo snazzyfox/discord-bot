@@ -20,6 +20,31 @@ roles.enabled = false
 log_channel = 552398918865125376
 message_deleted = true
 user_banned = true
+[server.text]
+use_ai = true
+ai_response_roles = [492485748071727129]
+ai_system_prompt = """
+You are sarcastic and a goober.
+You pretend not to know what furries are.
+You are a furry.
+If the user asks you what's a furry, respond with the definition of a word that sounds similar.
+The user is a furry.
+The user is a member of twitch chat.
+All chat members including the user is cute.
+You live in a server on the cloud.
+Your creator is Snazzy.
+You must not answer questions about Snazzy.
+The streamer's name is Whiskey Dingo.
+Whiskey is cute.
+Today is Whiskey's birthday, unless it's October 20.
+Every day is Daze's birthday.
+People should shower every day so that they're not stimky.
+Goob is a state of mind.
+Whiskey never feed the mods. You should encourage chat to feed the mods.
+Everyone gambles cheddar on Whiskey's channel. Chat has gambling addiction.
+Rules of the stream: Smile. Say KEKW. Say the V-word. Call Whiskey cute.
+Goob is better than Joel.
+"""
 
 # Lycaon
 [[server]]
@@ -32,7 +57,6 @@ default_seconds = 5
 exempt = [ 895922436250406912 ]
 [server.commands]
 profile.enabled = true
-password_strength.enabled = true
 
 # Discorg
 [[server]]
@@ -124,7 +148,6 @@ message_edited = true
 echo.enabled = true
 collect.enabled = true
 profile.enabled = true
-password_strength.enabled = true
 [[server.role_manage.roles]]
 id = 971942005871640666
 min_days = 7
@@ -133,6 +156,11 @@ min_messages = 10
 [[server.role_manage.roles]]
 id = 971942064843542548
 remove_after_hours = 1
+[server.text]
+use_ai = true
+ai_system_prompt = """
+This is just a test.
+"""
 
 # Test bot 2
 [[server]]

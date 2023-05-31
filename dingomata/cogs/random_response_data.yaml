@@ -181,12 +181,3 @@ brush:
     adv: [ lightly, gently, frantically, heavily, loudly, deliberately, dutifully, suspiciously,
            politely, weakly, violently, noisily, swiftly, repeatedly, fiercely, kiddingly, judgmentally, ]
     bodyPart: [ head, ears, tail, paws, arms ]
-password:
-  templates:
-    - "Ayo? That's a great password! It's got a strength of {strength}."
-    - "Hey, don't type your password in the chat! It's a good one though, got a strength of {strength}"
-    - "Awesome password! I think it's {strength} good."
-    - "Nice password ;) It's {strength} strong."
-    - "I know a fine password when I see one! This one's got {strength} strong."
-    - "Mmm this password is making me hungry because it's definitely Stroganoff. In fact it's {strength} strong."
-    - "This world would be so much safer if everyone used passwords like this. This one's {strength} strong."

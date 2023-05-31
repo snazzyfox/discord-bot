@@ -65,3 +65,9 @@ class ManagedRoleConfig(BaseModel):
 
 class RoleManageConfig(BaseModel):
     roles: List[ManagedRoleConfig] = []
+
+
+class TextConfig(BaseModel):
+    use_ai: bool = False
+    ai_response_roles: List[int] | None = None  #: If None, use AI for everyone
+    ai_system_prompt: str = ''  #: Server name and mod list are automatically added

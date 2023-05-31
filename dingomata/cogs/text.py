@@ -8,19 +8,19 @@ from typing import Dict, List
 from zlib import decompress
 
 import discord
+import openai
 import yaml
 from parsedatetime import Calendar
-from password_strength import PasswordStats
 from pydantic import BaseModel, PrivateAttr, confloat
 
 from ..config import service_config
-from ..config.bot import CommandConfig
 from ..decorators import slash
 from ..utils import mention_if_needed
 from .base import BaseCog
 
 _calendar = Calendar()
 _includes = re.compile(r'http.+|<.+>')
+openai.api_key = service_config.openai_api_key.get_secret_value()
 
 
 class TriggerTextReply(BaseModel):
@@ -283,29 +283,46 @@ class TextCog(BaseCog):
                 and self._bot_for(message.guild.id).user in message.mentions
                 and message.author != self._bot_for(message.guild.id).user
         ):
-            for reply in self._rawtext_replies:
-                if reply.regex.search(message.content):
-                    await message.reply(random.choice(reply.responses))
-                    break  # Stop after first match
-        elif (
-                not message.author.bot
-                and not message.is_system()
-                and service_config.server[message.guild.id].commands.get('password_strength', CommandConfig()).enabled
-        ):
-            words = _includes.sub('', message.content).split()
-            if not words:
-                return
-            elif len(words[0]) > 16:
-                word = words[0]
-            elif len(words[-1]) > 16:
-                word = words[-1]
-            else:
-                return
-            stats = PasswordStats(word)
-            strength = (1 - stats.weakness_factor) * stats.strength(36)
-            if strength > 0.50:
-                await message.reply(self._random_replies['password'].render(strength=f'{strength:.0%}'),
-                                    mention_author=False)
+            # Determine whether to use AI for response
+            if service_config.server[message.guild.id].text.use_ai:
+                respond_to = service_config.server[message.guild.id].text.ai_response_roles
+                if respond_to is None or any(role.id in respond_to for role in message.author.roles):
+                    await self._post_ai_reply(message)
+                    return
+            await self._post_rawtext_reply(message)
+
+    async def _post_rawtext_reply(self, message: discord.Message) -> None:
+        for reply in self._rawtext_replies:
+            if reply.regex.search(message.content):
+                await message.reply(random.choice(reply.responses))
+                break  # Stop after first match
+
+    async def _post_ai_reply(self, message: discord.Message) -> None:
+        system_prompts = [
+            'You are a discord bot.',
+            'Interpret text between colons as emojis.',
+            'Avoid emojis in your responses.',
+            'You may use basic markdown in your response only if necessary.',
+            'Your responses should be short.',
+            f'Your name is {self._bot_for(message.guild.id).user.display_name}.',
+            f'You are responding to a message in {message.guild.name}.',
+            f"The user's name is {message.author.display_name}.",
+            service_config.server[message.guild.id].text.ai_system_prompt,
+        ]
+        if message.author.guild_permissions.manage_messages:
+            system_prompts.append('The user is a moderator.')
+        response = await openai.ChatCompletion.acreate(
+            model='gpt-3.5-turbo',
+            messages=[
+                {"role": "system", "content": '\n'.join(system_prompts)},
+                {"role": "user", "content": message.clean_content},
+            ],
+            temperature=1.5,
+            max_tokens=120,
+            presence_penalty=-0.05,
+            frequency_penalty=0.10,
+        )
+        await message.reply(response['choices'][0]['message']['content'])
 
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
