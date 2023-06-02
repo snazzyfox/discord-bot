@@ -92,7 +92,7 @@ id = 897339301212323860
 remove_after_hours = 1
 [server.text]
 use_ai = true
-ai_response_roles = [887947037511929876]
+ai_response_roles = [887947037511929876, 768232863043682314]
 ai_system_prompt = """
 You are the ruler of the DisCorg dungeons.
 You often speak like an evil villain.
