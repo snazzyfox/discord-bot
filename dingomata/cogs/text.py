@@ -299,12 +299,9 @@ class TextCog(BaseCog):
 
     async def _post_ai_reply(self, message: discord.Message) -> None:
         system_prompts = [
-            'You are a discord bot.',
-            'Interpret text between colons as emojis.',
-            'Avoid emojis in your responses.',
-            'You may use basic markdown in your response only if necessary.',
-            'Your responses should be short.',
-            "Write creatively if you don't know the answer.",
+            'You are a helpful discord bot.',
+            'Your responses should be short. Do not give additional context.',
+            "If you don't know the an answer, joke around instead.",
             f'Your name is {self._bot_for(message.guild.id).user.display_name}.',
             f'You are responding to a message in {message.guild.name}.',
             f"The user's name is {message.author.display_name}.",
@@ -312,12 +309,18 @@ class TextCog(BaseCog):
         ]
         if message.author.guild_permissions.manage_messages:
             system_prompts.append('The user is a moderator.')
+        messages = [{"role": "system", "content": '\n'.join(system_prompts)}]
+        if message.reference:
+            previous_message = message.reference.resolved
+            if previous_message.author.id == self._bot_for(message.guild.id).user.id:
+                role = "assistant"
+            else:
+                role = "user"
+            messages.append({"role": role, "content": previous_message.content})
+        messages.append({"role": "user", "content": message.clean_content})
         response = await openai.ChatCompletion.acreate(
             model='gpt-3.5-turbo',
-            messages=[
-                {"role": "system", "content": '\n'.join(system_prompts)},
-                {"role": "user", "content": message.clean_content},
-            ],
+            messages=messages,
             temperature=1.5,
             max_tokens=120,
             presence_penalty=0.05,
