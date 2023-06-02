@@ -304,6 +304,7 @@ class TextCog(BaseCog):
             'Avoid emojis in your responses.',
             'You may use basic markdown in your response only if necessary.',
             'Your responses should be short.',
+            "Write creatively if you don't know the answer.",
             f'Your name is {self._bot_for(message.guild.id).user.display_name}.',
             f'You are responding to a message in {message.guild.name}.',
             f"The user's name is {message.author.display_name}.",
@@ -319,7 +320,7 @@ class TextCog(BaseCog):
             ],
             temperature=1.5,
             max_tokens=120,
-            presence_penalty=-0.05,
+            presence_penalty=0.05,
             frequency_penalty=0.10,
         )
         await message.reply(response['choices'][0]['message']['content'])
