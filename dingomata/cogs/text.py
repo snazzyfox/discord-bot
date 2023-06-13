@@ -320,7 +320,7 @@ class TextCog(BaseCog):
             messages.append({"role": role, "content": previous_message.content})
         messages.append({"role": "user", "content": message.clean_content})
         response = await openai.ChatCompletion.acreate(
-            model='gpt-3.5-turbo',
+            model='gpt-3.5-turbo-0613',
             messages=messages,
             temperature=1.5,
             max_tokens=120,
