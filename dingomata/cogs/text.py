@@ -70,7 +70,7 @@ class RandomTextReply(BaseModel):
 
 class TextCog(BaseCog):
     """Text commands."""
-    __slots__ = '_rawtext_replies', '_random_replies'
+    __slots__ = '_rawtext_replies', '_random_replies', '_ai_prompts'
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)
@@ -79,6 +79,11 @@ class TextCog(BaseCog):
             bindata.seek(2, 0)
             textdata = decompress(bindata.read())
             self._rawtext_replies = [TriggerTextReply.parse_obj(entry) for entry in yaml.safe_load_all(textdata)]
+
+        with (Path(__file__).parent / "ai_prompts.bin").open("rb") as bindata:
+            bindata.seek(2, 0)
+            textdata = decompress(bindata.read())
+            self._ai_prompts = {entry['guild_id']: entry['prompt'] for entry in yaml.safe_load_all(textdata)}
 
         with (Path(__file__).parent / "random_response_data.yaml").open() as data:
             self._random_replies = {k: RandomTextReply.parse_obj(v) for k, v in yaml.safe_load(data).items()}
@@ -306,7 +311,7 @@ class TextCog(BaseCog):
             f'Your name is {self._bot_for(message.guild.id).user.display_name}.',
             f'You are responding to a message in {message.guild.name}.',
             f"The user's name is {message.author.display_name}.",
-            service_config.server[message.guild.id].text.ai_system_prompt,
+            self._ai_prompts[message.guild.id],
         ]
         if message.author.guild_permissions.manage_messages:
             system_prompts.append('The user is a moderator.')
