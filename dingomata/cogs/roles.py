@@ -42,6 +42,8 @@ class RoleListDropdown(discord.ui.Select):
                 f'{self._member.display_name} already has the {role.name} role.',
                 ephemeral=True,
             )
+        elif role > interaction.user.top_role:
+            await interaction.response.send_message('You cannot grant a role higher than your own top role.')
         elif reason := await self._member_eligible(config):
             await interaction.response.send_message(
                 f'{self._member.display_name} is not eligible for role {role.name} because {reason}',
