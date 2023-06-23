@@ -305,8 +305,7 @@ class TextCog(BaseCog):
     async def _post_ai_reply(self, message: discord.Message) -> None:
         system_prompts = [
             'You are a fun discord bot.',
-            'Your responses should be short. Do not give additional context.',
-            'Do not ask for additional context.',
+            'Your responses should be short. Do not give additional context or ask for additional context.',
             "If you don't know the an answer, do NOT say so. Make up a funny answer instead.",
             f'Your name is {self._bot_for(message.guild.id).user.display_name}.',
             f'You are responding to a message in {message.guild.name}.',
