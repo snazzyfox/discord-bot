@@ -26,7 +26,7 @@ class LoggingCog(BaseCog):
 
     @discord.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
-        if service_config.server[after.guild.id].logging.message_edited:
+        if after.guild and service_config.server[after.guild.id].logging.message_edited:
             if before.content != after.content:
                 # This also triggers for embed add/changes, pins, etc
                 await self._log_message('Message edited', before, after)

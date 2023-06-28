@@ -146,7 +146,7 @@ class UserCog(BaseCog):
                     ])
                 await message.channel.send(f"Hey {message.author.mention}, {text}")
                 result.last_bedtime_notified = utcnow  # type: ignore
-                await result.save(update_fields=["last_notified"])
+                await result.save(update_fields=["last_bedtime_notified"])
                 _log.debug(f"Bedtime notified: {message.author}")
         except discord.Forbidden:
             _log.warning(f"Failed to notify {message.author} in {message.guild} about bedtime. The bot doesn't "
