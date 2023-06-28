@@ -1,3 +1,4 @@
+import logging
 import random
 import re
 from datetime import datetime
@@ -20,6 +21,7 @@ from .base import BaseCog
 
 _calendar = Calendar()
 _includes = re.compile(r'http.+|<.+>')
+_log = logging.getLogger(__name__)
 openai.api_key = service_config.openai_api_key.get_secret_value()
 
 
@@ -299,7 +301,9 @@ class TextCog(BaseCog):
     async def _post_rawtext_reply(self, message: discord.Message) -> None:
         for reply in self._rawtext_replies:
             if reply.regex.search(message.content):
-                await message.reply(random.choice(reply.responses))
+                response = random.choice(reply.responses)
+                _log.info(f'Responding to raw mention message. Message: {message.content}; Response: {response}')
+                await message.reply(response)
                 break  # Stop after first match
 
     async def _post_ai_reply(self, message: discord.Message) -> None:
@@ -331,7 +335,9 @@ class TextCog(BaseCog):
             presence_penalty=0.05,
             frequency_penalty=0.10,
         )
-        await message.reply(response['choices'][0]['message']['content'])
+        response_text = response['choices'][0]['message']['content']
+        _log.info(f'Responding to raw mention message with AI. Message: {message.content}; Response: {response_text}')
+        await message.reply(response_text)
 
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
