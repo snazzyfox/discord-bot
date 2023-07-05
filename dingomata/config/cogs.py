@@ -69,5 +69,6 @@ class RoleManageConfig(BaseModel):
 
 class TextConfig(BaseModel):
     use_ai: bool = False
+    use_ai_in_dm: bool = False
     ai_response_roles: List[int] | None = None  #: If None, use AI for everyone
     ai_system_prompt: str = ''  #: Server name and mod list are automatically added

@@ -75,6 +75,7 @@ id = 897339301212323860
 remove_after_hours = 1
 [server.text]
 use_ai = true
+use_ai_in_dm = true
 ai_response_roles = [
     768233366889300028, # corgi
     887947037511929876, # admin
@@ -106,6 +107,7 @@ gamba.enabled = false
 profile.enabled = true
 [server.text]
 use_ai = true
+use_ai_in_dm = true
 ai_response_roles = [
     863866217445326858, # Galex
     863866859061379133, # Mod

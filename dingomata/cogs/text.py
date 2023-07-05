@@ -284,19 +284,59 @@ class TextCog(BaseCog):
     async def on_message(self, message: discord.Message) -> None:
         if message.is_system():
             return
+        elif isinstance(message.channel, discord.DMChannel):
+            await self._handle_dm_text_reply(message)
+        else:
+            await self._handle_server_text_reply(message)
+
+    async def _handle_server_text_reply(self, message: discord.Message):
         if (
                 message.guild
                 and message.guild.id in service_config.get_command_guilds("replies")
                 and self._bot_for(message.guild.id).user in message.mentions
                 and message.author != self._bot_for(message.guild.id).user
         ):
-            # Determine whether to use AI for response
             if service_config.server[message.guild.id].text.use_ai:
                 respond_to = service_config.server[message.guild.id].text.ai_response_roles
                 if respond_to is None or any(role.id in respond_to for role in message.author.roles):
-                    await self._post_ai_reply(message)
+                    prompts = [
+                        f'Your name is {self._bot_for(message.guild.id).user.display_name}.',
+                        f'You are responding to a message in {message.guild.name}.',
+                    ]
+                    if message.author.guild_permissions.manage_messages:
+                        prompts.append('The user is a moderator.')
+                    if message.reference:
+                        previous_message = message.reference.resolved
+                        role = 'assistant' if previous_message.author.id == self._bot_for(message.guild.id).user.id \
+                            else 'user'
+                        history = [{"role": role, "content": previous_message.content}]
+                    else:
+                        history = []
+                    await self._post_ai_reply(message, message.guild, prompts, history)
                     return
             await self._post_rawtext_reply(message)
+
+    async def _handle_dm_text_reply(self, message: discord.Message):
+        # Find a guild that the user shares with the bot
+        guild = next((g for g in message.author.mutual_guilds if service_config.server[g.id].text.use_ai_in_dm), None)
+        if not guild or message.author == self._bot_for(guild.id).user:
+            return
+        if service_config.server[guild.id].text.use_ai_in_dm:
+            respond_to = service_config.server[guild.id].text.ai_response_roles
+            member = guild.get_member(message.author.id)
+            if respond_to is None or any(role.id in respond_to for role in member.roles):
+                prompts = [
+                    f'Your name is {self._bot_for(guild.id).user.display_name}.',
+                    'You are responding to a direct message.',
+                ]
+                if member.guild_permissions.manage_messages:
+                    prompts.append('The user is a moderator.')
+                previous_messages = message.channel.history(limit=5)
+                history = [{
+                    "role": 'assistant' if previous_message.author.id == self._bot_for(guild.id).user.id else 'user',
+                    "content": previous_message.content
+                } async for previous_message in previous_messages]
+                await self._post_ai_reply(message, guild, prompts, history)
 
     async def _post_rawtext_reply(self, message: discord.Message) -> None:
         for reply in self._rawtext_replies:
@@ -306,27 +346,21 @@ class TextCog(BaseCog):
                 await message.reply(response)
                 break  # Stop after first match
 
-    async def _post_ai_reply(self, message: discord.Message) -> None:
+    async def _post_ai_reply(self, message: discord.Message, guild: discord.Guild, prompts: List[str],
+                             history: List[Dict]) -> None:
         system_prompts = [
             'You are a fun discord bot.',
             'Your responses should be short. Do not give additional context or ask for additional context.',
             "If you don't know the an answer, do NOT say so. Make up a funny answer instead.",
-            f'Your name is {self._bot_for(message.guild.id).user.display_name}.',
-            f'You are responding to a message in {message.guild.name}.',
             f"The user's name is {message.author.display_name}.",
-            self._ai_prompts[message.guild.id],
+            self._ai_prompts[guild.id],
+            *prompts
         ]
-        if message.author.guild_permissions.manage_messages:
-            system_prompts.append('The user is a moderator.')
-        messages = [{"role": "system", "content": '\n'.join(system_prompts)}]
-        if message.reference:
-            previous_message = message.reference.resolved
-            if previous_message.author.id == self._bot_for(message.guild.id).user.id:
-                role = "assistant"
-            else:
-                role = "user"
-            messages.append({"role": role, "content": previous_message.content})
-        messages.append({"role": "user", "content": message.clean_content})
+        messages = [
+            {"role": "system", "content": '\n'.join(system_prompts)},
+            *history,
+            {"role": "user", "content": message.clean_content}
+        ]
         response = await openai.ChatCompletion.acreate(
             model='gpt-3.5-turbo-0613',
             messages=messages,
@@ -337,7 +371,10 @@ class TextCog(BaseCog):
         )
         response_text = response['choices'][0]['message']['content']
         _log.info(f'Responding to raw mention message with AI. Message: {message.content}; Response: {response_text}')
-        await message.reply(response_text)
+        if isinstance(message.channel, discord.DMChannel):
+            await message.channel.send(response_text)
+        else:
+            await message.reply(response_text)
 
     async def _post_random_reply(self, ctx: discord.ApplicationContext, key: str, **kwargs) -> None:
         await ctx.respond(self._random_replies[key].render(author=ctx.author.display_name, **kwargs))
