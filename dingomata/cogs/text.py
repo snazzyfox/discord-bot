@@ -305,13 +305,17 @@ class TextCog(BaseCog):
                     ]
                     if message.author.guild_permissions.manage_messages:
                         prompts.append('The user is a moderator.')
-                    if message.reference:
-                        previous_message = message.reference.resolved
-                        role = 'assistant' if previous_message.author.id == self._bot_for(message.guild.id).user.id \
+                    history: list[dict] = []
+                    previous_message = message.reference
+                    while previous_message and len(history) < 6 and (
+                            resolved := previous_message.cached_message or previous_message.resolved
+                    ):
+                        role = (
+                            'assistant' if resolved.author.id == self._bot_for(message.guild.id).user.id
                             else 'user'
-                        history = [{"role": role, "content": previous_message.content}]
-                    else:
-                        history = []
+                        )
+                        history.insert(0, {"role": role, "content": resolved.content})
+                        previous_message = resolved.reference
                     await self._post_ai_reply(message, message.guild, prompts, history)
                     return
             await self._post_rawtext_reply(message)
@@ -370,7 +374,8 @@ class TextCog(BaseCog):
             frequency_penalty=0.10,
         )
         response_text = response['choices'][0]['message']['content']
-        _log.info(f'Responding to raw mention message with AI. Message: {message.content}; Response: {response_text}')
+        _log.info(f'Responding to raw mention message with AI. '
+                  f'History: {history}, Message: {message.content}; Response: {response_text}')
         if isinstance(message.channel, discord.DMChannel):
             await message.channel.send(response_text)
         else:
