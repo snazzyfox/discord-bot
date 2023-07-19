@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Tuple
 
 import discord
 import tortoise
@@ -220,7 +219,7 @@ last_distinct_day_boundary = CASE
         await ctx.respond(f'Role {role} has been removed from the dropdown.', ephemeral=True)
 
     async def _get_existing_dropdown(self, ctx: discord.ApplicationContext, message_url: str,
-                                     ) -> Tuple[discord.Message, discord.ui.View, discord.ui.Select]:
+                                     ) -> tuple[discord.Message, discord.ui.View, discord.ui.Select]:
         # Input data checks
         try:
             guild_id, channel_id, message_id = message_url[29:].split('/')

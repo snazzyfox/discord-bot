@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
 
 import discord
 import tortoise.exceptions
@@ -55,7 +54,7 @@ class GambaCog(BaseCog):
 
     def __init__(self, bot: discord.Bot) -> None:
         super().__init__(bot)
-        self._views: Dict[int, View] = {}
+        self._views: dict[int, View] = {}
         self._connection: tortoise.BaseDBAsyncClient = None
 
     @discord.Cog.listener()
@@ -423,8 +422,8 @@ class GambaCog(BaseCog):
     @staticmethod
     def _generate_leaderboard_rows(
             guild: discord.Guild,
-            data: List[Dict],
-            table: Optional[PrettyTable] = None,
+            data: list[dict],
+            table: PrettyTable | None = None,
     ) -> PrettyTable:
         if not table:
             table = PrettyTable()
@@ -439,7 +438,7 @@ class GambaCog(BaseCog):
         return table
 
     @staticmethod
-    async def _get_gamba_stats(guild_id: int) -> Tuple[int, int, int, int]:
+    async def _get_gamba_stats(guild_id: int) -> tuple[int, int, int, int]:
         return await GambaUser.filter(guild_id=guild_id).annotate(
             amount_believe=func.Coalesce(func.Sum("bet_believe"), 0),
             amount_doubt=func.Coalesce(func.Sum("bet_doubt"), 0),
@@ -448,7 +447,7 @@ class GambaCog(BaseCog):
         ).first().values_list("amount_believe", "amount_doubt", "count_believe", "count_doubt")
 
     @classmethod
-    async def _generate_gamba_embed(cls, game: GambaGame, status: Optional[GameStatus] = None) -> discord.Embed:
+    async def _generate_gamba_embed(cls, game: GambaGame, status: GameStatus | None = None) -> discord.Embed:
         points_name = service_config.server[game.guild_id].gamba.points_name
         amount_believe, amount_doubt, count_believe, count_doubt = await cls._get_gamba_stats(game.guild_id)
         if amount_believe == 0 and amount_doubt == 0:

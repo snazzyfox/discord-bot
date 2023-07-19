@@ -1,7 +1,6 @@
 import logging
 import random
 from enum import Enum
-from typing import Dict
 
 import discord
 import tortoise.functions as func
@@ -117,8 +116,8 @@ class GameCodeCog(BaseCog):
     def __init__(self, bot: discord.Bot):
         """Initialize application state."""
         super().__init__(bot)
-        self._join_views: Dict[int, JoinView] = {}
-        self._leave_views: Dict[int, LeaveView] = {}
+        self._join_views: dict[int, JoinView] = {}
+        self._leave_views: dict[int, LeaveView] = {}
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:

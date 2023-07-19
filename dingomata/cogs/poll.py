@@ -1,5 +1,4 @@
 import logging
-from typing import Dict, List, Tuple
 
 import discord
 import orjson
@@ -51,7 +50,7 @@ class PollCog(BaseCog):
 
     def __init__(self, bot: discord.Bot):
         super().__init__(bot)
-        self._views: Dict[Tuple[int, int], PollVoteView] = {}
+        self._views: dict[tuple[int, int], PollVoteView] = {}
 
     @discord.Cog.listener()
     async def on_ready(self):
@@ -162,7 +161,7 @@ class PollCog(BaseCog):
             _log.exception(e)
 
     @staticmethod
-    async def _generate_embed(poll: Poll, options: List[str], is_open: bool) -> discord.Embed:
+    async def _generate_embed(poll: Poll, options: list[str], is_open: bool) -> discord.Embed:
         counts = dict(await PollEntry.filter(guild_id=poll.guild_id, channel_id=poll.channel_id)
                       .annotate(count=func.Count("user_id")).group_by("option").values_list("option", "count"))
         total_votes = sum(counts.values())

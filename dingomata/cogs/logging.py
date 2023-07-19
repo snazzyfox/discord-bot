@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import List
 
 import discord
 
@@ -19,7 +18,7 @@ class LoggingCog(BaseCog):
             await self._log_message('Message deleted', message)
 
     @discord.Cog.listener()
-    async def on_bulk_message_delete(self, messages: List[discord.Message]) -> None:
+    async def on_bulk_message_delete(self, messages: list[discord.Message]) -> None:
         if service_config.server[messages[0].guild.id].logging.message_deleted:
             for message in messages:
                 await self._log_message('Message deleted', message)

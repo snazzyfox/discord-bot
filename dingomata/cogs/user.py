@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta
 from functools import cache
 from random import choice
-from typing import Dict, Optional
 
 import discord
 import parsedatetime
@@ -25,7 +24,7 @@ class UserCog(BaseCog):
     bedtime = slash_group(name="bedtime", description="Get a reminder to go to bed when you're up late.")
     timezone_g = slash_group(name="timezone", description="Manage how the bot interprets time for you.")
     _BEDTIME_KWDS = {"bed", "sleep", "bye", "cya", "see y", "night", "nini", "nite", "comf"}
-    _CACHE: Dict[int, User] = {}
+    _CACHE: dict[int, User] = {}
 
     @timezone_g.command(name='set')
     @discord.option('timezone', description="Your timezone",
@@ -157,7 +156,7 @@ class UserCog(BaseCog):
     def _cooldown_for_guild(guild_id: int) -> timedelta:
         return timedelta(minutes=service_config.server[guild_id].bedtime.cooldown_minutes)
 
-    async def _get_bedtime(self, user_id: int) -> Optional[User]:
+    async def _get_bedtime(self, user_id: int) -> User | None:
         if user_id in self._CACHE:
             return self._CACHE[user_id]
         else:

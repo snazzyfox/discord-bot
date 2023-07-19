@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
 from functools import wraps
-from typing import Callable, Dict, List, Optional, Set, Tuple
+from typing import Callable
 
 import discord
 from cachetools import TTLCache
@@ -35,8 +35,8 @@ class AutomodActionView(View):
     __slots__ = 'action', 'confirmed_by'
 
     def __init__(self) -> None:
-        self.action: Optional[AutomodAction] = None
-        self.confirmed_by: Optional[discord.Member] = None
+        self.action: AutomodAction | None = None
+        self.confirmed_by: discord.Member | None = None
         super().__init__(timeout=None)
 
     @discord.ui.select(placeholder='Select an action', options=[
@@ -56,7 +56,7 @@ class AutomodActionView(View):
             await interaction.response.send_message("You can't do this, you're not a mod.", ephemeral=True)
 
 
-_RULES: List[AutomodRule] = []
+_RULES: list[AutomodRule] = []
 
 
 def _rule(name: str, severity: float, timeout: bool, reason: str):
@@ -94,7 +94,7 @@ def _rule_age(message: discord.Message) -> bool:
     return bool(_UNDERAGE_REGEX.search(message.content))
 
 
-_SPAM_CACHE: TTLCache[Tuple[int, int], discord.TextChannel] = TTLCache(maxsize=1024, ttl=60)
+_SPAM_CACHE: TTLCache[tuple[int, int], discord.TextChannel] = TTLCache(maxsize=1024, ttl=60)
 
 
 @_rule(name='repeat', severity=1.0, timeout=True, reason='Repeated message spam in multiple channels.')
@@ -112,7 +112,7 @@ class AutomodCog(BaseCog):
     """Message filtering."""
     __slots__ = '_processing_message_ids',
 
-    _JOIN_CACHES: Dict[int, TTLCache[int, None]] = {
+    _JOIN_CACHES: dict[int, TTLCache[int, None]] = {
         guild_id: TTLCache(maxsize=64, ttl=config.automod.raid_window_hours * 3600)
         for guild_id, config in service_config.server.items()
     }
@@ -121,7 +121,7 @@ class AutomodCog(BaseCog):
         super().__init__(bot)
 
         #: Message IDs that are already being deleted - skip to avoid double posting
-        self._processing_message_ids: Set[int] = set()
+        self._processing_message_ids: set[int] = set()
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -184,7 +184,7 @@ class AutomodCog(BaseCog):
                 content=service_config.server[guild_id].automod.text_prefix,
                 embed=embed)
 
-    async def _timeout_user(self, message: discord.Message, reasons: List[str]):
+    async def _timeout_user(self, message: discord.Message, reasons: list[str]):
         # Consider the message scam likely if two matches
         self._processing_message_ids.add(message.id)
         _log.info(f'Timed out {message.author}, Reason: {reasons}. Original message: {message.content}')
@@ -206,7 +206,7 @@ class AutomodCog(BaseCog):
         await self._notify_mods(message, reasons, actions, True)
         self._processing_message_ids.discard(message.id)
 
-    async def _notify_mods(self, message: discord.Message, reasons: List[str], actions: List[str],
+    async def _notify_mods(self, message: discord.Message, reasons: list[str], actions: list[str],
                            is_timed_out: bool = False) -> None:
         log_channel = service_config.server[message.guild.id].automod.log_channel
         if log_channel:

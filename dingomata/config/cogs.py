@@ -1,11 +1,8 @@
-from typing import Dict, List, Optional
-
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, RootModel
 
 
 class CogConfig(BaseModel):
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
 
 class BedtimeConfig(CogConfig):
@@ -16,11 +13,11 @@ class BedtimeConfig(CogConfig):
 class AutomodConfig(CogConfig):
     #: List of role or user IDs where unnecessary pings are suppressed.
     text_prefix: str = ""
-    log_channel: Optional[int] = None
+    log_channel: int | None = None
     max_channels_per_min: int = 0
     raid_min_users: int = 5
     raid_window_hours: float = 2
-    rules: Dict[str, bool] = {}
+    rules: dict[str, bool] = {}
 
 
 class GambaConfig(CogConfig):
@@ -29,11 +26,11 @@ class GambaConfig(CogConfig):
 
 
 class GameCodeConfig(CogConfig):
-    player_roles: Dict[int, int] = {0: 1}
+    player_roles: dict[int, int] = {0: 1}
 
 
 class LoggingConfig(CogConfig):
-    log_channel: Optional[int] = None  #: If none, all logging disabled
+    log_channel: int | None = None  #: If none, all logging disabled
     message_deleted: bool = False
     message_edited: bool = False
     user_banned: bool = False
@@ -46,8 +43,8 @@ class SelfAssignRole(BaseModel):
     emoji: str  #: Must be a single unicode emoji supported by discord
 
 
-class RolePickerConfig(BaseModel):
-    __root__: List[SelfAssignRole] = []
+class RolePickerConfig(RootModel):
+    root: list[SelfAssignRole] = []
 
 
 class MemberConfig(BaseModel):
@@ -64,11 +61,11 @@ class ManagedRoleConfig(BaseModel):
 
 
 class RoleManageConfig(BaseModel):
-    roles: List[ManagedRoleConfig] = []
+    roles: list[ManagedRoleConfig] = []
 
 
 class TextConfig(BaseModel):
     use_ai: bool = False
     use_ai_in_dm: bool = False
-    ai_response_roles: List[int] | None = None  #: If None, use AI for everyone
+    ai_response_roles: list[int] | None = None  #: If None, use AI for everyone
     ai_system_prompt: str = ''  #: Server name and mod list are automatically added

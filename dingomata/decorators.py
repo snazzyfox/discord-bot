@@ -1,6 +1,6 @@
 from functools import wraps
 from time import time
-from typing import Callable, Dict, Hashable, Optional, TypeVar
+from typing import Callable, Hashable, TypeVar
 
 import discord
 
@@ -9,10 +9,10 @@ from dingomata.exceptions import CooldownError
 
 F = TypeVar("F", bound=Callable)
 
-_COOLDOWNS: Dict[Hashable, float] = {}
+_COOLDOWNS: dict[Hashable, float] = {}
 
 
-def _is_cooldown(key: Hashable, ttl: Optional[int]) -> float:
+def _is_cooldown(key: Hashable, ttl: int | None) -> float:
     global _COOLDOWNS
     if not ttl:
         return 0
@@ -46,9 +46,9 @@ def _cooldown(command_group: str):
 
 
 def slash(
-        name: Optional[str] = None,
+        name: str | None = None,
         default_available: bool = True,
-        config_group: Optional[str] = None,
+        config_group: str | None = None,
         cooldown: bool = False,
 ):
     """Wrapper for slash commands. Automatically fills in guilds and permissions from configs.
@@ -75,9 +75,9 @@ def slash(
 
 
 def message_command(
-        name: Optional[str] = None,
+        name: str | None = None,
         default_available: bool = True,
-        config_group: Optional[str] = None,
+        config_group: str | None = None,
 ):
     def decorator(f: Callable):
         command_name = name or f.__name__
@@ -93,9 +93,9 @@ def message_command(
 
 
 def user_command(
-        name: Optional[str] = None,
+        name: str | None = None,
         default_available: bool = True,
-        config_group: Optional[str] = None,
+        config_group: str | None = None,
 ):
     def decorator(f: Callable):
         command_name = name or f.__name__
@@ -114,7 +114,7 @@ def slash_group(
         name: str,
         description: str,
         default_available: bool = True,
-        config_group: Optional[str] = None,
+        config_group: str | None = None,
 ):
     config_name = config_group or name
     return discord.SlashCommandGroup(

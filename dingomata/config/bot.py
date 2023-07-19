@@ -2,11 +2,11 @@ import logging.config
 import os
 from functools import cached_property
 from pathlib import Path
-from typing import Dict, List, Optional, Set
 
 import pydantic
 import toml
-from pydantic import BaseModel, BaseSettings, Field, FilePath, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, FilePath, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from . import cogs
 
@@ -16,13 +16,13 @@ _logger = logging.getLogger(__name__)
 
 
 class CooldownConfig(BaseModel):
-    exempt: Set[int] = set()  # Channels that are exempt from cooldown
+    exempt: set[int] = set()  # Channels that are exempt from cooldown
     default_seconds: int = 30  # Global command cooldown period for this server
 
 
 class CommandConfig(BaseModel):
-    enabled: Optional[bool] = None
-    cooldown_seconds: Optional[int] = None
+    enabled: bool | None = None
+    cooldown_seconds: int | None = None
 
 
 class GuildConfig(BaseModel):
@@ -30,8 +30,8 @@ class GuildConfig(BaseModel):
 
     id: int
     cooldown: CooldownConfig = CooldownConfig()
-    commands: Dict[str, CommandConfig] = {}
-    no_pings: List[int] = []
+    commands: dict[str, CommandConfig] = {}
+    no_pings: list[int] = []
 
     bedtime: cogs.BedtimeConfig = cogs.BedtimeConfig()
     automod: cogs.AutomodConfig = cogs.AutomodConfig()
@@ -42,9 +42,10 @@ class GuildConfig(BaseModel):
     role_manage: cogs.RoleManageConfig = cogs.RoleManageConfig()
     text: cogs.TextConfig = cogs.TextConfig()
 
-    class Config:
-        keep_untouched = (cached_property,)
-        extra = "forbid"
+    model_config = ConfigDict(
+        ignored_types=(cached_property,),
+        extra="forbid",
+    )
 
     def command_enabled(self, command: str, default: bool) -> bool:
         if command in self.commands:
@@ -67,26 +68,26 @@ class ServiceConfig(BaseSettings):
     config_file: FilePath = Field(Path('config/config.toml'), env="config_file")
     openai_api_key: SecretStr = Field(SecretStr(""), env="openai_api_key")
 
-    class Config:
-        env_prefix = "dingomata"
-        env_file = os.environ.get("ENV_FILE", ".env")
-        keep_untouched = (cached_property,)
-        extra = "forbid"
+    model_config = SettingsConfigDict(
+        env_file=os.environ.get("ENV_FILE", ".env"),
+        ignored_types=(cached_property,),
+        extra="ignore",
+    )
 
     @cached_property
-    def server(self) -> Dict[int, GuildConfig]:
+    def server(self) -> dict[int, GuildConfig]:
         config_data = toml.load(self.config_file.open(encoding='utf-8'))
-        config_list = pydantic.parse_obj_as(List[GuildConfig], config_data["server"])
+        config_list = pydantic.TypeAdapter(list[GuildConfig]).validate_python(config_data["server"])
         return {server.id: server for server in config_list}
 
     @cached_property
-    def cooldown_exempt(self) -> Set[int]:
+    def cooldown_exempt(self) -> set[int]:
         return {channel for config in self.server.values() for channel in config.cooldown.exempt}
 
-    def get_command_guilds(self, command: str, default: bool = True) -> List[int]:
+    def get_command_guilds(self, command: str, default: bool = True) -> list[int]:
         return [server for server, config in self.server.items() if config.command_enabled(command, default)]
 
-    def get_command_cooldowns(self, command: str) -> Dict[int, int]:
+    def get_command_cooldowns(self, command: str) -> dict[int, int]:
         return {server: config.command_cooldown_seconds(command) for server, config in self.server.items()}
 
 

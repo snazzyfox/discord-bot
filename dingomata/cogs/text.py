@@ -5,14 +5,13 @@ from datetime import datetime
 from functools import cached_property
 from itertools import accumulate
 from pathlib import Path
-from typing import Dict, List
 from zlib import decompress
 
 import discord
 import openai
 import yaml
 from parsedatetime import Calendar
-from pydantic import BaseModel, PrivateAttr, confloat
+from pydantic import BaseModel, ConfigDict, RootModel, confloat
 
 from ..config import service_config
 from ..decorators import slash
@@ -26,11 +25,10 @@ openai.api_key = service_config.openai_api_key.get_secret_value()
 
 
 class TriggerTextReply(BaseModel):
-    triggers: List[str]
-    responses: List[str]
+    triggers: list[str]
+    responses: list[str]
 
-    class Config:
-        keep_untouched = (cached_property,)
+    model_config = ConfigDict(ignored_types=(cached_property,))
 
     @cached_property
     def regex(self) -> re.Pattern:
@@ -43,26 +41,25 @@ class RandomTextChoice(BaseModel):
     #: Note: probabilities don't have to add up to 1. They'll be normalized.
 
 
-class RandomTextChoiceList(BaseModel):
-    __root__: List[RandomTextChoice]
-    _weights: List[float] = PrivateAttr()
+class RandomTextChoiceList(RootModel):
+    root: list[RandomTextChoice | str]
+    model_config = ConfigDict(
+        ignored_types=(cached_property,),
+    )
 
-    def __init__(self, __root__: List[RandomTextChoice | str], **kwargs):
-        data = [
-            RandomTextChoice(content=value, probability=1.0) if isinstance(value, str)
-            else RandomTextChoice.parse_obj(value)
-            for value in __root__
-        ]
-        super().__init__(__root__=data, **kwargs)
-        self._weights = list(accumulate(choice.probability for choice in data))
+    @cached_property
+    def _weights(self) -> list[float]:
+        return list(accumulate(choice.probability if isinstance(choice, RandomTextChoice) else 1.0
+                               for choice in self.root))
 
     def choose(self) -> str:
-        return random.choices(population=self.__root__, cum_weights=self._weights)[0].content
+        chosen = random.choices(population=self.root, cum_weights=self._weights)[0]
+        return chosen.content if isinstance(chosen, RandomTextChoice) else chosen
 
 
 class RandomTextReply(BaseModel):
     templates: RandomTextChoiceList
-    fragments: Dict[str, RandomTextChoiceList] = {}
+    fragments: dict[str, RandomTextChoiceList] = {}
 
     def render(self, **kwargs) -> str:
         fragments = {k: v.choose() for k, v in self.fragments.items()}
@@ -80,15 +77,18 @@ class TextCog(BaseCog):
         with (Path(__file__).parent / "text_responses.bin").open("rb") as bindata:
             bindata.seek(2, 0)
             textdata = decompress(bindata.read())
-            self._rawtext_replies = [TriggerTextReply.parse_obj(entry) for entry in yaml.safe_load_all(textdata)]
+            self._rawtext_replies = [TriggerTextReply.model_validate(entry)
+                                     for entry in yaml.load_all(textdata, yaml.CSafeLoader)]
 
         with (Path(__file__).parent / "ai_prompts.bin").open("rb") as bindata:
             bindata.seek(2, 0)
             textdata = decompress(bindata.read())
-            self._ai_prompts = {entry['guild_id']: entry['prompt'] for entry in yaml.safe_load_all(textdata)}
+            self._ai_prompts = {entry['guild_id']: entry['prompt']
+                                for entry in yaml.load_all(textdata, yaml.CSafeLoader)}
 
         with (Path(__file__).parent / "random_response_data.yaml").open() as data:
-            self._random_replies = {k: RandomTextReply.parse_obj(v) for k, v in yaml.safe_load(data).items()}
+            self._random_replies = {k: RandomTextReply.model_validate(v)
+                                    for k, v in yaml.load(data, yaml.CSafeLoader).items()}
 
     @slash(cooldown=True)
     @discord.option('user', description="Who to hug")
@@ -350,8 +350,8 @@ class TextCog(BaseCog):
                 await message.reply(response)
                 break  # Stop after first match
 
-    async def _post_ai_reply(self, message: discord.Message, guild: discord.Guild, prompts: List[str],
-                             history: List[Dict]) -> None:
+    async def _post_ai_reply(self, message: discord.Message, guild: discord.Guild, prompts: list[str],
+                             history: list[dict]) -> None:
         system_prompts = [
             'Your responses should be under 80 words.'
             'Do not give additional context, ask for additional information, or try to change the topic.',

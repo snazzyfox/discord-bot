@@ -2,7 +2,7 @@ import calendar
 import logging
 import re
 from datetime import datetime
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Sequence
 
 import discord
 import pytz
@@ -266,7 +266,7 @@ class GuildMemberCog(BaseCog):
             await channel.get_partial_message(bot_message.message_id).delete()
             await bot_message.delete()
 
-    def _generate_profile_embed(self, prof: GuildMember) -> Optional[discord.Embed]:
+    def _generate_profile_embed(self, prof: GuildMember) -> discord.Embed | None:
         user = self._bot_for(prof.guild_id).get_guild(prof.guild_id).get_member(prof.user_id)
         if not user:
             return None
@@ -284,14 +284,14 @@ class GuildMemberCog(BaseCog):
             embed.set_image(url=next(iter(refs.values())))
         return embed
 
-    def _recursive_set_dict(self, d: Dict, keys: Sequence[str], value: Any):
+    def _recursive_set_dict(self, d: dict, keys: Sequence[str], value: Any):
         if len(keys) == 1:
             d[keys[0]] = value
         else:
             d = d.setdefault(keys[0], {})
             self._recursive_set_dict(d, keys[1:], value)
 
-    def _recursive_del_dict(self, d: Dict, keys: Sequence[str]):
+    def _recursive_del_dict(self, d: dict, keys: Sequence[str]):
         if len(keys) == 1:
             del d[keys[0]]
         else:

@@ -1,6 +1,6 @@
 import datetime
 import logging
-from typing import Any, Optional, Type
+from typing import Any
 
 import discord.ui
 from pypika import CustomFunction
@@ -25,15 +25,15 @@ class TimeField(Field, datetime.time):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)  # needed to make mypy go shut
 
-    def to_python_value(self, value: Any) -> Optional[datetime.time]:
+    def to_python_value(self, value: Any) -> datetime.time | None:
         if value is not None and not isinstance(value, datetime.time):
             value = datetime.time.fromisoformat(value)
         self.validate(value)
         return value
 
     def to_db_value(
-            self, value: datetime.time | str | None, instance: Type[Model] | Model
-    ) -> Optional[datetime.time]:
+            self, value: datetime.time | str | None, instance: type[Model] | Model
+    ) -> datetime.time | None:
         if value is not None and not isinstance(value, datetime.time):
             value = datetime.time.fromisoformat(value)
         self.validate(value)
@@ -51,15 +51,15 @@ class DatetimeField(Field, datetime.datetime):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)  # needed to make mypy go shut
 
-    def to_python_value(self, value: Any) -> Optional[datetime.datetime]:
+    def to_python_value(self, value: Any) -> datetime.datetime | None:
         if value is not None and not isinstance(value, datetime.datetime):
             value = datetime.datetime.fromisoformat(value)
         self.validate(value)
         return value
 
     def to_db_value(
-            self, value: datetime.datetime | str | None, instance: Type[Model] | Model
-    ) -> Optional[datetime.datetime]:
+            self, value: datetime.datetime | str | None, instance: type[Model] | Model
+    ) -> datetime.datetime | None:
         if value is not None and not isinstance(value, datetime.datetime):
             value = datetime.datetime.fromisoformat(value)
         self.validate(value)
