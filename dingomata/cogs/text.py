@@ -368,7 +368,7 @@ class TextCog(BaseCog):
         response = await openai.ChatCompletion.acreate(
             model='gpt-3.5-turbo-0613',
             messages=messages,
-            temperature=1.5,
+            temperature=1.2,
             max_tokens=120,
             presence_penalty=0.05,
             frequency_penalty=0.10,
