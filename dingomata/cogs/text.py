@@ -20,6 +20,7 @@ from .base import BaseCog
 
 _calendar = Calendar()
 _includes = re.compile(r'http.+|<.+>')
+_non_alphanum = re.compile(r'[^a-zA-Z0-9_]')
 _log = logging.getLogger(__name__)
 openai.api_key = service_config.openai_api_key.get_secret_value()
 
@@ -314,8 +315,20 @@ class TextCog(BaseCog):
                             'assistant' if resolved.author.id == self._bot_for(message.guild.id).user.id
                             else 'user'
                         )
-                        history.insert(0, {"role": role, "content": resolved.content})
+                        history.insert(0, {"role": role, "content": resolved.clean_content,
+                                           "name": _non_alphanum.sub('_', resolved.author.name)})
                         previous_message = resolved.reference
+                    else:
+                        # There's nothing to reply to. Use previous message history in chat instead
+                        channel_history = message.channel.history(before=message, limit=4)
+                        async for previous_message in channel_history:
+                            role = (
+                                'assistant' if previous_message.author.id == self._bot_for(message.guild.id).user.id
+                                else 'user'
+                            )
+                            history.insert(0, {"role": role, "content": previous_message.clean_content,
+                                               "name": _non_alphanum.sub('_', previous_message.author.name)})
+
                     await self._post_ai_reply(message, message.guild, prompts, history)
                     return
             await self._post_rawtext_reply(message)
