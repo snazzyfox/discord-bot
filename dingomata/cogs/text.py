@@ -353,7 +353,7 @@ class TextCog(BaseCog):
     async def _post_ai_reply(self, message: discord.Message, guild: discord.Guild, prompts: list[str],
                              history: list[dict]) -> None:
         system_prompts = [
-            'Your responses should be under 80 words.'
+            'Respond with no more than 80 words.'
             'Do not give additional context, ask for additional information, or try to change the topic.',
             "If you don't know the an answer, do NOT say so. Make up a funny answer instead.",
             f"The user's name is {message.author.display_name}.",
