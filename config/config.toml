@@ -30,6 +30,29 @@ ai_response_roles = [
     884291258036674560, # LycanMike
 ]
 
+# VFur!
+[[server]]
+id = 1136811029293178971
+no_pings = [ 1136811238924488786, 1136814010986147952 ]
+[server.cooldown]
+default_seconds = 60
+exempt = [1136811238924488786]
+[server.automod]
+text_prefix = "<@&1136811238924488786>"
+log_channel = 1136828256566378559
+max_channels_per_min = 5
+raid_min_users = 15
+raid_window_hours = 1
+[server.commands]
+collect.enabled = false
+roles.enabled = false
+snipe.enabled = false
+gamba.enabled = false
+[server.logging]
+log_channel = 1136828256566378559
+message_deleted = true
+user_banned = true
+
 # Lycaon
 [[server]]
 id = 351122293105229835
