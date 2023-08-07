@@ -34,9 +34,6 @@ class GuildConfig(BaseModel):
     no_pings: list[int] = []
 
     bedtime: cogs.BedtimeConfig = cogs.BedtimeConfig()
-    automod: cogs.AutomodConfig = cogs.AutomodConfig()
-    gamba: cogs.GambaConfig = cogs.GambaConfig()
-    game_code: cogs.GameCodeConfig = cogs.GameCodeConfig()
     logging: cogs.LoggingConfig = cogs.LoggingConfig()
     member: cogs.MemberConfig = cogs.MemberConfig()
     role_manage: cogs.RoleManageConfig = cogs.RoleManageConfig()

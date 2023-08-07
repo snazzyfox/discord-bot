@@ -10,25 +10,6 @@ class BedtimeConfig(CogConfig):
     sleep_hours: int = 6
 
 
-class AutomodConfig(CogConfig):
-    #: List of role or user IDs where unnecessary pings are suppressed.
-    text_prefix: str = ""
-    log_channel: int | None = None
-    max_channels_per_min: int = 0
-    raid_min_users: int = 5
-    raid_window_hours: float = 2
-    rules: dict[str, bool] = {}
-
-
-class GambaConfig(CogConfig):
-    points_name: str = "points"
-    daily_points: int = 1000
-
-
-class GameCodeConfig(CogConfig):
-    player_roles: dict[int, int] = {0: 1}
-
-
 class LoggingConfig(CogConfig):
     log_channel: int | None = None  #: If none, all logging disabled
     message_deleted: bool = False
