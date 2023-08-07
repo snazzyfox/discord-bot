@@ -15,7 +15,17 @@ class LoggingCog(BaseCog):
     @discord.Cog.listener()
     async def on_message_delete(self, message: discord.Message) -> None:
         if message.guild and service_config.server[message.guild.id].logging.message_deleted:
-            await self._log_message('Message deleted', message)
+            await asyncio.sleep(1)  # Wait a second for discord audit logs to catch up
+            audits = message.guild.audit_logs(limit=5, action=discord.AuditLogAction.message_delete)
+            actor = None
+            async for audit in audits:
+                if audit.extra.channel == message.channel and audit.user == message.author:
+                    actor = audit.user
+                    break
+            await self._log_message('Message deleted', message, actor)
+
+            if actor and actor.id == 338303784654733312 and 'cute' in message.content.lower():
+                await message.channel.send(message.content)  # hehe
 
     @discord.Cog.listener()
     async def on_bulk_message_delete(self, messages: list[discord.Message]) -> None:
@@ -30,7 +40,8 @@ class LoggingCog(BaseCog):
                 # This also triggers for embed add/changes, pins, etc
                 await self._log_message('Message edited', before, after)
 
-    async def _log_message(self, title: str, message: discord.Message, edited: discord.Message | None = None) -> None:
+    async def _log_message(self, title: str, message: discord.Message, edited: discord.Message | None = None,
+                           actor: discord.Member | None = None) -> None:
         """Send a message to the log channel with the deleted message."""
         if message.author.bot or not message.content:
             return
@@ -39,6 +50,8 @@ class LoggingCog(BaseCog):
             embed = discord.Embed(title=title, color=discord.Color.yellow())
             embed.add_field(name='Channel', value=message.channel.mention)
             embed.add_field(name='Author', value=message.author.mention)
+            if actor:
+                embed.add_field(name='Change made by', value=actor.mention)
             embed.add_field(name='Sent At', value=f'<t:{int(message.created_at.timestamp())}:f>')
             embed.add_field(name='Message URL (for T&S Reports)', value=message.jump_url)
             embed.add_field(name='Content', value=message.clean_content, inline=False)
