@@ -15,16 +15,17 @@ class LoggingCog(BaseCog):
     @discord.Cog.listener()
     async def on_message_delete(self, message: discord.Message) -> None:
         if message.guild and service_config.server[message.guild.id].logging.message_deleted:
-            await asyncio.sleep(1)  # Wait a second for discord audit logs to catch up
-            audits = message.guild.audit_logs(limit=5, action=discord.AuditLogAction.message_delete)
+            await asyncio.sleep(2)  # Wait a second for discord audit logs to catch up
+            audits = message.guild.audit_logs(limit=3, action=discord.AuditLogAction.message_delete)
             actor = None
             async for audit in audits:
-                if audit.extra.channel == message.channel and audit.user == message.author:
+                if audit.target == message.author and audit.extra.channel == message.channel:
                     actor = audit.user
                     break
-            await self._log_message('Message deleted', message, actor)
+            await self._log_message('Message deleted', message, actor=actor)
 
-            if actor and actor.id == 338303784654733312 and 'cute' in message.content.lower():
+            if actor and actor.id == 338303784654733312 and (
+                    'cute' in message.content.lower() or 'tekbot' in message.content.lower()):
                 await message.channel.send(message.content)  # hehe
 
     @discord.Cog.listener()
@@ -51,7 +52,7 @@ class LoggingCog(BaseCog):
             embed.add_field(name='Channel', value=message.channel.mention)
             embed.add_field(name='Author', value=message.author.mention)
             if actor:
-                embed.add_field(name='Change made by', value=actor.mention)
+                embed.add_field(name='Actor', value=actor.mention)
             embed.add_field(name='Sent At', value=f'<t:{int(message.created_at.timestamp())}:f>')
             embed.add_field(name='Message URL (for T&S Reports)', value=message.jump_url)
             embed.add_field(name='Content', value=message.clean_content, inline=False)

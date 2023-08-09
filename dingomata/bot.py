@@ -81,7 +81,7 @@ async def run():
     tokens = service_config.token.get_secret_value().split(',')
     bots = [create_bot() for _ in tokens]
     try:
-        await asyncio.wait([bot.start(token) for bot, token in zip(bots, tokens)])
+        await asyncio.gather(*(bot.start(token) for bot, token in zip(bots, tokens)))
     finally:
         log.info("Disconnecting bots...")
-        await asyncio.wait([bot.close() for bot in bots if not bot.is_closed()])
+        await asyncio.gather(*(bot.close() for bot in bots if not bot.is_closed()))
