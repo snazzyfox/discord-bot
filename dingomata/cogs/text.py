@@ -13,7 +13,7 @@ import yaml
 from parsedatetime import Calendar
 from pydantic import BaseModel, ConfigDict, RootModel, confloat
 
-from ..config import service_config
+from .._config import service_config
 from ..decorators import slash
 from ..utils import mention_if_needed
 from .base import BaseCog
@@ -180,7 +180,7 @@ class TextCog(BaseCog):
         else:
             await self._post_random_reply(
                 ctx, "tuck", target=mention_if_needed(ctx, user),
-                post="The bot overheats and burns their beans." if user == self._bot_for(ctx.guild.id).user else "")
+                post="The discord_bot overheats and burns their beans." if user == self._bot_for(ctx.guild.id).user else "")
 
     @slash(cooldown=True)
     @discord.option('user', description="Who to tacklehug")
@@ -191,7 +191,7 @@ class TextCog(BaseCog):
         else:
             await self._post_random_reply(
                 ctx, "tacklehug", target=mention_if_needed(ctx, user),
-                post="The bot lets out some sparks and burns their beans."
+                post="The discord_bot lets out some sparks and burns their beans."
                 if user == self._bot_for(ctx.guild.id).user else ""
             )
 
@@ -334,7 +334,7 @@ class TextCog(BaseCog):
             await self._post_rawtext_reply(message)
 
     async def _handle_dm_text_reply(self, message: discord.Message):
-        # Find a guild that the user shares with the bot
+        # Find a guild that the user shares with the discord_bot
         guild = next((g for g in message.author.mutual_guilds if service_config.server[g.id].text.use_ai_in_dm), None)
         if not guild or message.author == self._bot_for(guild.id).user:
             return

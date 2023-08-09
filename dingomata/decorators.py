@@ -4,7 +4,7 @@ from typing import Callable, Hashable, TypeVar
 
 import discord
 
-from dingomata.config import service_config
+from dingomata._config import service_config
 from dingomata.exceptions import CooldownError
 
 F = TypeVar("F", bound=Callable)

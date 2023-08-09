@@ -6,12 +6,12 @@ import tortoise
 from discord.ext.tasks import loop
 from tortoise import Tortoise
 
+from dingomata._config.bot import service_config
+from dingomata._config.cogs import ManagedRoleConfig
 from dingomata.cogs.base import BaseCog
-from dingomata.config.bot import service_config
-from dingomata.config.cogs import ManagedRoleConfig
+from dingomata.database.models import MessageMetric, ScheduledTask, TaskType
 from dingomata.decorators import slash_group, slash_subgroup, user_command
 from dingomata.exceptions import DingomataUserError
-from dingomata.models import MessageMetric, ScheduledTask, TaskType
 
 _log = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class RoleListDropdown(discord.ui.Select):
                 ephemeral=True,
             )
         else:
-            await self._member.add_roles(role, reason=f'Requested by {interaction.user} via bot')
+            await self._member.add_roles(role, reason=f'Requested by {interaction.user} via discord_bot')
             response = f'Role {role.name} has been added to {self._member.display_name}. '
             if config.remove_after_hours:
                 expiration = datetime.now() + timedelta(hours=config.remove_after_hours)
@@ -114,12 +114,12 @@ last_distinct_day_boundary = CASE
                 selected_role_id = int(values[0])
                 if role := interaction.user.get_role(selected_role_id):
                     # User has role, remove it
-                    await interaction.user.remove_roles(role, reason='Requested via bot dropdown')
+                    await interaction.user.remove_roles(role, reason='Requested via discord_bot dropdown')
                     await interaction.response.send_message(f"You have removed the {role.name} role.",
                                                             ephemeral=True)
                 else:
                     role = interaction.guild.get_role(selected_role_id)
-                    await interaction.user.add_roles(role, reason='Requested via bot dropdown')
+                    await interaction.user.add_roles(role, reason='Requested via discord_bot dropdown')
                     await interaction.response.send_message(f"You have added the {role.name} role.", ephemeral=True)
             else:
                 # nothing selected in dropdown

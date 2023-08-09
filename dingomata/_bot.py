@@ -1,11 +1,12 @@
+
 import asyncio
 import logging
 
 import discord
 import tortoise
 
+from ._config import service_config
 from .cogs import all_cogs
-from .config import service_config
 from .exceptions import DingomataUserError
 
 log = logging.getLogger(__name__)
@@ -35,31 +36,31 @@ class Dingomata(discord.Bot):
 
 
 def create_bot():
-    bot = Dingomata(
+    discord_bot = Dingomata(
         intents=discord.Intents(guilds=True, messages=True, message_content=True, members=True, bans=True),
         max_messages=4096
     )
     for cog in all_cogs:
-        bot.add_cog(cog(bot))
+        discord_bot.add_cog(cog(discord_bot))
 
-    @bot.listen()
+    @discord_bot.listen()
     async def on_ready():
-        log.info(f'Bot connected: "{bot.user}" {[guild.name for guild in bot.guilds]}.')
+        log.info(f'Bot connected: "{discord_bot.user}" {[guild.name for guild in discord_bot.guilds]}.')
 
-    @bot.listen()
+    @discord_bot.listen()
     async def on_disconnect():
-        log.info(f'Bot disconnected: "{bot.user}"')
+        log.info(f'Bot disconnected: "{discord_bot.user}"')
 
-    @bot.listen()
+    @discord_bot.listen()
     async def on_interaction(interaction: discord.Interaction):
         if interaction.guild:
             location = f"{interaction.guild.name}/#{interaction.channel.name}"
         else:
             location = "DM"
-        log.info(f"Interaction: {bot.user.name} {interaction.type.name} {interaction.data.get('name')} "
+        log.info(f"Interaction: {discord_bot.user.name} {interaction.type.name} {interaction.data.get('name')} "
                  f"{interaction.user} {location} ({interaction.data.get('options')})")
 
-    @bot.listen()
+    @discord_bot.listen()
     async def on_application_command_error(ctx: discord.ApplicationContext, exc: Exception):
         if isinstance(exc, discord.ApplicationCommandInvokeError):
             exc = exc.original  # Don't care about the wrapped exception

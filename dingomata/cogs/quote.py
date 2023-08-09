@@ -4,19 +4,19 @@ from hashlib import md5
 import discord
 import tortoise.exceptions
 
+from dingomata.cogs.base import BaseCog
+from dingomata.database.models import Quote
 from dingomata.decorators import message_command, slash, slash_group
 from dingomata.exceptions import DingomataUserError
+from dingomata.utils import Random
 
-from ..models import Quote
-from ..utils import Random
-from .base import BaseCog
+quotes = discord.app_commands.
 
 
 class QuoteCog(BaseCog):
     """Text commands."""
 
-    _NEXT_BUTTON = "quote_next"
-    _NON_ALPHANUM = re.compile(r"[^\w]")
+    _NON_ALPHANUM = re.compile(r"\W")
 
     quotes = slash_group("quotes", "Manage quotes", config_group="quote")
 

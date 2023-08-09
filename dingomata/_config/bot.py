@@ -10,7 +10,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from . import cogs
 
-_LOGGING_CONFIG = "config/logging.cfg"
+_LOGGING_CONFIG = "_config/logging.cfg"
 
 _logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class GuildConfig(BaseModel):
 class ServiceConfig(BaseSettings):
     token: SecretStr = Field(..., env="token")
     database_url: SecretStr = Field(..., env="database_url")
-    config_file: FilePath = Field(Path('config/config.toml'), env="config_file")
+    config_file: FilePath = Field(Path('_config/_config.toml'), env="config_file")
     openai_api_key: SecretStr = Field(SecretStr(""), env="openai_api_key")
 
     model_config = SettingsConfigDict(
@@ -90,7 +90,7 @@ class ServiceConfig(BaseSettings):
 
 def get_logging_config():
     logging.config.fileConfig(_LOGGING_CONFIG, disable_existing_loggers=False)
-    _logger.debug("Loaded logging config.")
+    _logger.debug("Loaded logging _config.")
 
 
 service_config = ServiceConfig()

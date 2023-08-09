@@ -6,9 +6,10 @@ import parsedatetime
 import tortoise
 from discord.ext.tasks import loop
 
+from dingomata.database.models import ScheduledTask, TaskType
+
 from ..decorators import slash_group
 from ..exceptions import DingomataUserError
-from ..models import ScheduledTask, TaskType
 from .base import BaseCog
 
 _log = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ _calendar = parsedatetime.Calendar()
 class ReminderCog(BaseCog):
     """Custom reminders."""
 
-    reminder = slash_group("reminder", description="Make the bot remind you to do something.")
+    reminder = slash_group("reminder", description="Make the discord_bot remind you to do something.")
 
     @discord.Cog.listener()
     async def on_ready(self) -> None:

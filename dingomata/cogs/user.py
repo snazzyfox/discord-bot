@@ -8,10 +8,11 @@ import parsedatetime
 import pytz
 import tortoise.exceptions
 
-from ..config import service_config
+from dingomata.database.models import User
+
+from .._config import service_config
 from ..decorators import slash, slash_group
 from ..exceptions import DingomataUserError
-from ..models import User
 from .base import BaseCog
 
 _log = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class UserCog(BaseCog):
     """Remind users to go to bed."""
 
     bedtime = slash_group(name="bedtime", description="Get a reminder to go to bed when you're up late.")
-    timezone_g = slash_group(name="timezone", description="Manage how the bot interprets time for you.")
+    timezone_g = slash_group(name="timezone", description="Manage how the discord_bot interprets time for you.")
     _BEDTIME_KWDS = {"bed", "sleep", "bye", "cya", "see y", "night", "nini", "nite", "comf"}
     _CACHE: dict[int, User] = {}
 
@@ -30,7 +31,7 @@ class UserCog(BaseCog):
     @discord.option('timezone', description="Your timezone",
                     autocomplete=discord.utils.basic_autocomplete(pytz.common_timezones))
     async def timezone_set(self, ctx: discord.ApplicationContext, timezone: str) -> None:
-        """Set your timezone. Applies in all servers with this bot."""
+        """Set your timezone. Applies in all servers with this discord_bot."""
         try:
             timezone = timezone.strip()
             tz = pytz.timezone(timezone)  # test if timezone is valid
@@ -92,7 +93,7 @@ class UserCog(BaseCog):
 
     @discord.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        """On any message the bot can read, determine if it's past the user's bedtime, and send a reminder if so."""
+        """On any message the discord_bot can read, determine if it's past the user's bedtime, and send a reminder if so."""
         if (not message.guild
                 or message.guild.id not in self.bedtime.guild_ids
                 or any(kwd in message.content.lower() for kwd in self._BEDTIME_KWDS)):
@@ -148,7 +149,7 @@ class UserCog(BaseCog):
                 await result.save(update_fields=["last_bedtime_notified"])
                 _log.debug(f"Bedtime notified: {message.author}")
         except discord.Forbidden:
-            _log.warning(f"Failed to notify {message.author} in {message.guild} about bedtime. The bot doesn't "
+            _log.warning(f"Failed to notify {message.author} in {message.guild} about bedtime. The discord_bot doesn't "
                          f"have permissions to post there.")
 
     @staticmethod

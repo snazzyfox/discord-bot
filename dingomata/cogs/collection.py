@@ -4,8 +4,9 @@ import discord
 import tortoise.transactions
 from tortoise import functions as func
 
+from dingomata.database.models import Collect
+
 from ..decorators import slash_group
-from ..models import Collect
 from ..utils import mention_if_needed
 from .base import BaseCog
 

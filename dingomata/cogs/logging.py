@@ -3,8 +3,8 @@ import logging
 
 import discord
 
+from dingomata._config.bot import service_config
 from dingomata.cogs.base import BaseCog
-from dingomata.config.bot import service_config
 
 _log = logging.getLogger(__name__)
 

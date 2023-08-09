@@ -1,7 +1,8 @@
+from dingomata.cogs.quote import QuoteCog
+
 from .collection import CollectionCog
 from .guild_member import GuildMemberCog
 from .logging import LoggingCog
-from .quote import QuoteCog
 from .reminder import ReminderCog
 from .roles import RoleManageCog
 from .text import TextCog

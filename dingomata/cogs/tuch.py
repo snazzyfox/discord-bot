@@ -7,8 +7,9 @@ from prettytable import PrettyTable
 from tortoise import Tortoise
 from tortoise import functions as func
 
+from dingomata.database.models import Tuch
+
 from ..decorators import slash
-from ..models import Tuch
 from .base import BaseCog
 
 _log = logging.getLogger(__name__)

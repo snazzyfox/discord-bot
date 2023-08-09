@@ -10,11 +10,11 @@ import tortoise
 from discord.ext.tasks import loop
 from tortoise.exceptions import DoesNotExist
 
+from dingomata.database.models import BotMessage, GuildMember, User
 from dingomata.decorators import slash_group, slash_subgroup
 
-from ..config import service_config
+from .._config import service_config
 from ..exceptions import DingomataUserError
-from ..models import BotMessage, GuildMember, User
 from ..utils import Random
 from .base import BaseCog
 
@@ -208,7 +208,7 @@ class GuildMemberCog(BaseCog):
         if profile_channel_id := service_config.server[ctx.guild.id].member.profile_channel:
             channel = self._bot_for(ctx.guild.id).get_channel(profile_channel_id)
         else:
-            raise DingomataUserError('This server is not configured for profiles. Please contact your bot manager.')
+            raise DingomataUserError('This server is not configured for profiles. Please contact your discord_bot manager.')
         await ctx.defer(ephemeral=True)
         # Find all existing messages and delete them
         async with tortoise.transactions.in_transaction() as tx:
@@ -249,7 +249,7 @@ class GuildMemberCog(BaseCog):
         if profile_channel_id := service_config.server[prof.guild_id].member.profile_channel:
             channel = self._bot_for(prof.guild_id).get_channel(profile_channel_id)
         else:
-            raise DingomataUserError('This server is not configured for profiles. Please contact your bot manager.')
+            raise DingomataUserError('This server is not configured for profiles. Please contact your discord_bot manager.')
         bot_message = await BotMessage.select_for_update().using_db(tx).get_or_none(
             id=f'{self._MSG_TYPE}:{prof.guild_id}:{prof.user_id}')
         if prof.profile_data:

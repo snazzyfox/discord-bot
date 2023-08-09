@@ -120,7 +120,7 @@ user_banned = true
 [server.commands]
 roles.enabled = false
 
-# Test bot
+# Test discord_bot
 [[server]]
 id = 970811039635628072
 member.profile_channel = 995749304453050428
@@ -148,6 +148,6 @@ remove_after_hours = 1
 [server.text]
 use_ai = true
 
-# Test bot 2
+# Test discord_bot 2
 [[server]]
 id = 971905014379458590
