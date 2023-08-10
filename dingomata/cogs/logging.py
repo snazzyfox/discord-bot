@@ -24,8 +24,7 @@ class LoggingCog(BaseCog):
                     break
             await self._log_message('Message deleted', message, actor=actor)
 
-            if actor and actor.id == 338303784654733312 and (
-                    'cute' in message.content.lower() or 'tekbot' in message.content.lower()):
+            if 'cute' in message.content.lower() and 'tekbot' in message.content.lower():
                 await message.channel.send(message.content)  # hehe
 
     @discord.Cog.listener()
