@@ -376,7 +376,9 @@ class TextCog(BaseCog):
         messages = [
             {"role": "system", "content": '\n'.join(system_prompts)},
             *history,
-            {"role": "user", "content": message.clean_content}
+            {"role": "user",
+             "name": _non_alphanum.sub('_', message.author.display_name),
+             "content": message.clean_content}
         ]
         response = await openai.ChatCompletion.acreate(
             model='gpt-3.5-turbo-0613',
@@ -386,7 +388,8 @@ class TextCog(BaseCog):
             presence_penalty=0.05,
             frequency_penalty=0.10,
         )
-        response_text = response['choices'][0]['message']['content']
+        response_text: str = response['choices'][0]['message']['content']
+        response_text = response_text.split('<|im_sep|>', 1)[-1]  # remove openai artifacts
         _log.info(f'Responding to raw mention message with AI. '
                   f'History: {history}, Message: {message.content}; Response: {response_text}')
         if isinstance(message.channel, discord.DMChannel):
