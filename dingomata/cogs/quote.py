@@ -5,10 +5,10 @@ import discord
 import tortoise.exceptions
 
 from dingomata.cogs.base import BaseCog
+from dingomata.database.fields import Random
 from dingomata.database.models import Quote
 from dingomata.decorators import message_command, slash, slash_group
 from dingomata.exceptions import DingomataUserError
-from dingomata.utils import Random
 
 quotes = discord.app_commands.
 

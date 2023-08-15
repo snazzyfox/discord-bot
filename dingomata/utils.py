@@ -1,72 +1,13 @@
-import datetime
 import logging
-from typing import Any
+import hikari
+import lightbulb
 
-from pypika import CustomFunction
-from tortoise import Model
-from tortoise.expressions import Function
-from tortoise.fields import Field
-
-# from dingomata._config import service_config
-# from dingomata.exceptions import DingomataUserError
+from dingomata.config.provider import get_config
+from dingomata.config.values import ConfigKey
 
 log = logging.getLogger(__name__)
 
 
-class TimeField(Field, datetime.time):
-    """
-    Tortoise field for Time fields without dates.
-    """
-
-    skip_to_python_if_native = True
-    SQL_TYPE = "TIME"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # needed to make mypy go shut
-
-    def to_python_value(self, value: Any) -> datetime.time | None:
-        if value is not None and not isinstance(value, datetime.time):
-            value = datetime.time.fromisoformat(value)
-        self.validate(value)
-        return value
-
-    def to_db_value(
-            self, value: datetime.time | str | None, instance: type[Model] | Model
-    ) -> datetime.time | None:
-        if value is not None and not isinstance(value, datetime.time):
-            value = datetime.time.fromisoformat(value)
-        self.validate(value)
-        return value
-
-
-class DatetimeField(Field, datetime.datetime):
-    """
-    Tortoise field for timezone-naive datetimes.
-    """
-
-    skip_to_python_if_native = True
-    SQL_TYPE = "TIMESTAMP"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)  # needed to make mypy go shut
-
-    def to_python_value(self, value: Any) -> datetime.datetime | None:
-        if value is not None and not isinstance(value, datetime.datetime):
-            value = datetime.datetime.fromisoformat(value)
-        self.validate(value)
-        return value
-
-    def to_db_value(
-            self, value: datetime.datetime | str | None, instance: type[Model] | Model
-    ) -> datetime.datetime | None:
-        if value is not None and not isinstance(value, datetime.datetime):
-            value = datetime.datetime.fromisoformat(value)
-        self.validate(value)
-        return value
-
-
-class Random(Function):
-    database_func = CustomFunction("random")
 #
 #
 # class View(discord.ui.View):
@@ -78,11 +19,10 @@ class Random(Function):
 #             await super(View, self).on_error(error, item, interaction)
 
 
-# def mention_if_needed(ctx: discord.ApplicationContext, user: discord.User) -> str:
-#     """Return a user's mention string, or display name if they're in the no-ping list"""
-#     no_pings = service_config.server[ctx.guild.id].no_pings
-#     member = ctx.guild.get_member(user.id)
-#     if member and member.id in no_pings or any(role.id in no_pings for role in member.roles):
-#         return user.display_name
-#     else:
-#         return user.mention
+async def mention_if_needed(ctx: lightbulb.ApplicationContext, member: hikari.Member) -> str:
+    """Return a user's mention string, or display name if they're in the no-ping list"""
+    no_pings: list[int] = await get_config(ctx.guild_id, ConfigKey.ROLES__NO_PINGS)
+    if member and member.id in no_pings or any(role in no_pings for role in member.role_ids):
+        return member.display_name
+    else:
+        return member.mention

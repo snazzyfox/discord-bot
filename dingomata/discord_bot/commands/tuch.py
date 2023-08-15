@@ -1,4 +1,5 @@
-from random import random, betavariate, choice
+from copy import deepcopy
+from random import betavariate, choice, random
 
 import lightbulb
 import tortoise.transactions
@@ -25,11 +26,11 @@ async def tuch(ctx: lightbulb.SlashContext) -> None:
             f"{ctx.member.display_name} tuches {choice(ctx.get_channel().members).display_name}'s butt, " f"OwO"
         )
     async with tortoise.transactions.in_transaction() as tx:
-        tuch, _ = await Tuch.get_or_create(guild_id=ctx.guild.id, user_id=ctx.author.id, using_db=tx)
-        tuch.max_butts = max(tuch.max_butts, number)
-        tuch.total_butts += number
-        tuch.total_tuchs += 1
-        await tuch.save(using_db=tx)
+        record, _ = await Tuch.get_or_create(guild_id=ctx.guild_id, user_id=ctx.author.id, using_db=tx)
+        record.max_butts = max(record.max_butts, number)
+        record.total_butts += number
+        record.total_tuchs += 1
+        await record.save(using_db=tx)
 
 
 @plugin.command
@@ -37,13 +38,13 @@ async def tuch(ctx: lightbulb.SlashContext) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def tuchboard(ctx: lightbulb.SlashContext) -> None:
     """Show statistics about tuches."""
-    total_tuchs, total_butts = await Tuch.filter(guild_id=ctx.guild.id).annotate(
+    total_tuchs, total_butts = await Tuch.filter(guild_id=ctx.guild_id).annotate(
         total_tuchs=Sum("total_tuchs"), total_butts=Sum("total_butts"),
     ).first().values_list("total_tuchs", "total_butts")
     message = (
         f"Total butts tuched: {total_butts or 0:,}\n"
         f"Total number of times tuch was used: {total_tuchs or 0:,}\n"
-        f"Total butts in server: {ctx.guild.member_count:,}\n"
+        f"Total butts in server: {ctx.get_guild().member_count:,}\n"
     )
     # manual query bc no window function support
     query = """
@@ -57,7 +58,7 @@ async def tuchboard(ctx: lightbulb.SlashContext) -> None:
     """
 
     connection = connections.get("default")
-    data = await connection.execute_query_dict(query, [ctx.guild.id])
+    data = await connection.execute_query_dict(query, [ctx.guild_id])
     table = PrettyTable()
     table.field_names = ("Rank", "User", "Max Butts", "Total Butts")
     table.align["Rank"] = "r"
@@ -65,7 +66,7 @@ async def tuchboard(ctx: lightbulb.SlashContext) -> None:
     table.align["Max Butts"] = "r"
     table.align["Total Butts"] = "r"
     for row in data:
-        user = ctx.guild.get_member(row["user_id"])
+        user = ctx.get_guild().get_member(row["user_id"])
         username = user.display_name if user else "Unknown User"
         table.add_row((row["rank"], username, row["max_butts"], row["total_butts"]))
     message += "```\n" + table.get_string() + "\n```"
@@ -73,8 +74,8 @@ async def tuchboard(ctx: lightbulb.SlashContext) -> None:
 
 
 def load(bot: BotApp):
-    bot.add_plugin(plugin)
+    bot.add_plugin(deepcopy(plugin))
 
 
 def unload(bot: BotApp):
-    bot.remove_plugin(plugin)
+    bot.remove_plugin(plugin.name)

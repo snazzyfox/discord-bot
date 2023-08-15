@@ -14,8 +14,8 @@ from dingomata.database.models import BotMessage, GuildMember, User
 from dingomata.decorators import slash_group, slash_subgroup
 
 from .._config import service_config
+from ..database.fields import Random
 from ..exceptions import DingomataUserError
-from ..utils import Random
 from .base import BaseCog
 
 _log = logging.getLogger(__name__)

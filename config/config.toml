@@ -147,7 +147,3 @@ id = 971942064843542548
 remove_after_hours = 1
 [server.text]
 use_ai = true
-
-# Test discord_bot 2
-[[server]]
-id = 971905014379458590

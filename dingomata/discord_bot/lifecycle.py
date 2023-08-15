@@ -1,20 +1,50 @@
 import asyncio
 import logging
 
+import hikari
 import lightbulb
 from pydantic import SecretStr
 
 from dingomata.config.provider import get_secret_config
+from dingomata.config.values import SecretConfigKey
+from dingomata.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
 _bots: list[lightbulb.BotApp] = []
 
+bot_intents = (
+    hikari.Intents.GUILDS
+    | hikari.Intents.GUILD_MESSAGES
+    | hikari.Intents.MESSAGE_CONTENT
+    | hikari.Intents.GUILD_MEMBERS
+    | hikari.Intents.GUILD_MODERATION
+)
 
-def prepare_bot(bot: lightbulb.BotApp, guild_ids: set[int]):
-    bot.default_enabled_guilds = guild_ids
-    logger.info('Bot application commands will be registered for guilds %s', guild_ids)
+
+def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
+    bot = lightbulb.BotApp(token=token.get_secret_value(), banner=None, intents=bot_intents)
+    bot.default_enabled_guilds = guilds
     bot.load_extensions_from('dingomata/discord_bot/commands')
+
+    @bot.listen()
+    async def on_error(event: lightbulb.CommandErrorEvent) -> None:
+        if isinstance(event.exception, UserError):
+            await event.context.respond(
+                'Error: ' + str(event.exception),
+                flags=hikari.MessageFlag.EPHEMERAL,
+            )
+            logger.warning(f"{event.exception.__class__.__name__}: {event.exception}")
+        elif isinstance(event.exception.__cause__, UserError):
+            await event.context.respond(
+                'Error: ' + str(event.exception.__cause__),
+                flags=hikari.MessageFlag.EPHEMERAL,
+            )
+            logger.warning(f"{event.exception.__cause__.__class__.__name__}: {event.exception.__cause__}")
+        else:
+            raise event.exception
+
+    return bot
 
 
 async def start() -> None:
@@ -22,7 +52,7 @@ async def start() -> None:
     logger.info('Starting discord bots...')
 
     # Get tokens from config store
-    tokens_config = await get_secret_config('secret.discord.token')
+    tokens_config = await get_secret_config(SecretConfigKey.DISCORD_TOKEN)
 
     # Group guilds by token - some guilds may share the same bot
     grouped: dict[SecretStr, set[int]] = {}
@@ -31,8 +61,8 @@ async def start() -> None:
 
     # Prepare one bot for each group
     for token, guilds in grouped.items():
-        bot = lightbulb.BotApp(token.get_secret_value(), banner=None, logs='DEBUG')
-        prepare_bot(bot, guilds)
+        logger.info(f'Creating bot for guilds {guilds}')
+        bot = create_bot(token, guilds)
         _bots.append(bot)
 
     await asyncio.gather(*(bot.start(check_for_updates=False) for bot in _bots))
