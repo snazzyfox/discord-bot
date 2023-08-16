@@ -218,9 +218,9 @@ async def _get_managed_tracked_roles(guild_id: int) -> set[int]:
     tracked_roles = set()
     for role in managed_roles:
         if (
-                await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_MESSAGES, role)
-                or await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_ACTIVE, role)
-                or await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_IN_GUILD, role)
+                await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_MESSAGES, str(role))
+                or await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_ACTIVE, str(role))
+                or await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_IN_GUILD, str(role))
         ):
             tracked_roles.add(role)
     return tracked_roles
