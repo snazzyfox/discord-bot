@@ -1,22 +1,20 @@
 import random
 import string
-import typing
 from copy import deepcopy
 
 import hikari
 import lightbulb
 
-from dingomata.config.provider import get_config
-from dingomata.config.values import ConfigKey
+from dingomata.config import values
 from dingomata.utils import CooldownManager, LightbulbPlugin, mention_if_needed
 
 plugin = LightbulbPlugin('text')
 
 
 def text_command_with_target(
-        name: str,
-        description: str,
-        target_description: str
+    name: str,
+    description: str,
+    target_description: str
 ):
     @plugin.command
     @lightbulb.add_cooldown(5, 2, lightbulb.GuildBucket, cls=CooldownManager)
@@ -40,7 +38,7 @@ def text_command_with_target(
 
 
 async def _try_generate_message(ctx: lightbulb.SlashContext, command_id: str) -> str | None:
-    templates: list[str | RandomOption] = await get_config(ctx.guild_id, ConfigKey.TEXT__TEMPLATE, command_id)
+    templates = await values.text_template.get_value(ctx.guild_id, command_id)
     if not templates:
         return None
     template = string.Template(_choose_from_options(templates))
@@ -50,18 +48,14 @@ async def _try_generate_message(ctx: lightbulb.SlashContext, command_id: str) ->
     }
     config_fragment_keys = set(template.get_identifiers()) - set(fragments.keys())
     for frag in config_fragment_keys:
-        fragment_options = await get_config(ctx.guild_id, ConfigKey.TEXT__FRAGMENT, command_id + '.' + frag)
-        fragments[frag] = _choose_from_options(fragment_options)
+        fragment_options = await values.text_fragment.get_value(ctx.guild_id, command_id + '.' + frag)
+        if fragment_options:
+            fragments[frag] = _choose_from_options(fragment_options)
     message = template.safe_substitute(fragments)
     return message
 
 
-class RandomOption(typing.TypedDict):
-    probability: float
-    content: str
-
-
-def _choose_from_options(options: list[str | RandomOption]):
+def _choose_from_options(options: list[str | values.RandomOption]):
     return random.choices(
         population=[o['content'] if isinstance(o, dict) else o for o in options],
         weights=[o['probability'] if isinstance(o, dict) else 1 for o in options],

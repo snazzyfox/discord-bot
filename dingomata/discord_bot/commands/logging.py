@@ -7,8 +7,7 @@ import lightbulb
 from async_lru import alru_cache
 from cachetools import TTLCache
 
-from dingomata.config.provider import get_config
-from dingomata.config.values import ConfigKey
+from dingomata.config import values
 from dingomata.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('logging')
@@ -114,9 +113,10 @@ def _generate_message_embed(
 
 @alru_cache(maxsize=12)
 async def _get_log_channel(guild_id: int) -> int:
-    log_enabled: bool = await get_config(guild_id, ConfigKey.LOGS__ENABLED)
-    if log_enabled:
-        return await get_config(guild_id, ConfigKey.LOGS__CHANNEL_ID)
+    log_enabled = await values.logs_enabled.get_value(guild_id)
+    log_channel = await values.logs_channel_id.get_value(guild_id)
+    if log_enabled and log_channel:
+        return log_channel
     raise LogsNotConfigured()
 
 

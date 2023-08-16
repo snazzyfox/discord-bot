@@ -9,7 +9,6 @@ from pydantic import SecretStr
 
 from dingomata.config.env import envConfig
 from dingomata.config.provider import get_secret_configs
-from dingomata.config.values import SecretConfigKey
 from dingomata.exceptions import UserError
 
 logger = logging.getLogger(__name__)
@@ -75,9 +74,9 @@ async def start() -> None:
     logger.info('Starting discord bots...')
 
     # Get tokens from config store
-    tokens_config = await get_secret_configs(SecretConfigKey.DISCORD_TOKEN)
-    openai_config = await get_secret_configs(SecretConfigKey.OPENAI_API_KEY)
-    openai.api_key = next(iter(openai_config.values()))
+    tokens_config = await get_secret_configs('secret.discord.token')
+    openai_config = await get_secret_configs('secret.openai.apikey')
+    openai.api_key = next(iter(openai_config.values())).get_secret_value()
 
     # Group guilds by token - some guilds may share the same bot
     grouped: dict[SecretStr, set[int]] = {}

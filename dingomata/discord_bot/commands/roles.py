@@ -11,8 +11,7 @@ from async_lru import alru_cache
 from hikari import undefined
 from lightbulb.ext import tasks
 
-from dingomata.config.provider import get_config
-from dingomata.config.values import ConfigKey
+from dingomata.config import values
 from dingomata.database.models import MessageMetric, ScheduledTask, TaskType
 from dingomata.exceptions import UserError
 from dingomata.utils import LightbulbPlugin
@@ -48,7 +47,7 @@ async def assign_role(ctx: lightbulb.UserContext) -> None:
         placeholder='Select a role to add',
         min_values=1,
     )
-    mod_addable_roles = await get_config(ctx.guild_id, ConfigKey.ROLES__MOD_ADD)
+    mod_addable_roles = await values.roles_mod_add.get_value(ctx.guild_id) or []
     for role_id in mod_addable_roles:
         role = ctx.app.cache.get_role(role_id)
         dropdown.add_option(role.name, str(role.id))
@@ -181,7 +180,7 @@ async def roles_dropdown_remove(ctx: lightbulb.SlashContext) -> None:
 
 
 async def _get_existing_dropdown(
-        ctx: lightbulb.SlashContext, message_url: str,
+    ctx: lightbulb.SlashContext, message_url: str,
 ) -> tuple[hikari.Message, hikari.TextSelectMenuComponent]:
     # Input data checks
     try:
@@ -203,10 +202,10 @@ async def _get_existing_dropdown(
     except ValueError:
         raise UserError('The dropdown URL does not appear to link to a message I have access to edit.')
     if (
-            len(message.components) != 1
-            or len(row := message.components[0].components) != 1
-            or not isinstance(dropdown := row[0], hikari.TextSelectMenuComponent)
-            or not dropdown.custom_id.startswith(_SELF_DROPDOWN_PREFIX)
+        len(message.components) != 1
+        or len(row := message.components[0].components) != 1
+        or not isinstance(dropdown := row[0], hikari.TextSelectMenuComponent)
+        or not dropdown.custom_id.startswith(_SELF_DROPDOWN_PREFIX)
     ):
         raise UserError('The dropdown URL does not appear to point to a message with a self-add role dropdown.')
     return message, dropdown
@@ -214,13 +213,13 @@ async def _get_existing_dropdown(
 
 @alru_cache(24)
 async def _get_managed_tracked_roles(guild_id: int) -> set[int]:
-    managed_roles = await get_config(guild_id, ConfigKey.ROLES__MOD_ADD)
+    managed_roles = await values.roles_mod_add.get_value(guild_id) or []
     tracked_roles = set()
     for role in managed_roles:
         if (
-                await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_MESSAGES, str(role))
-                or await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_ACTIVE, str(role))
-                or await get_config(guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_IN_GUILD, str(role))
+            await values.roles_mod_add_min_messages.get_value(guild_id, str(role))
+            or await values.roles_mod_add_min_days_active.get_value(guild_id, str(role))
+            or await values.roles_mod_add_min_days_in_guild.get_value(guild_id, str(role))
         ):
             tracked_roles.add(role)
     return tracked_roles
@@ -233,10 +232,10 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         return
     tracked = await _get_managed_tracked_roles(event.guild_id)
     if (
-            tracked
-            and event.member
-            and event.content
-            and any(role_id not in event.member.role_ids for role_id in tracked)
+        tracked
+        and event.member
+        and event.content
+        and any(role_id not in event.member.role_ids for role_id in tracked)
     ):
         connection = tortoise.Tortoise.get_connection("default")
         await connection.execute_query("""
@@ -286,10 +285,9 @@ async def on_component_interaction(event: hikari.InteractionCreateEvent) -> None
         else:
             await member.add_role(role, reason=f'Requested by {event.interaction.member.display_name} via bot.')
             response = f'Role {role.name} has been added to {member.display_name}. '
-            if remove_after := await get_config(
-                    event.interaction.guild_id,
-                    ConfigKey.ROLES__MOD_ADD__REMOVE_AFTER_HOURS,
-                    str(role_id)
+            if remove_after := await values.roles_mod_add_remove_after_hours.get_value(
+                event.interaction.guild_id,
+                str(role_id)
             ):
                 expiration = datetime.now() + timedelta(hours=remove_after)
                 await ScheduledTask(
@@ -331,13 +329,13 @@ async def on_component_interaction(event: hikari.InteractionCreateEvent) -> None
 
 async def _member_ineligible_reason(member: hikari.Member, desired_role_id: int) -> str | None:
     """Returns the reason why someone's not eligible, or None if eligible."""
-    min_days = await get_config(member.guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_IN_GUILD, str(desired_role_id))
-    if member.joined_at + timedelta(days=min_days) > datetime.now(tz=member.joined_at.tzinfo):
+    min_days = await values.roles_mod_add_min_days_in_guild.get_value(member.guild_id, str(desired_role_id))
+    if min_days and member.joined_at + timedelta(days=min_days) > datetime.now(tz=member.joined_at.tzinfo):
         return f'member has not yet been in the server for {min_days} days.'
     metrics, _ = await MessageMetric.get_or_create(guild_id=member.guild_id, user_id=member.id)
     min_active, min_messages = await asyncio.gather(
-        get_config(member.guild_id, ConfigKey.ROLES__MOD_ADD__MIN_DAYS_ACTIVE, str(desired_role_id)),
-        get_config(member.guild_id, ConfigKey.ROLES__MOD_ADD__MIN_MESSAGES, str(desired_role_id)),
+        values.roles_mod_add_min_days_active.get_value(member.guild_id, str(desired_role_id)),
+        values.roles_mod_add_min_messages.get_value(member.guild_id, str(desired_role_id)),
     )
     if metrics.distinct_days < min_active or metrics.message_count < min_messages:
         return 'Member does not meet the minimum activity requirement.'

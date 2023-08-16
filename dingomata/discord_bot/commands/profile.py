@@ -11,8 +11,7 @@ import pytz
 import tortoise.transactions
 from lightbulb.ext import tasks
 
-from dingomata.config.provider import get_config
-from dingomata.config.values import ConfigKey
+from dingomata.config import values
 from dingomata.database.fields import Random
 from dingomata.database.models import GuildMember, User
 from dingomata.exceptions import UserError
@@ -274,7 +273,7 @@ async def birthday_reminder(app: lightbulb.BotApp):
             next_birthday_utc__lte=datetime.now(pytz.utc),
         )
         async for member in members:
-            channel_id = await get_config(member.guild_id, ConfigKey.PROFILE__BIRTHDAY_CHANNEL)
+            channel_id = await values.profile_birthday_channel.get_value(member.guild_id)
             if not channel_id:
                 continue
             user = app.cache.get_member(member.guild_id, member.user_id)
