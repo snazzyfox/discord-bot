@@ -17,4 +17,4 @@ jobs:
           KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
           TARGET: discord-dingomata/
           ARGS_MORE: --exclude='/.env.*' --exclude '/.env'
-          POST_SCRIPT: scripts/restart-discord-discord_bot.sh
+          POST_SCRIPT: scripts/restart-discord-bot.sh

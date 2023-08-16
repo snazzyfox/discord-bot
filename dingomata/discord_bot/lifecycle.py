@@ -7,6 +7,7 @@ import lightbulb
 import openai
 from pydantic import SecretStr
 
+from dingomata.config.env import envConfig
 from dingomata.config.provider import get_secret_configs
 from dingomata.config.values import SecretConfigKey
 from dingomata.exceptions import UserError
@@ -25,7 +26,7 @@ bot_intents = (
 
 
 def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
-    bot = lightbulb.BotApp(token=token.get_secret_value(), banner=None, intents=bot_intents)
+    bot = lightbulb.BotApp(token=token.get_secret_value(), logs=envConfig.log_level, banner=None, intents=bot_intents)
     bot.default_enabled_guilds = guilds
     bot.load_extensions_from('dingomata/discord_bot/commands')
 
@@ -63,8 +64,8 @@ def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
     @bot.listen()
     async def on_interaction(event: lightbulb.CommandInvocationEvent) -> None:
         logger.info("Command %s invoked by %s in guild %s, channel %s, params: %s",
-                    event.command.name, event.context.author, event.context.guild_id, event.context.channel_id,
-                    dict(event.context.options.items()))
+                    event.command.name, event.context.author, event.context.get_guild().name,
+                    event.context.get_channel().name, dict(event.context.options.items()))
 
     return bot
 
