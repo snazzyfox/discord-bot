@@ -1,11 +1,13 @@
 import asyncio
 import logging
+import math
 
 import hikari
 import lightbulb
+import openai
 from pydantic import SecretStr
 
-from dingomata.config.provider import get_secret_config
+from dingomata.config.provider import get_secret_configs
 from dingomata.config.values import SecretConfigKey
 from dingomata.exceptions import UserError
 
@@ -41,8 +43,20 @@ def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
                 flags=hikari.MessageFlag.EPHEMERAL,
             )
             logger.warning(f"{event.exception.__cause__.__class__.__name__}: {event.exception.__cause__}")
+        elif isinstance(event.exception, lightbulb.CommandIsOnCooldown):
+            await event.context.respond(
+                f'This command is on cooldown. You can use this command again in '
+                f'{math.ceil(event.exception.retry_after)} seconds here, or you can use it in the bot spam channel '
+                f'if there is one.'
+            )
         else:
             raise event.exception
+
+    @bot.listen()
+    async def on_interaction(event: lightbulb.CommandInvocationEvent) -> None:
+        logger.info("Command %s invoked by %s in guild %s, channel %s, params: %s",
+                    event.command.name, event.context.author, event.context.guild_id, event.context.channel_id,
+                    dict(event.context.options.items()))
 
     return bot
 
@@ -52,7 +66,9 @@ async def start() -> None:
     logger.info('Starting discord bots...')
 
     # Get tokens from config store
-    tokens_config = await get_secret_config(SecretConfigKey.DISCORD_TOKEN)
+    tokens_config = await get_secret_configs(SecretConfigKey.DISCORD_TOKEN)
+    openai_config = await get_secret_configs(SecretConfigKey.OPENAI_API_KEY)
+    openai.api_key = next(iter(openai_config.values()))
 
     # Group guilds by token - some guilds may share the same bot
     grouped: dict[SecretStr, set[int]] = {}

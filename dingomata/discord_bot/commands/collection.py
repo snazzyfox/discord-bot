@@ -3,13 +3,12 @@ from copy import deepcopy
 import hikari
 import lightbulb
 import tortoise.transactions
-from lightbulb import BotApp
 from tortoise.functions import Count
 
 from dingomata.database.models import Collect
-from dingomata.utils import mention_if_needed
+from dingomata.utils import LightbulbPlugin, mention_if_needed
 
-plugin = lightbulb.Plugin('collection')
+plugin = LightbulbPlugin('collection')
 
 
 @plugin.command
@@ -65,9 +64,9 @@ async def collection_show(ctx: lightbulb.SlashContext) -> None:
     )
 
 
-def load(bot: BotApp):
+def load(bot: lightbulb.BotApp):
     bot.add_plugin(deepcopy(plugin))
 
 
-def unload(bot: BotApp):
+def unload(bot: lightbulb.BotApp):
     bot.remove_plugin(plugin.name)

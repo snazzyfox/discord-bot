@@ -5,15 +5,15 @@ from datetime import datetime
 import hikari
 import lightbulb
 import tortoise.transactions
-from lightbulb import BotApp
 from lightbulb.ext import tasks
 from parsedatetime import parsedatetime
 
 from dingomata.database.models import ScheduledTask, TaskType
 from dingomata.exceptions import UserError
+from dingomata.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
-plugin = lightbulb.Plugin('reminder')
+plugin = LightbulbPlugin('reminder')
 _calendar = parsedatetime.Calendar()
 
 
@@ -78,7 +78,7 @@ async def list(ctx: lightbulb.SlashContext) -> None:
 
 
 @tasks.task(m=1, auto_start=True, pass_app=True)
-async def check_and_send_reminder(app: BotApp):
+async def check_and_send_reminder(app: lightbulb.BotApp):
     async with tortoise.transactions.in_transaction() as tx:
         db_records = await ScheduledTask.select_for_update().using_db(tx).filter(
             guild_id__in=app.default_enabled_guilds,
@@ -86,9 +86,8 @@ async def check_and_send_reminder(app: BotApp):
             process_after__lte=datetime.now(),
         ).all()
         for task in db_records:
-            guild = app.cache.get_guild(task.guild_id)
-            member = guild.get_member(task.payload['user'])
-            channel = guild.get_channel(task.payload['channel'])
+            member = app.cache.get_member(task.guild_id, task.payload['user'])
+            channel = app.cache.get_guild_channel(task.payload['channel'])
             try:
                 await channel.send(f"Hey {member.mention}! Here's your reminder for "
                                    f"{task.payload['reason']}.")
@@ -97,10 +96,10 @@ async def check_and_send_reminder(app: BotApp):
             await task.delete(using_db=tx)
 
 
-def load(bot: BotApp):
+def load(bot: lightbulb.BotApp):
     bot.add_plugin(deepcopy(plugin))
     tasks.load(bot)
 
 
-def unload(bot: BotApp):
+def unload(bot: lightbulb.BotApp):
     bot.remove_plugin(plugin.name)

@@ -9,13 +9,13 @@ import parsedatetime
 import pytz
 import tortoise
 import tortoise.transactions
-from lightbulb import BotApp
 
 from dingomata.database.models import User
 from dingomata.exceptions import UserError
+from dingomata.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
-plugin = lightbulb.Plugin('bedtime')
+plugin = LightbulbPlugin('bedtime')
 
 _BEDTIME_CACHE: dict[int, User] = {}
 _BEDTIME_COOLDOWN = timedelta(minutes=20)
@@ -33,7 +33,7 @@ async def bedtime_group(ctx: lightbulb.SlashContext):
 @bedtime_group.child
 @lightbulb.option("time", description="Your usual bedtime, for example 11:00pm, or 23:00")
 @lightbulb.command("set", "Set a bedtime. I'll remind you to go to bed when you chat after this time.", ephemeral=True)
-@lightbulb.implements(lightbulb.SlashCommand)
+@lightbulb.implements(lightbulb.SlashSubCommand)
 async def bedtime_set(ctx: lightbulb.SlashContext) -> None:
     """Set a bedtime. I will remind you to go to bed when you chat after this time."""
     # Convert user timezone to UTC
@@ -60,7 +60,7 @@ async def bedtime_set(ctx: lightbulb.SlashContext) -> None:
 
 @bedtime_group.child
 @lightbulb.command('off', description="Removes your bedtime.", ephemeral=True)
-@lightbulb.implements(lightbulb.SlashCommand)
+@lightbulb.implements(lightbulb.SlashSubCommand)
 async def bedtime_off(ctx: lightbulb.SlashContext) -> None:
     await User.update_or_create({"bedtime": None}, user_id=ctx.user.id)
     _BEDTIME_CACHE.pop(ctx.author.id, None)
@@ -69,7 +69,7 @@ async def bedtime_off(ctx: lightbulb.SlashContext) -> None:
 
 @bedtime_group.child
 @lightbulb.command(name='get', description="Get your current bedtime.", ephemeral=True)
-@lightbulb.implements(lightbulb.SlashCommand)
+@lightbulb.implements(lightbulb.SlashSubCommand)
 async def bedtime_get(ctx: lightbulb.SlashContext) -> None:
     user = await User.get_or_none(user_id=ctx.user)
     if not user or not user.bedtime:
@@ -124,7 +124,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
                     "you're finally awake.... You were trying to sleep, right? Walked right into this "
                     "discord server, same as us, and that furry over there.",
                 ])
-            await message.channel.send(f"Hey {message.author.mention}, {text}")
+            await message.respond(f"Hey {message.author.mention}, {text}")
             db_record.last_bedtime_notified = utcnow  # type: ignore
             await db_record.save(update_fields=["last_bedtime_notified"])
             logger.debug(f"Bedtime notified: {message.author.id}")
@@ -142,9 +142,9 @@ async def _get_bedtime(user_id: int) -> User | None:
         return user
 
 
-def load(bot: BotApp):
+def load(bot: lightbulb.BotApp):
     bot.add_plugin(deepcopy(plugin))
 
 
-def unload(bot: BotApp):
+def unload(bot: lightbulb.BotApp):
     bot.remove_plugin(plugin.name)

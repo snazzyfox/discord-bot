@@ -3,14 +3,14 @@ from random import betavariate, choice, random
 
 import lightbulb
 import tortoise.transactions
-from lightbulb import BotApp
 from prettytable import PrettyTable
 from tortoise import connections
 from tortoise.functions import Sum
 
 from dingomata.database.models import Tuch
+from dingomata.utils import LightbulbPlugin
 
-plugin = lightbulb.Plugin('tuch')
+plugin = LightbulbPlugin('tuch')
 
 
 @plugin.command
@@ -73,9 +73,9 @@ async def tuchboard(ctx: lightbulb.SlashContext) -> None:
     await ctx.respond(message)
 
 
-def load(bot: BotApp):
+def load(bot: lightbulb.BotApp):
     bot.add_plugin(deepcopy(plugin))
 
 
-def unload(bot: BotApp):
+def unload(bot: lightbulb.BotApp):
     bot.remove_plugin(plugin.name)

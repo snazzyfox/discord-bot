@@ -6,15 +6,15 @@ import hikari
 import lightbulb
 from async_lru import alru_cache
 from cachetools import TTLCache
-from lightbulb import BotApp
 
 from dingomata.config.provider import get_config
 from dingomata.config.values import ConfigKey
+from dingomata.utils import LightbulbPlugin
 
-plugin = lightbulb.Plugin('logging')
+plugin = LightbulbPlugin('logging')
 
 DeleteAuditKey = namedtuple('DeleteAuditKey', ('guild', 'channel', 'author'))
-_recent_audits = TTLCache(maxsize=256, ttl=180)
+_recent_audits: TTLCache = TTLCache(maxsize=256, ttl=180)
 
 
 # Note: Discord audit logs does not tell us WHICH message was deleted; just which channel/user it's for.
@@ -120,9 +120,9 @@ async def _get_log_channel(guild_id: int) -> int:
     raise LogsNotConfigured()
 
 
-def load(bot: BotApp):
+def load(bot: lightbulb.BotApp):
     bot.add_plugin(deepcopy(plugin))
 
 
-def unload(bot: BotApp):
+def unload(bot: lightbulb.BotApp):
     bot.remove_plugin(plugin.name)

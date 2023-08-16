@@ -6,14 +6,14 @@ from itertools import islice
 import hikari
 import lightbulb
 import pytz
-from lightbulb import BotApp
 from parsedatetime import parsedatetime
 
 from dingomata.database.models import User
 from dingomata.exceptions import UserError
+from dingomata.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
-plugin = lightbulb.Plugin('timezone')
+plugin = LightbulbPlugin('timezone')
 _AUTOCOMPLETE_COUNT = 10
 _calendar = parsedatetime.Calendar()
 
@@ -102,9 +102,9 @@ def _parse_timezone(tz: str) -> pytz.BaseTzInfo:
         ) from e
 
 
-def load(bot: BotApp):
+def load(bot: lightbulb.BotApp):
     bot.add_plugin(deepcopy(plugin))
 
 
-def unload(bot: BotApp):
+def unload(bot: lightbulb.BotApp):
     bot.remove_plugin(plugin.name)
