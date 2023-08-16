@@ -25,6 +25,7 @@ async def reminder_group(ctx: lightbulb.SlashContext) -> None:
 
 
 @reminder_group.child
+@lightbulb.add_checks(lightbulb.bot_has_guild_permissions(hikari.Permissions.SEND_MESSAGES))
 @lightbulb.option("time", description="How much later you want the reminder. For example, 10 minutes or 2 days.")
 @lightbulb.option("about", description="What I should remind you about.")
 @lightbulb.command(

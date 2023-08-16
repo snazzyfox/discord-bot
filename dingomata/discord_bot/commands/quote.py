@@ -16,6 +16,7 @@ _NON_ALPHANUM = re.compile(r"\W")
 
 
 @plugin.command
+@lightbulb.add_checks(lightbulb.has_role_permissions(hikari.Permissions.MANAGE_MESSAGES))
 @lightbulb.command("quotes", description="Manage quotes")
 @lightbulb.implements(lightbulb.SlashCommandGroup)
 async def quotes_group(ctx: lightbulb.ApplicationContext) -> None:

@@ -47,8 +47,16 @@ def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
             await event.context.respond(
                 f'This command is on cooldown. You can use this command again in '
                 f'{math.ceil(event.exception.retry_after)} seconds here, or you can use it in the bot spam channel '
-                f'if there is one.'
+                f'if there is one.',
+                flags=hikari.MessageFlag.EPHEMERAL,
             )
+            logger.warning(f"{event.exception.__class__.__name__}: {event.exception}")
+        elif isinstance(event.exception, lightbulb.CheckFailure):
+            await event.context.respond(
+                'Error: ' + str(event.exception),
+                flags=hikari.MessageFlag.EPHEMERAL,
+            )
+            logger.warning(f"{event.exception.__class__.__name__}: {event.exception}")
         else:
             raise event.exception
 

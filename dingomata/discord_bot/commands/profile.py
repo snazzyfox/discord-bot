@@ -28,13 +28,6 @@ _DISCORD_IMAGE_URL = re.compile(
 
 
 @plugin.command
-@lightbulb.command("profile_admin", description="Manage profile cards", guilds=(351122293105229835,))
-@lightbulb.implements(lightbulb.SlashCommandGroup)
-async def profile_admin_group(ctx: lightbulb.SlashContext) -> None:
-    pass
-
-
-@plugin.command
 @lightbulb.command("profile", description="Edit profile cards", guilds=(351122293105229835,))
 @lightbulb.implements(lightbulb.SlashCommandGroup)
 async def profile_group(ctx: lightbulb.SlashContext) -> None:
