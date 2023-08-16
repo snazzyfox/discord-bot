@@ -2,7 +2,17 @@ from enum import IntEnum
 
 from tortoise import Model, fields
 
-from dingomata.utils import DatetimeField, TimeField
+from dingomata.database.fields import DatetimeField, TimeField
+
+
+class Config(Model):
+    class Meta:
+        table = "configs"
+        unique_together = (('guild_id', 'config_key'),)
+
+    guild_id = fields.BigIntField(null=False)
+    config_key = fields.TextField(null=False)
+    config_value = fields.JSONField(null=False)
 
 
 class User(Model):
@@ -64,7 +74,7 @@ class GuildMember(Model):
     class Meta:
         table = "guild_members"
         unique_together = (("guild_id", "user_id"),)
-        indexes = (("guild_id", "next_birthday_utc"), )
+        indexes = (("guild_id", "next_birthday_utc"),)
 
     guild_id = fields.BigIntField(null=False)
     user_id = fields.BigIntField(null=False)
