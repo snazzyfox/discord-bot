@@ -1,6 +1,8 @@
 name: deploy
 on:
-  push:
+  workflow_run:
+    workflows: [ pre-commit ]
+    types: [ completed ]
     branches: [ main ]
   workflow_dispatch:
 
@@ -8,8 +10,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: gcp-dingo-den-bots
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: up9cloud/action-rsync@v1.3
         env:
           HOST: ${{ secrets.DEPLOY_HOST }}
