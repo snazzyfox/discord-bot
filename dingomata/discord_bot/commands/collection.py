@@ -23,15 +23,21 @@ async def collection_group(ctx: lightbulb.SlashContext) -> None:
 @lightbulb.command("add", description="Collect a cutie!")
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def collection_add(ctx: lightbulb.SlashContext) -> None:
-    try:
-        await Collect.create(guild_id=ctx.guild_id, user_id=ctx.author.id, target_user_id=ctx.options.user.id)
-        count, = await Collect.filter(guild_id=ctx.guild_id, user_id=ctx.author.id).annotate(
-            count=Count("target_user_id")).first().values_list("count")
-        await ctx.respond(f"{ctx.member.display_name} collects {await mention_if_needed(ctx, ctx.options.user)}. "
-                          f"They now have {count} cutie(s) in their collection!")
-    except tortoise.exceptions.IntegrityError:
-        await ctx.respond(f"You have already collected {ctx.options.user.display_name}.",
-                          flags=hikari.MessageFlag.EPHEMERAL)
+    if ctx.options.user.id == ctx.bot.get_me().id:
+        await Collect.filter(guild_id=ctx.guild_id, user_id=ctx.author.id).delete()
+        await ctx.respond(f"{ctx.member.display_name} collects {ctx.options.user.display_name}. Unfortunately, they "
+                          f"forgor to unplug the bot, who overheats and catches the shelf on fire. The entire "
+                          f"collection is engulfed in flames.")
+    else:
+        try:
+            await Collect.create(guild_id=ctx.guild_id, user_id=ctx.author.id, target_user_id=ctx.options.user.id)
+            count, = await Collect.filter(guild_id=ctx.guild_id, user_id=ctx.author.id).annotate(
+                count=Count("target_user_id")).first().values_list("count")
+            await ctx.respond(f"{ctx.member.display_name} collects {await mention_if_needed(ctx, ctx.options.user)}. "
+                              f"They now have {count} cutie(s) in their collection!")
+        except tortoise.exceptions.IntegrityError:
+            await ctx.respond(f"You have already collected {ctx.options.user.display_name}.",
+                              flags=hikari.MessageFlag.EPHEMERAL)
 
 
 @collection_group.child
@@ -57,11 +63,16 @@ async def collection_show(ctx: lightbulb.SlashContext) -> None:
     collected = await Collect.filter(guild_id=ctx.guild_id, user_id=ctx.user.id).only("target_user_id")
     guild = ctx.get_guild()
     collected_users = (guild.get_member(c.target_user_id) for c in collected)
-    await ctx.respond(
-        f"{ctx.member.display_name} has a collection of {len(collected)} cutie(s). "
-        "Their collection includes: "
-        + ", ".join(c.display_name for c in collected_users if c)
-    )
+    if len(collected):
+        await ctx.respond(
+            f"{ctx.member.display_name} has a collection of {len(collected)} cutie(s). "
+            "Their collection includes: "
+            + ", ".join(c.display_name for c in collected_users if c)
+        )
+    else:
+        await ctx.respond(
+            f"{ctx.member.display_name} doesn't have a collection of cutie(s). Better late than never!"
+        )
 
 
 def load(bot: lightbulb.BotApp):
