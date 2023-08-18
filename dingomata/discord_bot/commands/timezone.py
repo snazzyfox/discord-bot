@@ -48,9 +48,9 @@ async def timezone_get(ctx: lightbulb.SlashContext):
 
 
 @plugin.command
-@lightbulb.option('time', description="A date and/or time, e.g. 2020/01/01 00:00:00")
 @lightbulb.option('timezone', description="Time this time is in. If not provided, uses your personal timezone.",
                   autocomplete=True, default=None)
+@lightbulb.option('time', description="A date and/or time, e.g. 2020/01/01 00:00:00")
 @lightbulb.command("localtime", description="Convert time between timezones.", ephemeral=True)
 async def localtime(ctx: lightbulb.SlashContext) -> None:
     if ctx.options.timezone:

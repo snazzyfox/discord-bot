@@ -24,8 +24,8 @@ async def quotes_group(ctx: lightbulb.ApplicationContext) -> None:
 
 
 @quotes_group.child
-@lightbulb.option("user", description="Who said it?", type=hikari.Member)
 @lightbulb.option("content", description="What did they say?")
+@lightbulb.option("user", description="Who said it?", type=hikari.Member)
 @lightbulb.command("add", description="Add a new quote", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def quotes_add(ctx: lightbulb.SlashContext) -> None:

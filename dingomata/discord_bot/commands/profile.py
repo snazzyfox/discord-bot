@@ -48,8 +48,8 @@ async def profile_remove_group(ctx: lightbulb.SlashContext) -> None:
 
 
 @profile_add_group.child
-@lightbulb.option("month", description="Month of the birthday", type=int, choices=_MONTHS)
 @lightbulb.option("day", description="Day of the birthday", type=int, min_value=1, max_value=31)
+@lightbulb.option("month", description="Month of the birthday", type=int, choices=_MONTHS)
 @lightbulb.command(name="birthday", description="Set your birthday.", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def profile_add_birthday(ctx: lightbulb.SlashContext) -> None:
@@ -112,8 +112,8 @@ async def next_birthdays(ctx: lightbulb.SlashContext) -> None:
 
 
 @profile_add_group.child
-@lightbulb.option('service', description="Service or game this friend code is for", choices=_FRIEND_CODE_SERVICES)
 @lightbulb.option('code', description='Friend code you would like to add')
+@lightbulb.option('service', description="Service or game this friend code is for", choices=_FRIEND_CODE_SERVICES)
 @lightbulb.command(name="friend_code", description="Add your friend code.", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def profile_add_friend_code(ctx: lightbulb.SlashContext) -> None:
@@ -132,9 +132,9 @@ async def profile_remove_friend_code(ctx: lightbulb.SlashContext) -> None:
 
 
 @profile_add_group.child
+@lightbulb.option("url", description="An image URL posted on Discord of the ref sheet")
 @lightbulb.option("name", description="Name for the ref sheet. If this name already exists, "
                                       "it will replace the existing one.")
-@lightbulb.option("url", description="An image URL posted on Discord of the ref sheet")
 @lightbulb.command(name="refsheet", description="Add a new ref sheet", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def profile_add_refsheet(ctx: lightbulb.SlashContext) -> None:

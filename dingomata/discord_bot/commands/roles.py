@@ -95,11 +95,11 @@ async def roles_dropdown_create(ctx: lightbulb.SlashContext) -> None:
 
 
 @roles_dropdown_group.child
-@lightbulb.option('dropdown_url', description='URL to an existing message with dropdown')
-@lightbulb.option('role', description='The first role to add as an option', type=hikari.Role)
+@lightbulb.option('emoji', description='Optional emoji to show next to the role', type=str, default=None)
 @lightbulb.option('description', description='Optional description of the role to add as an option', type=str,
                   default=None)
-@lightbulb.option('emoji', description='Optional emoji to show next to the role', type=str, default=None)
+@lightbulb.option('dropdown_url', description='URL to an existing message with dropdown')
+@lightbulb.option('role', description='The role to add as an option', type=hikari.Role)
 @lightbulb.command('add', description="Add a role to an existing role dropdown.", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def roles_dropdown_add(ctx: lightbulb.SlashContext) -> None:
@@ -142,7 +142,7 @@ async def roles_dropdown_add(ctx: lightbulb.SlashContext) -> None:
 
 @roles_dropdown_group.child
 @lightbulb.option('dropdown_url', description='URL to an existing message with dropdown')
-@lightbulb.option('role', description='The first role to add as an option', type=hikari.Role)
+@lightbulb.option('role', description='The role to remove as an option', type=hikari.Role)
 @lightbulb.command('remove', description="Add a role to an existing role dropdown.", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def roles_dropdown_remove(ctx: lightbulb.SlashContext) -> None:
