@@ -31,7 +31,8 @@ async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None
             # Member has AI enabled role. Respond with AI.
             await _chat_guild_respond_ai(event)
         # Always add message to AI message buffer in case it's needed later
-        _ai_message_buffer[event.guild_id].append(event.message)
+        if event.message.content:
+            _ai_message_buffer[event.guild_id].append(event.message)
         if should_reply:
             return
     if await values.chat_rb_enabled.get_value(event.guild_id):
