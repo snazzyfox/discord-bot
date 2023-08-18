@@ -23,7 +23,8 @@ async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None
     if await values.chat_ai_enabled.get_value(event.guild_id):
         ai_roles = await values.chat_ai_roles.get_value(event.guild_id)
         should_reply = ai_roles is None or (
-            bool(set(event.member.role_ids) & set(ai_roles))
+            event.member
+            and bool(set(event.member.role_ids) & set(ai_roles))
             and event.is_human and event.get_guild().get_my_member().id in event.message.user_mentions_ids
         )
         if should_reply:
@@ -54,7 +55,7 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
         history.insert(0, {
             "role": role,
             "content": previous_message.content,
-            "name": _non_alphanum.sub('_', previous_message.member.display_name)
+            "name": _non_alphanum.sub('_', _get_author_name(previous_message))
         })
         previous_message = previous_message.referenced_message
     else:
@@ -64,7 +65,7 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
             history.insert(0, {
                 "role": role,
                 "content": msg.content,
-                "name": _non_alphanum.sub('_', msg.member.display_name),
+                "name": _non_alphanum.sub('_', _get_author_name(msg)),
             })
     await _chat_respond_ai(event.message, prompts, history)
 
@@ -93,7 +94,7 @@ async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history:
         {"role": "system", "content": '\n'.join(system_prompts)},
         *history,
         {"role": "user",
-         "name": _non_alphanum.sub('_', message.member.display_name),
+         "name": _non_alphanum.sub('_', _get_author_name(message)),
          "content": message.content}
     ]
     response = await openai.ChatCompletion.acreate(
@@ -108,6 +109,13 @@ async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history:
     response_text = response_text.split('<|im_sep|>', 1)[-1]  # remove openai artifacts
     logger.info("AI chat message: history %s, message: %s, response: %s", history, message.content, response_text)
     await message.respond(response_text, reply=True)
+
+
+def _get_author_name(message: hikari.PartialMessage) -> str:
+    if message.member:
+        return message.member.display_name
+    else:
+        return message.author.name
 
 
 def load(bot: lightbulb.BotApp):

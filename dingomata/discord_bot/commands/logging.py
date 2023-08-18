@@ -12,8 +12,12 @@ from dingomata.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('logging')
 
+_AUDIT_DELAY = 2.0
 DeleteAuditKey = namedtuple('DeleteAuditKey', ('guild', 'channel', 'author'))
+BannedAuditKey = namedtuple('BannedAuditKey', ('guild', 'user'))
 _recent_audits: TTLCache = TTLCache(maxsize=256, ttl=180)
+
+
 # Note: Discord audit logs does not tell us WHICH message was deleted; just which channel/user it's for.
 # We match them based on guild, channel, and author as best effort.
 # The TTL here is the max time tolerated between deletion and audit log entry for matching. Anything that's received
@@ -23,7 +27,7 @@ _recent_audits: TTLCache = TTLCache(maxsize=256, ttl=180)
 @plugin.listener(hikari.GuildMessageDeleteEvent)
 @plugin.listener(hikari.GuildBulkMessageDeleteEvent)
 async def log_message_delete(event: hikari.GuildMessageDeleteEvent | hikari.GuildBulkMessageDeleteEvent) -> None:
-    await asyncio.sleep(1)  # let audit catch up first
+    await asyncio.sleep(_AUDIT_DELAY)  # let audit catch up first
     log_channel_id = await _get_log_channel(event.guild_id)
     if not log_channel_id:
         return
@@ -51,6 +55,25 @@ async def log_message_update(event: hikari.GuildMessageUpdateEvent) -> None:
         await log_channel.send(embed=embed)
 
 
+@plugin.listener(hikari.BanCreateEvent)
+async def log_ban_create(event: hikari.BanCreateEvent) -> None:
+    await asyncio.sleep(_AUDIT_DELAY)  # let audit catch up first
+    log_channel_id = await _get_log_channel(event.guild_id)
+    if not log_channel_id:
+        return
+    log_channel = event.get_guild().get_channel(log_channel_id)
+    banned = event.user
+    audit_key = BannedAuditKey(guild=event.guild_id, user=event.user_id)
+    audit = _recent_audits.get(audit_key)
+    embed = hikari.Embed(title='User banned', color=hikari.Color(0x880000))
+    embed.add_field(name='User', value=banned.username, inline=True)
+    if audit:
+        embed.add_field(name='Banned by', value=event.get_guild().get_member(audit.user_id).mention, inline=True)
+        embed.add_field(name='Reason', value=audit.reason or '(Not provided)')
+    embed.set_thumbnail(banned.display_avatar_url.url)
+    await log_channel.send(embed=embed)
+
+
 @plugin.listener(hikari.AuditLogEntryCreateEvent)
 async def on_audit_log_entry_create(event: hikari.AuditLogEntryCreateEvent) -> None:
     if event.entry.action_type == hikari.AuditLogEventType.MESSAGE_DELETE:
@@ -60,7 +83,6 @@ async def on_audit_log_entry_create(event: hikari.AuditLogEntryCreateEvent) -> N
 
 
 async def _handle_delete_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
-    # See if this audit event corresponds to an existing error message
     if isinstance(event.entry.options, hikari.MessageDeleteEntryInfo):
         audit_key = DeleteAuditKey(
             guild=event.guild_id, channel=event.entry.options.channel_id, author=event.entry.target_id,
@@ -69,22 +91,13 @@ async def _handle_delete_audit_log(event: hikari.AuditLogEntryCreateEvent) -> No
 
 
 async def _handle_ban_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
-    log_channel_id = await _get_log_channel(event.guild_id)
-    if not log_channel_id:
-        return
-    log_channel = event.get_guild().get_channel(log_channel_id)
-    banned = event.get_guild().get_member(event.entry.target_id)
-    embed = hikari.Embed(title='User banned', color=hikari.Color(0x880000))
-    embed.add_field(name='User', value=banned.mention, inline=True)
-    embed.add_field(name='Banned by', value=event.get_guild().get_member(event.entry.user_id).mention, inline=True)
-    embed.add_field(name='Reason', value=event.entry.reason or '(Not provided)')
-    embed.set_thumbnail(banned.display_avatar_url.url)
-    await log_channel.send(embed=embed)
+    audit_key = BannedAuditKey(guild=event.guild_id, user=event.entry.target_id)
+    _recent_audits[audit_key] = event.entry
 
 
 def _generate_message_embed(
-        event: hikari.GuildMessageDeleteEvent | hikari.GuildBulkMessageDeleteEvent | hikari.GuildMessageUpdateEvent,
-        audit: hikari.AuditLogEntry | None,
+    event: hikari.GuildMessageDeleteEvent | hikari.GuildBulkMessageDeleteEvent | hikari.GuildMessageUpdateEvent,
+    audit: hikari.AuditLogEntry | None,
 ) -> hikari.Embed:
     embed = hikari.Embed()
     embed.add_field(name='Channel', value=event.get_channel().mention, inline=True)
