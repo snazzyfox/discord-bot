@@ -32,7 +32,7 @@ async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None
             await _chat_guild_respond_ai(event)
         # Always add message to AI message buffer in case it's needed later
         if event.message.content:
-            _ai_message_buffer[event.guild_id].append(event.message)
+            _ai_message_buffer[event.channel_id].append(event.message)
         if should_reply:
             return
     if await values.chat_rb_enabled.get_value(event.guild_id):
@@ -61,7 +61,7 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
         previous_message = previous_message.referenced_message
     else:
         # There's nothing to reply to. Use previous message history in chat instead
-        for msg in _ai_message_buffer[event.guild_id]:
+        for msg in _ai_message_buffer[event.channel_id]:
             role = 'assistant' if msg.member.id == bot_member.id else 'user'
             history.insert(0, {
                 "role": role,
