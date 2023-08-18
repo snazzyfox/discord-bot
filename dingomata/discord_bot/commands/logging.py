@@ -14,21 +14,10 @@ plugin = LightbulbPlugin('logging')
 
 DeleteAuditKey = namedtuple('DeleteAuditKey', ('guild', 'channel', 'author'))
 _recent_audits: TTLCache = TTLCache(maxsize=256, ttl=180)
-
-
 # Note: Discord audit logs does not tell us WHICH message was deleted; just which channel/user it's for.
 # We match them based on guild, channel, and author as best effort.
 # The TTL here is the max time tolerated between deletion and audit log entry for matching. Anything that's received
 # farther apart from this will be considered separate deletion actions.
-
-class LogsNotConfigured(Exception):
-    """Exception class that allows early stop in log processing if logs is not turned on."""
-    pass
-
-
-@plugin.set_error_handler
-async def plugin_error_handler(event: lightbulb.CommandErrorEvent):
-    return isinstance(event.exception, LogsNotConfigured)
 
 
 @plugin.listener(hikari.GuildMessageDeleteEvent)
@@ -36,6 +25,8 @@ async def plugin_error_handler(event: lightbulb.CommandErrorEvent):
 async def log_message_delete(event: hikari.GuildMessageDeleteEvent | hikari.GuildBulkMessageDeleteEvent) -> None:
     await asyncio.sleep(1)  # let audit catch up first
     log_channel_id = await _get_log_channel(event.guild_id)
+    if not log_channel_id:
+        return
     if isinstance(event, hikari.GuildMessageDeleteEvent):
         messages = [event.old_message]
     else:
@@ -53,6 +44,8 @@ async def log_message_delete(event: hikari.GuildMessageDeleteEvent | hikari.Guil
 async def log_message_update(event: hikari.GuildMessageUpdateEvent) -> None:
     if event.is_human:
         log_channel_id = await _get_log_channel(event.guild_id)
+        if not log_channel_id:
+            return
         embed = _generate_message_embed(event, None)
         log_channel = event.get_guild().get_channel(log_channel_id)
         await log_channel.send(embed=embed)
@@ -77,6 +70,8 @@ async def _handle_delete_audit_log(event: hikari.AuditLogEntryCreateEvent) -> No
 
 async def _handle_ban_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
     log_channel_id = await _get_log_channel(event.guild_id)
+    if not log_channel_id:
+        return
     log_channel = event.get_guild().get_channel(log_channel_id)
     banned = event.get_guild().get_member(event.entry.target_id)
     embed = hikari.Embed(title='User banned', color=hikari.Color(0x880000))
@@ -112,12 +107,13 @@ def _generate_message_embed(
 
 
 @alru_cache(maxsize=12)
-async def _get_log_channel(guild_id: int) -> int:
+async def _get_log_channel(guild_id: int) -> int | None:
     log_enabled = await values.logs_enabled.get_value(guild_id)
     log_channel = await values.logs_channel_id.get_value(guild_id)
     if log_enabled and log_channel:
         return log_channel
-    raise LogsNotConfigured()
+    else:
+        return None
 
 
 def load(bot: lightbulb.BotApp):
