@@ -12,6 +12,7 @@ from hikari import undefined
 from lightbulb.ext import tasks
 
 from dingomata.config import values
+from dingomata.config.provider import cached_config
 from dingomata.database.models import MessageMetric, ScheduledTask, TaskType
 from dingomata.exceptions import UserError
 from dingomata.utils import LightbulbPlugin
@@ -211,6 +212,7 @@ async def _get_existing_dropdown(
     return message, dropdown
 
 
+@cached_config
 @alru_cache(24)
 async def _get_managed_tracked_roles(guild_id: int) -> set[int]:
     managed_roles = await values.roles_mod_add.get_value(guild_id) or []

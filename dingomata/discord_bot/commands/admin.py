@@ -32,7 +32,7 @@ async def admin_config_group(ctx: lightbulb.SlashContext) -> None:
 @lightbulb.command("reload", description="Reload configs from database. This will NOT restart bots.", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def admin_config_reload(ctx: lightbulb.SlashContext) -> None:
-    provider.get_config.cache_clear()
+    provider.clear_config_caches()
     await ctx.respond('All Done.')
 
 

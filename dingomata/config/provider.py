@@ -1,13 +1,17 @@
+import logging
 import typing
 from functools import cached_property
 
 import pydantic
-from async_lru import alru_cache
+from async_lru import _LRUCacheWrapper, alru_cache
 from pydantic import SecretStr
 
 from ..database.models import Config
 
 _CT = typing.TypeVar('_CT')
+_CacheT = typing.TypeVar('_CacheT', bound=_LRUCacheWrapper)
+_caches: list[_LRUCacheWrapper] = []
+logger = logging.getLogger(__name__)
 
 
 class ConfigValue(typing.Generic[_CT]):
@@ -63,4 +67,22 @@ async def get_config(guild_id: int, key: str) -> typing.Any:
     value = await Config.get_or_none(guild_id=guild_id, config_key=key).only('config_value')
     if value is None:
         value = await Config.get_or_none(guild_id=0, config_key=key).only('config_value')
+    logger.info('Read guild %s config %s from database.', guild_id, key)
     return value.config_value if value is not None else None
+
+
+def cached_config(cached: _CacheT) -> _CacheT:
+    """
+    A decorator that registers a function (that uses alru_cache) as dependent on a cached config, so that it can be
+    properly invalidated when a config needs to be invalidated due to user request.
+    """
+    global _caches
+    _caches.append(cached)
+    return cached
+
+
+def clear_config_caches():
+    get_config.cache_clear()
+    for cache in _caches:
+        logger.info('Clearing cache: %s, info %s', cache.__qualname__, cache.cache_info())
+        cache.cache_clear()

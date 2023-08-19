@@ -8,6 +8,7 @@ from async_lru import alru_cache
 from cachetools import TTLCache
 
 from dingomata.config import values
+from dingomata.config.provider import cached_config
 from dingomata.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('logging')
@@ -49,7 +50,7 @@ async def log_message_delete(event: hikari.GuildMessageDeleteEvent | hikari.Guil
 
 @plugin.listener(hikari.GuildMessageUpdateEvent)
 async def log_message_update(event: hikari.GuildMessageUpdateEvent) -> None:
-    if event.is_human:
+    if event.is_human and event.old_message:  # dont have anything to log if no cached message
         log_channel_id = await _get_log_channel(event.guild_id)
         if not log_channel_id:
             return
@@ -122,6 +123,7 @@ def _generate_message_embed(
     return embed
 
 
+@cached_config
 @alru_cache(maxsize=12)
 async def _get_log_channel(guild_id: int) -> int | None:
     log_enabled = await values.logs_enabled.get_value(guild_id)

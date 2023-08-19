@@ -7,8 +7,10 @@ from copy import deepcopy
 import hikari
 import lightbulb
 import openai
+from async_lru import alru_cache
 
 from dingomata.config import values
+from dingomata.config.provider import cached_config
 from dingomata.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
@@ -72,13 +74,23 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
 
 
 async def _chat_guild_respond_text(event: hikari.GuildMessageCreateEvent):
-    prompts = await values.chat_rb_prompts.get_value(event.guild_id) or []
-    for prompt in prompts:
-        if re.search('|'.join(prompt['triggers']), event.content):
-            response = random.choice(prompt['responses'])
+    prompts = await _chat_get_prompts_text(event.guild_id)
+    for pattern, responses in prompts:
+        if pattern.search(event.content):
+            response = random.choice(responses)
             await event.message.respond(response, reply=True)
             logger.info("Rule-based chat message: %s; Response: %s", event.content, response)
             return
+
+
+@cached_config
+@alru_cache(16)
+async def _chat_get_prompts_text(guild_id: int) -> list[tuple[re.Pattern, list[str]]]:
+    prompts = await values.chat_rb_prompts.get_value(guild_id) or []
+    return [
+        (re.compile('|'.join(p['triggers']), re.IGNORECASE), p['responses'])
+        for p in prompts
+    ]
 
 
 async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history: list[dict]) -> None:
@@ -116,7 +128,7 @@ def _get_author_name(message: hikari.PartialMessage) -> str:
     if message.member:
         return message.member.display_name
     else:
-        return message.author.name
+        return message.author.global_name
 
 
 def load(bot: lightbulb.BotApp):
