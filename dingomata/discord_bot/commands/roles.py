@@ -53,7 +53,7 @@ async def assign_role(ctx: lightbulb.UserContext) -> None:
         role = ctx.app.cache.get_role(role_id)
         dropdown.add_option(role.name, str(role.id))
     await ctx.respond(
-        title=f'Select a role to add for {ctx.options.target.display_name}',
+        content=f'Select a role to add for {ctx.options.target.display_name}',
         component=component,
     )
 
