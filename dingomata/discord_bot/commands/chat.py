@@ -128,7 +128,7 @@ def _get_author_name(message: hikari.PartialMessage) -> str:
     if message.member:
         return message.member.display_name
     else:
-        return message.author.global_name
+        return message.author.global_name or message.author.username
 
 
 def load(bot: lightbulb.BotApp):
