@@ -108,7 +108,7 @@ def _generate_message_embed(
     embed.add_field(name='Author', value=event.old_message.author.mention, inline=True)
     embed.add_field(name='Sent At', value=f'<t:{int(event.old_message.created_at.timestamp())}:f>')
     embed.add_field(name='Message URL (for T&S Reports)', value=event.old_message.make_link(event.guild_id))
-    embed.add_field(name='Old Content', value=event.old_message.content)
+    embed.add_field(name='Old Content', value=event.old_message.content or '(empty or attachment only)')
     embed.set_thumbnail(event.old_message.author.display_avatar_url.url)
 
     if isinstance(event, (hikari.GuildMessageDeleteEvent, hikari.GuildBulkMessageDeleteEvent)):
