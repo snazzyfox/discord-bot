@@ -113,7 +113,7 @@ async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history:
     response = await openai.ChatCompletion.acreate(
         model='gpt-3.5-turbo-0613',
         messages=messages,
-        temperature=random.betavariate(2, 3) * 1.5,
+        temperature=random.betavariate(2, 3) * 1.2 + 0.3,
         max_tokens=120,
         presence_penalty=0.05,
         frequency_penalty=0.10,
