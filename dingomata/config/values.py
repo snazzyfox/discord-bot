@@ -20,6 +20,8 @@ cooldown_time_sec = ConfigValue('cooldown.time_sec', 120)
 logs_enabled = ConfigValue('logs.enabled', False)
 logs_channel_id = ConfigValue[int]('logs.channel_id')
 
+auto_unarchive_channels = ConfigValue[list[int]]('auto_unarchive.channels')
+
 profile_birthday_channel = ConfigValue[int]('profile.birthday_channel')
 
 roles_no_pings = ConfigValue[list[int]]('roles.no_pings', [])

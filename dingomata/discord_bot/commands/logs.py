@@ -11,7 +11,7 @@ from dingomata.config import values
 from dingomata.config.provider import cached_config
 from dingomata.utils import LightbulbPlugin
 
-plugin = LightbulbPlugin('logging')
+plugin = LightbulbPlugin('logs')
 
 _AUDIT_DELAY = 2.0
 DeleteAuditKey = namedtuple('DeleteAuditKey', ('guild', 'channel', 'author'))
