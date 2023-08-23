@@ -13,7 +13,7 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v3
-      - uses: up9cloud/action-rsync@v1.3
+      - uses: up9cloud/action-rsync@v1.4
         env:
           HOST: ${{ secrets.DEPLOY_HOST }}
           USER: ${{ secrets.DEPLOY_USERNAME }}
