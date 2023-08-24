@@ -333,13 +333,18 @@ async def _member_ineligible_reason(member: hikari.Member, desired_role_id: int)
     """Returns the reason why someone's not eligible, or None if eligible."""
     min_days = await values.roles_mod_add_min_days_in_guild.get_value(member.guild_id, str(desired_role_id))
     if min_days and member.joined_at + timedelta(days=min_days) > datetime.now(tz=member.joined_at.tzinfo):
+        logger.info('Refused to assign role: guild %s, member %s, role %s. Joined time %s failed min_days %s',
+                    member.guild_id, member.id, desired_role_id, member.joined_at, min_days)
         return f'member has not yet been in the server for {min_days} days.'
     metrics, _ = await MessageMetric.get_or_create(guild_id=member.guild_id, user_id=member.id)
     min_active, min_messages = await asyncio.gather(
         values.roles_mod_add_min_days_active.get_value(member.guild_id, str(desired_role_id)),
         values.roles_mod_add_min_messages.get_value(member.guild_id, str(desired_role_id)),
     )
-    if metrics.distinct_days < min_active or metrics.message_count < min_messages:
+    if metrics.distinct_days < (min_active or 0) or metrics.message_count < (min_messages or 0):
+        logger.info('Refused to assign role: guild %s, member %s, role %s. Metrics %s failed '
+                    'min_active_days %s, min_messages %s',
+                    member.guild_id, member.id, desired_role_id, metrics, min_active, min_messages)
         return 'Member does not meet the minimum activity requirement.'
     return None
 
@@ -356,8 +361,9 @@ async def auto_role_removal(app: lightbulb.BotApp):
             member = app.cache.get_member(task.guild_id, task.payload['user'])
             try:
                 await member.remove_role(task.payload['role'], reason='Automatic role expiration')
+                logger.info('Scheduled Task: Removed role %s', task)
             except hikari.ClientHTTPResponseError:
-                logger.exception(f'Scheduled Task: Failed to remove role {task}')
+                logger.exception('Scheduled Task: Failed to remove role %s', task)
             await task.delete(using_db=tx)
 
 

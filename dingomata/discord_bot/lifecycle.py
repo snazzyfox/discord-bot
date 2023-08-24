@@ -85,7 +85,7 @@ async def start() -> None:
 
     # Prepare one bot for each group
     for token, guilds in grouped.items():
-        logger.info(f'Creating bot for guilds {guilds}')
+        logger.info(f'Creating discord bot for guilds {guilds}')
         bot = create_bot(token, guilds)
         _bots.append(bot)
 
