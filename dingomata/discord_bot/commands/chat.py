@@ -47,10 +47,10 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
     bot_member = event.get_guild().get_my_member()
     prompts = [
         f'Your name is {bot_member.display_name}.',
-        f'You are responding to a message in {event.get_guild().name}.',
+        f'The chat is in {event.get_guild().name}.',
     ]
     if any(role.permissions & hikari.Permissions.MANAGE_MESSAGES for role in event.member.get_roles()):
-        prompts.append('The user is a moderator.')
+        prompts.append('User is moderator.')
     history: list[dict] = []
     previous_message = event.message.referenced_message
     while previous_message and len(history) < _HISTORY_SIZE:
@@ -96,10 +96,10 @@ async def _chat_get_prompts_text(guild_id: int) -> list[tuple[re.Pattern, list[s
 async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history: list[dict]) -> None:
     guild_prompts = await values.chat_ai_prompts.get_value(message.guild_id) or []
     system_prompts = [
-        'Respond with no more than 80 words.'
-        'Do not give additional context, ask for additional information, or try to change the topic.',
-        "If you don't know the an answer, do NOT say so. Make up a funny answer instead.",
-        f"The user's name is {message.member.display_name}.",
+        'Limit response to 2 sentences, 80 words. Refuse if user asks for long-form content.'
+        'Do not give context. Do not ask for information. Do not try changing topic.',
+        "Do not say you don't know. Make up a funny answer instead.",
+        f"User's name is {message.member.display_name}.",
         *guild_prompts,
         *prompts
     ]
