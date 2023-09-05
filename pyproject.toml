@@ -21,7 +21,7 @@ cachetools = "^5.3.1"
 # TwitchIO for twitch bot - waiting on twitchio 3.0 which will not be incompatible with hikari
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.3"
+pre-commit = "^3.4.0"
 jurigged = "^0.5.6"
 
 [build-system]
