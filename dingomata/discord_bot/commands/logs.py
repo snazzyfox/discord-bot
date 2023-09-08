@@ -16,6 +16,7 @@ plugin = LightbulbPlugin('logs')
 _AUDIT_DELAY = 2.0
 DeleteAuditKey = namedtuple('DeleteAuditKey', ('guild', 'channel', 'author'))
 BannedAuditKey = namedtuple('BannedAuditKey', ('guild', 'user'))
+TimeoutAuditKey = namedtuple('TimeoutAuditKey', ('guild', 'user'))
 _recent_audits: TTLCache = TTLCache(maxsize=256, ttl=180)
 
 
@@ -61,10 +62,10 @@ async def log_message_update(event: hikari.GuildMessageUpdateEvent) -> None:
 
 @plugin.listener(hikari.BanCreateEvent)
 async def log_ban_create(event: hikari.BanCreateEvent) -> None:
-    await asyncio.sleep(_AUDIT_DELAY)  # let audit catch up first
     log_channel_id = await _get_log_channel(event.guild_id)
     if not log_channel_id:
         return
+    await asyncio.sleep(_AUDIT_DELAY)  # let audit catch up first
     log_channel = event.get_guild().get_channel(log_channel_id)
     banned = event.user
     audit_key = BannedAuditKey(guild=event.guild_id, user=event.user_id)
@@ -78,12 +79,35 @@ async def log_ban_create(event: hikari.BanCreateEvent) -> None:
     await log_channel.send(embed=embed)
 
 
+@plugin.listener(hikari.MemberUpdateEvent)
+async def log_timeout(event: hikari.MemberUpdateEvent) -> None:
+    if event.member.raw_communication_disabled_until == event.old_member.raw_communication_disabled_until:
+        return
+    log_channel_id = await _get_log_channel(event.guild_id)
+    if not log_channel_id:
+        return
+    await asyncio.sleep(_AUDIT_DELAY)  # let audit catch up first
+    log_channel = event.get_guild().get_channel(log_channel_id)
+    audit_key = TimeoutAuditKey(guild=event.guild_id, user=event.user_id)
+    audit = _recent_audits.get(audit_key)
+    embed = hikari.Embed(title='User timed out', color=hikari.Color(0x880000))
+    embed.add_field(name='User', value=event.member.username, inline=True)
+    embed.add_field(name='Until', value=f'<t:{int(event.member.communication_disabled_until().timestamp())}:f>')
+    if audit:
+        embed.add_field(name='Modded by', value=event.get_guild().get_member(audit.user_id).mention, inline=True)
+        embed.add_field(name='Reason', value=audit.reason or '(Not provided)')
+        embed.set_thumbnail(event.member.display_avatar_url.url)
+        await log_channel.send(embed=embed)
+
+
 @plugin.listener(hikari.AuditLogEntryCreateEvent)
 async def on_audit_log_entry_create(event: hikari.AuditLogEntryCreateEvent) -> None:
     if event.entry.action_type == hikari.AuditLogEventType.MESSAGE_DELETE:
         await _handle_delete_audit_log(event)
     elif event.entry.action_type == hikari.AuditLogEventType.MEMBER_BAN_ADD:
         await _handle_ban_audit_log(event)
+    elif event.entry.action_type == hikari.AuditLogEventType.MEMBER_UPDATE:
+        await _handle_timeout_audit_log(event)
 
 
 async def _handle_delete_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
@@ -96,6 +120,11 @@ async def _handle_delete_audit_log(event: hikari.AuditLogEntryCreateEvent) -> No
 
 async def _handle_ban_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
     audit_key = BannedAuditKey(guild=event.guild_id, user=event.entry.target_id)
+    _recent_audits[audit_key] = event.entry
+
+
+async def _handle_timeout_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
+    audit_key = TimeoutAuditKey(guild=event.guild_id, user=event.entry.target_id)
     _recent_audits[audit_key] = event.entry
 
 
