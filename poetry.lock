@@ -758,13 +758,13 @@ files = [
 
 [[package]]
 name = "hikari"
-version = "2.0.0.dev120"
+version = "2.0.0.dev121"
 description = "A sane Discord API for Python 3 built on asyncio and good intentions"
 optional = false
 python-versions = ">=3.8.0,<3.12"
 files = [
-    {file = "hikari-2.0.0.dev120-py3-none-any.whl", hash = "sha256:08201e37d1c1733868d1928a086a4bec79504d0729105bf2fb0a0c3bcd731aa1"},
-    {file = "hikari-2.0.0.dev120.tar.gz", hash = "sha256:13122a12f5c83f10049ec66e13554e1d91350cb4faee7b7ad0efcac4a731202b"},
+    {file = "hikari-2.0.0.dev121-py3-none-any.whl", hash = "sha256:54b62e74c19a7b3f91ed75f954fabad67eb262b6cd6f763ba0ec4b3d4f0f0a62"},
+    {file = "hikari-2.0.0.dev121.tar.gz", hash = "sha256:0c6727b7315a2a61dc419c943d2fa6b2761f556edc9e697351d4d3bdd950df8b"},
 ]
 
 [package.dependencies]
