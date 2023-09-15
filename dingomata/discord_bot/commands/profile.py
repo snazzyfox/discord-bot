@@ -1,15 +1,13 @@
 import calendar
 import logging
 import re
-from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Sequence
 
 import hikari
 import lightbulb
 import pytz
 import tortoise.transactions
-from lightbulb.ext import tasks
 
 from dingomata.config import values
 from dingomata.database.fields import Random
@@ -265,7 +263,7 @@ async def _get_next_birthday_utc(user_id: int, month: int, day: int) -> datetime
 
 
 # Automatic Birthday Notification
-@tasks.task(m=1, auto_start=True, pass_app=True)
+@plugin.periodic_task(timedelta(minutes=15))
 async def birthday_reminder(app: lightbulb.BotApp):
     async with tortoise.transactions.in_transaction() as tx:
         members = GuildMember.select_for_update().using_db(tx).filter(
@@ -307,10 +305,4 @@ def _recursive_del_dict(d: dict, keys: Sequence[str]):
             del d[keys[0]]
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-    tasks.load(bot)
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

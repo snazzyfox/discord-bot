@@ -2,10 +2,8 @@ import logging
 import random
 import re
 from collections import defaultdict, deque
-from copy import deepcopy
 
 import hikari
-import lightbulb
 import openai
 from async_lru import alru_cache
 
@@ -131,9 +129,4 @@ def _get_author_name(message: hikari.PartialMessage) -> str:
         return message.author.global_name or message.author.username
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

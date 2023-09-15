@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 import lightbulb
 
 from dingomata.config import provider, values
@@ -108,9 +106,4 @@ async def admin_config_list(ctx: lightbulb.SlashContext) -> None:
     await ctx.respond('\n'.join('- ' + conf.key for conf in all_configs))
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

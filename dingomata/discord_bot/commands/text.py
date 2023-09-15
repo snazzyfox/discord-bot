@@ -1,6 +1,5 @@
 import random
 import string
-from copy import deepcopy
 
 import hikari
 import lightbulb
@@ -119,9 +118,4 @@ async def scream(ctx: lightbulb.SlashContext) -> None:
     await ctx.respond(char * random.randint(1, 35) + "!")
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

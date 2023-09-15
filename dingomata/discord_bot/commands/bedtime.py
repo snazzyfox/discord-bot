@@ -1,5 +1,4 @@
 import logging
-from copy import deepcopy
 from datetime import datetime, timedelta
 from random import choice
 
@@ -142,9 +141,4 @@ async def _get_bedtime(user_id: int) -> User | None:
         return user
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

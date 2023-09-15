@@ -1,4 +1,3 @@
-from copy import deepcopy
 from random import betavariate, choice, random
 
 import lightbulb
@@ -73,9 +72,4 @@ async def tuchboard(ctx: lightbulb.SlashContext) -> None:
     await ctx.respond(message)
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

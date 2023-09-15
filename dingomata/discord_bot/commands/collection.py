@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 import hikari
 import lightbulb
 import tortoise.transactions
@@ -74,10 +72,4 @@ async def collection_show(ctx: lightbulb.SlashContext) -> None:
             f"{ctx.member.display_name} doesn't have a collection of cutie(s). Better late than never!"
         )
 
-
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

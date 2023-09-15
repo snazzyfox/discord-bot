@@ -1,8 +1,6 @@
 import logging
-from copy import deepcopy
 
 import hikari
-import lightbulb
 
 from dingomata.config import values
 from dingomata.utils import LightbulbPlugin
@@ -21,9 +19,4 @@ async def on_thread_update(event: hikari.GuildThreadUpdateEvent) -> None:
                         event.thread.parent_id, event.thread_id)
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

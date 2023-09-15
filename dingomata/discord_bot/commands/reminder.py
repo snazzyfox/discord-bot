@@ -1,11 +1,9 @@
 import logging
-from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import hikari
 import lightbulb
 import tortoise.transactions
-from lightbulb.ext import tasks
 from parsedatetime import parsedatetime
 
 from dingomata.database.models import ScheduledTask, TaskType
@@ -78,7 +76,7 @@ async def list(ctx: lightbulb.SlashContext) -> None:
         await ctx.respond("You do not have any reminders.")
 
 
-@tasks.task(m=1, auto_start=True, pass_app=True)
+@plugin.periodic_task(timedelta(minutes=1))
 async def check_and_send_reminder(app: lightbulb.BotApp):
     async with tortoise.transactions.in_transaction() as tx:
         db_records = await ScheduledTask.select_for_update().using_db(tx).filter(
@@ -97,10 +95,4 @@ async def check_and_send_reminder(app: lightbulb.BotApp):
             await task.delete(using_db=tx)
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-    tasks.load(bot)
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

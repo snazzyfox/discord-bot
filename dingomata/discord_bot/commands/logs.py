@@ -1,9 +1,7 @@
 import asyncio
 from collections import namedtuple
-from copy import deepcopy
 
 import hikari
-import lightbulb
 from async_lru import alru_cache
 from cachetools import TTLCache
 
@@ -162,10 +160,4 @@ async def _get_log_channel(guild_id: int) -> int | None:
     else:
         return None
 
-
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

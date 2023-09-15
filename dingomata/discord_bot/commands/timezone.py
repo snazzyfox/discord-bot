@@ -1,5 +1,4 @@
 import logging
-from copy import deepcopy
 from datetime import datetime
 from itertools import islice
 
@@ -79,8 +78,8 @@ async def localtime(ctx: lightbulb.SlashContext) -> None:
 @timezone_set.autocomplete("timezone")
 @localtime.autocomplete("timezone")
 async def timezone_set_timezone_autocomplete(
-        option: hikari.AutocompleteInteractionOption,
-        interaction: hikari.AutocompleteInteraction,
+    option: hikari.AutocompleteInteractionOption,
+    interaction: hikari.AutocompleteInteraction,
 ) -> list[str]:
     user_text: str = option.value.lower()
     prefix_iter = (tz for tz in pytz.common_timezones if tz.lower().startswith(user_text))
@@ -102,9 +101,4 @@ def _parse_timezone(tz: str) -> pytz.BaseTzInfo:
         ) from e
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

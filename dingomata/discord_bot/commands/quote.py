@@ -1,5 +1,4 @@
 import re
-from copy import deepcopy
 from hashlib import md5
 
 import hikari
@@ -144,10 +143,4 @@ async def _get_quote(guild_id: int, user_id: int) -> str:
     else:
         raise UserError("This user has no quotes.")
 
-
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()

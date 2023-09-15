@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from copy import deepcopy
 from datetime import datetime, timedelta
 
 import hikari
@@ -367,9 +366,4 @@ async def auto_role_removal(app: lightbulb.BotApp):
             await task.delete(using_db=tx)
 
 
-def load(bot: lightbulb.BotApp):
-    bot.add_plugin(deepcopy(plugin))
-
-
-def unload(bot: lightbulb.BotApp):
-    bot.remove_plugin(plugin.name)
+load, unload = plugin.export_extension()
