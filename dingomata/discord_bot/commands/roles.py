@@ -8,7 +8,6 @@ import tortoise
 import tortoise.transactions
 from async_lru import alru_cache
 from hikari import undefined
-from lightbulb.ext import tasks
 
 from dingomata.config import values
 from dingomata.config.provider import cached_config
@@ -348,7 +347,7 @@ async def _member_ineligible_reason(member: hikari.Member, desired_role_id: int)
     return None
 
 
-@tasks.task(m=5, auto_start=True, pass_app=True)
+@plugin.periodic_task(timedelta(minutes=5))
 async def auto_role_removal(app: lightbulb.BotApp):
     async with tortoise.transactions.in_transaction() as tx:
         records = await ScheduledTask.select_for_update().using_db(tx).filter(
