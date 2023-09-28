@@ -64,7 +64,8 @@ def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
     async def on_interaction(event: lightbulb.CommandInvocationEvent) -> None:
         logger.info("Command %s invoked by %s in guild %s, channel %s, params: %s",
                     event.command.name, event.context.author, event.context.get_guild().name,
-                    event.context.get_channel().name, dict(event.context.options.items()))
+                    event.context.get_channel().name,
+                    ', '.join('%s=%s' % i for i in event.context.options.items()))
 
     return bot
 
