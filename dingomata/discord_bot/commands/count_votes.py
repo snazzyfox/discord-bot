@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 @plugin.command
+@lightbulb.option(name='limit', description="Max number of results to show.",
+                  default=None, type=int, required=False, min_value=1)
 @lightbulb.option(name='max_votes', description="Votes from anyon who voted more than this many times is disqualified.",
                   default=None, type=int, required=False, min_value=1)
 @lightbulb.option(name='emote', description="The emote (on the post, not comments) to accept as votes.",
@@ -59,8 +61,10 @@ async def vote_count(ctx: lightbulb.SlashContext) -> None:
 
     # Make final count
     counts = sorted(thread_voters.items(), key=lambda t: len(t[1]), reverse=True)
+    if ctx.options.limit:
+        counts = counts[:ctx.options.limit]
     message = '\n'.join(f'{len(users)}: {thread.name}' for thread, users in counts)
-    if not counts:
+    if not message:
         message = 'No entries qualified based on the rules you set.'
     if total_disqualified:
         message += f'\n({total_disqualified} users were disqualified because they voted too many times)'
