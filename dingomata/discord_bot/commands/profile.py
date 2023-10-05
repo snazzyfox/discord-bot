@@ -276,6 +276,8 @@ async def birthday_reminder(app: lightbulb.BotApp):
                 continue
             user = app.cache.get_member(member.guild_id, member.user_id)
             channel = app.cache.get_guild_channel(channel_id)
+            if not user or not channel:
+                continue
             try:
                 member.next_birthday_utc = await _get_next_birthday_utc(
                     member.user_id, member.birthday_month, member.birthday_day)
