@@ -80,11 +80,10 @@ async def log_ban_create(event: hikari.BanCreateEvent) -> None:
 @plugin.listener(hikari.MemberUpdateEvent)
 async def log_timeout(event: hikari.MemberUpdateEvent) -> None:
     if (
-        event.member
-        and event.old_member
-        and (event.member.raw_communication_disabled_until == event.old_member.raw_communication_disabled_until
-             or not event.member.communication_disabled_until())
-    ):
+        not event.member.communication_disabled_until()
+        or (event.member
+            and event.old_member
+            and event.member.raw_communication_disabled_until == event.old_member.raw_communication_disabled_until)):
         return
     log_channel_id = await _get_log_channel(event.guild_id)
     if not log_channel_id:
