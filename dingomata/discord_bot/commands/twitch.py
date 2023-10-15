@@ -47,15 +47,12 @@ async def _check_twitch_stream_live(logins: list[str]) -> list[twitchio.Stream]:
 
 
 async def _generate_stream_embed(stream: twitchio.Stream, guild_id: int, user: twitchio.User) -> hikari.Embed:
-    title_template = string.Template(await values.twitch_online_notif_title_template.get_value(guild_id) or '')
     embed = hikari.Embed(
-        title=title_template.safe_substitute({
-            'game': stream.game_name, 'channel': stream.user.name
-        }),
-        description=stream.title,
+        title=stream.title,
+        description=stream.game_name,
         url='https://www.twitch.tv/' + stream.user.name,
     )
-    embed.set_author(name=stream.game_name)
+    embed.set_author(name=stream.user.name)
     embed.set_image(await values.twitch_online_notif_image_url.get_value(guild_id)
                     or stream.thumbnail_url.format(width=640, height=400))
     embed.timestamp = stream.started_at
@@ -86,10 +83,13 @@ async def twitch_online_notif(app: lightbulb.BotApp):
         user = next(u for u in users if u.id == stream.user.id)
         for guild in login_guilds[stream.user.name.lower()]:
             embed = await _generate_stream_embed(stream, guild, user)
+            content_template = string.Template(await values.twitch_online_notif_title_template.get_value(guild) or '')
+            content = content_template.safe_substitute({'channel': stream.user.name, 'game': stream.game_name})
             channel_id = await values.twitch_online_notif_channel_id.get_value(guild)
             channel = app.cache.get_guild_channel(channel_id)
             if isinstance(channel, hikari.TextableChannel):
-                await channel.send(embed=embed)
+                await channel.send(content=content, embed=embed, user_mentions=True, role_mentions=True,
+                                   mentions_everyone=True)
                 logger.info('Sent stream live notification to guild %s channel %s for twitch channel %s',
                             guild, channel_id, stream.user.id)
             else:
