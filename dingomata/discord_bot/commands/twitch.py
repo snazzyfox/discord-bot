@@ -26,6 +26,14 @@ async def on_started(event: hikari.StartedEvent):
     logger.info('Started twitchIO client.')
 
 
+async def _get_guild_notify_logins(guild: int) -> list[str]:
+    logins = await values.twitch_online_notif_logins.get_value(guild) or []
+    if team_name := await values.twitch_online_notif_team.get_value(guild):
+        team = await twitch.fetch_teams(team_name=team_name)
+        logins.extend(user.name for user in team.users)
+    return logins
+
+
 async def _check_twitch_stream_live(logins: list[str]) -> list[twitchio.Stream]:
     # Returns list of streams went from offline to online.
     # Does not return streamers whose status went from unknown to online.
@@ -68,7 +76,7 @@ async def twitch_online_notif(app: lightbulb.BotApp):
     login_guilds = defaultdict(set)
     for guild in app.default_enabled_guilds:
         if await values.twitch_online_notif_enabled.get_value(guild):
-            logins = await values.twitch_online_notif_logins.get_value(guild)
+            logins = await _get_guild_notify_logins(guild)
             for login in logins or []:
                 login_guilds[login.lower()].add(guild)
 

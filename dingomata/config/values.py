@@ -44,5 +44,6 @@ chat_ai_prompts = ConfigValue[list[str]]('chat.ai.prompts', [])
 twitch_online_notif_enabled = ConfigValue('twitch.online_notif.enabled', False)
 twitch_online_notif_channel_id = ConfigValue[int]('twitch.online_notif.channel_id')
 twitch_online_notif_logins = ConfigValue[list[str]]('twitch.online_notif.logins')
+twitch_online_notif_team = ConfigValue[list[str]]('twitch.online_notif.team')
 twitch_online_notif_title_template = ConfigValue[str]('twitch.online_notif.title_template', '$channel is going live!')
 twitch_online_notif_image_url = ConfigValue[str]('twitch.online_notif.image_url')  # overrides twitch thumbnails
