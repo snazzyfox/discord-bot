@@ -281,7 +281,7 @@ async def birthday_reminder(app: lightbulb.BotApp):
             try:
                 member.next_birthday_utc = await _get_next_birthday_utc(
                     member.user_id, member.birthday_month, member.birthday_day)
-                await channel.send(f"🎂 **Happy birthday, {user.mention}!** 🎂")
+                await channel.send(f"🎂 **Happy birthday, {user.mention}!** 🎂", user_mentions=True)
             except UserError:
                 logger.warning(f'Birthday: did not send birthday note for {member} '
                                'because they do not have a timezone.')
