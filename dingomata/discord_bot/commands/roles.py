@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 plugin = LightbulbPlugin('roles')
 _MOD_DROPDOWN_PREFIX = 'roles:mod_assign:'
 _SELF_DROPDOWN_PREFIX = 'roles:self_assign:'
-_enabled_guilds = (768208778780475447, 970811039635628072)
+_enabled_guilds = (768208778780475447, 970811039635628072, 840467720695971840)
 
 
 @plugin.command
