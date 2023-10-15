@@ -54,7 +54,7 @@ async def _generate_stream_embed(stream: twitchio.Stream, guild_id: int, user: t
     )
     embed.set_author(name=stream.user.name)
     embed.set_image(await values.twitch_online_notif_image_url.get_value(guild_id)
-                    or stream.thumbnail_url.format(width=640, height=400))
+                    or stream.thumbnail_url.format(width=640, height=360))
     embed.timestamp = stream.started_at
     if stream.tags:
         embed.set_footer(text=', '.join(stream.tags))
