@@ -6,7 +6,8 @@ from dingomata.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('admin')
 
-all_configs = [v for v in values.__dict__.values() if isinstance(v, values.ConfigValue)]
+all_configs = [v for v in values.__dict__.values() if
+               isinstance(v, values.ConfigValue) and not v.key.startswith('secret.')]
 
 
 @plugin.command
