@@ -228,7 +228,7 @@ def _generate_profile_embed(guild: hikari.Guild, prof: GuildMember) -> hikari.Em
     if not user:
         return None
     embed = hikari.Embed(title=user.display_name)
-    embed.set_thumbnail(user.display_avatar.url)
+    embed.set_thumbnail(user.display_avatar_url.url)
     if prof.birthday_month and prof.birthday_day:
         embed.add_field(name='Birthday', value=f'{calendar.month_name[prof.birthday_month]} {prof.birthday_day}',
                         inline=False)
