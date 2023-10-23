@@ -1,7 +1,9 @@
+import asyncio
 import logging
 import string
 from collections import defaultdict
-from datetime import timedelta
+from datetime import datetime, timedelta
+from email.utils import parsedate_to_datetime
 
 import hikari
 import lightbulb
@@ -9,7 +11,7 @@ import twitchio
 
 from dingomata.config import values
 from dingomata.config.provider import get_secret_configs
-from dingomata.utils import LightbulbPlugin
+from dingomata.utils import LightbulbPlugin, get_client_session
 
 plugin = LightbulbPlugin('twitch')
 twitch: twitchio.Client = None  # type: ignore
@@ -54,6 +56,31 @@ async def _check_twitch_stream_live(logins: list[str]) -> list[twitchio.Stream]:
     return results
 
 
+async def _get_stream_preview_image(url: str, stream_started_at: datetime) -> bytes | None:
+    """
+    Download stream preview image from twitch.
+    This image is cached behind cloudfront CDN. This function downloads the image for up to 5 times in 30-second
+    intervals until the received image's timestamp ("date" http header) is AFTER the stream's start time.
+    """
+    for _ in range(20):
+        async with get_client_session().get(url, allow_redirects=False) as resp:
+            # Disallow redirects; redirects go to the 404 image.
+            if 'date' not in resp.headers:
+                continue  # bad response?
+            image_date = parsedate_to_datetime(resp.headers['date'])
+            if image_date > stream_started_at:
+                # thumbnail is generated after stream start time. Can be used.
+                image_data = await resp.read()
+                return image_data
+            else:
+                # thumbnail is older than stream; it's old. Wait and try again.
+                logger.debug('Image at %s has date %s, which is older than stream start time %s. Retrying later.',
+                             url, image_date, stream_started_at)
+                await asyncio.sleep(30)
+    logger.info('Stream thumbnail still stale after all retries, sending without image: %s', url)
+    return None
+
+
 async def _generate_stream_embed(stream: twitchio.Stream, guild_id: int, user: twitchio.User) -> hikari.Embed:
     embed = hikari.Embed(
         title=stream.title,
@@ -61,8 +88,11 @@ async def _generate_stream_embed(stream: twitchio.Stream, guild_id: int, user: t
         url='https://www.twitch.tv/' + stream.user.name,
     )
     embed.set_author(name=stream.user.name)
-    embed.set_image(await values.twitch_online_notif_image_url.get_value(guild_id)
-                    or stream.thumbnail_url.format(width=640, height=360))
+    image_url = (await values.twitch_online_notif_image_url.get_value(guild_id)
+                 or stream.thumbnail_url.format(width=720, height=400))
+    image_data = await _get_stream_preview_image(image_url, stream.started_at)
+    if image_data:
+        embed.set_image(hikari.Bytes(image_data, 'stream_preview.jpg', mimetype='image/jpeg'))
     embed.timestamp = stream.started_at
     if stream.tags:
         embed.set_footer(text=', '.join(stream.tags))

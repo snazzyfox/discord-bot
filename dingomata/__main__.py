@@ -5,6 +5,7 @@ import sys
 import dingomata.database.lifecycle as database
 import dingomata.discord_bot.lifecycle as discord_bot
 from dingomata.config.env import envConfig
+from dingomata.utils import get_client_session
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -20,6 +21,7 @@ async def run():
     finally:
         await discord_bot.stop()
         await database.stop()
+        await get_client_session().close()
 
 
 if __name__ == "__main__":

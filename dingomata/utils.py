@@ -5,6 +5,7 @@ import typing
 from copy import deepcopy
 from typing import Hashable
 
+import aiohttp
 import hikari
 import lightbulb
 import lightbulb.ext.tasks
@@ -107,3 +108,13 @@ class LightbulbPlugin(lightbulb.Plugin):
             return bot.create_task(task(bot))
 
         return _start
+
+
+client_session: aiohttp.ClientSession = None
+
+
+def get_client_session():
+    global client_session
+    if not client_session:
+        client_session = aiohttp.ClientSession()
+    return client_session
