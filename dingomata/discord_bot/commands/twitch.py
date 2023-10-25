@@ -100,7 +100,23 @@ async def _generate_stream_embed(stream: twitchio.Stream, guild_id: int, user: t
     return embed
 
 
-@plugin.periodic_task(timedelta(minutes=5))
+async def _process_stream_notif(stream: twitchio.Stream, user: twitchio.User, guild: int, app: lightbulb.BotApp):
+    embed = await _generate_stream_embed(stream, guild, user)
+    content_template = string.Template(await values.twitch_online_notif_title_template.get_value(guild) or '')
+    content = content_template.safe_substitute({'channel': stream.user.name, 'game': stream.game_name})
+    channel_id = await values.twitch_online_notif_channel_id.get_value(guild)
+    channel = app.cache.get_guild_channel(channel_id)
+    if isinstance(channel, hikari.TextableChannel):
+        await channel.send(content=content, embed=embed, user_mentions=True, role_mentions=True,
+                           mentions_everyone=True)
+        logger.info('Sent stream live notification to guild %s channel %s for twitch channel %s',
+                    guild, channel_id, stream.user.id)
+    else:
+        logger.error('Did not send a stream live notification for guild %s channel %s: invalid channel ID',
+                     guild, channel)
+
+
+@plugin.periodic_task(timedelta(seconds=5))
 async def twitch_online_notif(app: lightbulb.BotApp):
     # Get the channels to check for each guild
     login_guilds = defaultdict(set)
@@ -117,22 +133,13 @@ async def twitch_online_notif(app: lightbulb.BotApp):
     # Generate embeds and send
     logger.info('Found newly started twitch streams: %s, sending notifications...', started_streams)
     users: list[twitchio.User] = await twitch.fetch_users(ids=[stream.user.id for stream in started_streams])
-    for stream in started_streams:
-        user = next(u for u in users if u.id == stream.user.id)
-        for guild in login_guilds[stream.user.name.lower()]:
-            embed = await _generate_stream_embed(stream, guild, user)
-            content_template = string.Template(await values.twitch_online_notif_title_template.get_value(guild) or '')
-            content = content_template.safe_substitute({'channel': stream.user.name, 'game': stream.game_name})
-            channel_id = await values.twitch_online_notif_channel_id.get_value(guild)
-            channel = app.cache.get_guild_channel(channel_id)
-            if isinstance(channel, hikari.TextableChannel):
-                await channel.send(content=content, embed=embed, user_mentions=True, role_mentions=True,
-                                   mentions_everyone=True)
-                logger.info('Sent stream live notification to guild %s channel %s for twitch channel %s',
-                            guild, channel_id, stream.user.id)
-            else:
-                logger.error('Did not send a stream live notification for guild %s channel %s: invalid channel ID',
-                             guild, channel)
+    await asyncio.gather(*(
+        _process_stream_notif(
+            stream=stream,
+            user=next(u for u in users if u.id == stream.user.id),
+            guild=guild,
+            app=app,
+        ) for stream in started_streams for guild in login_guilds[stream.user.name.lower()]))
 
 
 load, unload = plugin.export_extension()
