@@ -116,7 +116,7 @@ async def _process_stream_notif(stream: twitchio.Stream, user: twitchio.User, gu
                      guild, channel)
 
 
-@plugin.periodic_task(timedelta(seconds=5))
+@plugin.periodic_task(timedelta(minutes=5))
 async def twitch_online_notif(app: lightbulb.BotApp):
     # Get the channels to check for each guild
     login_guilds = defaultdict(set)

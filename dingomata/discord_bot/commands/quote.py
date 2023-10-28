@@ -113,7 +113,8 @@ async def delete(ctx: lightbulb.SlashContext) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def quote(ctx: lightbulb.SlashContext) -> None:
     quote = await _get_quote(ctx.guild_id, ctx.options.user.id)
-    await ctx.respond(f"{ctx.options.user.display_name} said: \n>>> " + quote)
+    name = ctx.options.user.display_name if isinstance(ctx.options.user, hikari.Member) else ctx.options.user.username
+    await ctx.respond(f"{name} said: \n>>> " + quote)
 
 
 # ### Shortcut commands for specific servers
