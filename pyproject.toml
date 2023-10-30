@@ -17,7 +17,7 @@ pydantic-settings = "^2.0.2"
 async-lru = "^2.0.4"
 hikari-lightbulb = "^2.3.3"
 hikari = { extras = ["speedups"], version = "*" } # This will be constrained by lightbulb
-cachetools = "^5.3.1"
+cachetools = "^5.3.2"
 # TwitchIO for twitch bot - waiting on twitchio 3.0 which will not be incompatible with hikari
 twitchio = "^2.8.2"
 
