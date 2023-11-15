@@ -41,7 +41,7 @@ async def report(ctx: lightbulb.ApplicationContext) -> None:
     embed.add_field('Additional comments', ctx.options.comment or '(None provided)')
     embed.set_image(ctx.options.screenshot)
     message = await report_message.get_value(ctx.guild_id)
-    await log_channel.send(message, embed=embed)
+    await log_channel.send(message, embed=embed, user_mentions=True, role_mentions=True)
     await ctx.respond('Thank you for filing a report and keeping the community safe! Your report has been sent to the '
                       'mods. They will review your report and take appropriate action. They may reach out to you '
                       'privately if they need more information.')
