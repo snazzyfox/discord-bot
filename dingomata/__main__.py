@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 
+import dingomata.chat as chat
 import dingomata.database.lifecycle as database
 import dingomata.discord_bot.lifecycle as discord_bot
 from dingomata.config.env import envConfig
@@ -16,10 +17,12 @@ if envConfig.short_logs:
 
 async def run():
     await database.start()
+    await chat.start()
     try:
         await discord_bot.start()
     finally:
         await discord_bot.stop()
+        await chat.stop()
         await database.stop()
         await get_client_session().close()
 

@@ -4,9 +4,9 @@ import re
 from collections import defaultdict, deque
 
 import hikari
-import openai
 from async_lru import alru_cache
 
+from dingomata.chat import chat_client
 from dingomata.config import values
 from dingomata.config.provider import cached_config
 from dingomata.utils import LightbulbPlugin
@@ -108,7 +108,7 @@ async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history:
          "name": _non_alphanum.sub('_', _get_author_name(message)),
          "content": message.content}
     ]
-    response = await openai.ChatCompletion.acreate(
+    response = await chat_client.chat.completions.create(
         model='gpt-3.5-turbo-0613',
         messages=messages,
         temperature=random.betavariate(2, 3) * 1.2 + 0.3,
@@ -116,8 +116,7 @@ async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history:
         presence_penalty=0.05,
         frequency_penalty=0.10,
     )
-    response_text: str = response['choices'][0]['message']['content']
-    response_text = response_text.split('<|im_sep|>', 1)[-1]  # remove openai artifacts
+    response_text: str = response.choices[0].message.content
     logger.info("AI chat message: history %s, message: %s, response: %s", history, message.content, response_text)
     await message.respond(response_text, reply=True)
 

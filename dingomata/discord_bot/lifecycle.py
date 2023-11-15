@@ -4,7 +4,6 @@ import math
 
 import hikari
 import lightbulb
-import openai
 from pydantic import SecretStr
 
 from dingomata.config.env import envConfig
@@ -76,8 +75,6 @@ async def start() -> None:
 
     # Get tokens from config store
     tokens_config = await get_secret_configs('secret.discord.token')
-    openai_config = await get_secret_configs('secret.openai.apikey')
-    openai.api_key = next(iter(openai_config.values())).get_secret_value()
 
     # Group guilds by token - some guilds may share the same bot
     grouped: dict[SecretStr, set[int]] = {}
