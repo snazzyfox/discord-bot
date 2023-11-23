@@ -43,8 +43,6 @@ async def log_message_delete(event: hikari.GuildMessageDeleteEvent | hikari.Guil
             if not message.author.is_bot:
                 log_channel = event.get_guild().get_channel(log_channel_id)
                 await log_channel.send(embed=embed)
-            if audit and audit.user_id == 338303784654733312 and 'cute' in event.old_message.content.lower():
-                await event.get_channel().send(event.old_message.content)
 
 
 @plugin.listener(hikari.GuildMessageUpdateEvent)
