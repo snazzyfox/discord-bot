@@ -5,9 +5,9 @@ import hikari
 from async_lru import alru_cache
 from cachetools import TTLCache
 
-from dingomata.config import values
-from dingomata.config.provider import cached_config
-from dingomata.utils import LightbulbPlugin
+from snoozybot.config import values
+from snoozybot.config.provider import cached_config
+from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('logs')
 

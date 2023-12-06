@@ -9,9 +9,9 @@ import pytz
 import tortoise
 import tortoise.transactions
 
-from dingomata.database.models import User
-from dingomata.exceptions import UserError
-from dingomata.utils import LightbulbPlugin
+from snoozybot.database.models import User
+from snoozybot.exceptions import UserError
+from snoozybot.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
 plugin = LightbulbPlugin('bedtime')

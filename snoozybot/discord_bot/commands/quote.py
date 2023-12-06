@@ -5,10 +5,10 @@ import hikari
 import lightbulb
 import tortoise
 
-from dingomata.database.fields import Random
-from dingomata.database.models import Quote
-from dingomata.exceptions import UserError
-from dingomata.utils import CooldownManager, LightbulbPlugin, UserGuildBucket
+from snoozybot.database.fields import Random
+from snoozybot.database.models import Quote
+from snoozybot.exceptions import UserError
+from snoozybot.utils import CooldownManager, LightbulbPlugin, UserGuildBucket
 
 plugin = LightbulbPlugin('quote')
 _NON_ALPHANUM = re.compile(r"\W")

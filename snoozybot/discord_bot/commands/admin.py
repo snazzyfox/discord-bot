@@ -1,8 +1,8 @@
 import lightbulb
 
-from dingomata.config import provider, values
-from dingomata.exceptions import UserError
-from dingomata.utils import LightbulbPlugin
+from snoozybot.config import provider, values
+from snoozybot.exceptions import UserError
+from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('admin')
 

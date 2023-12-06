@@ -1,12 +1,7 @@
-# The Dingomata
-A fun Discord bot for various discord servers.
+# Discord Bot
+A custom Discord bot with a bunch of random features for various discord servers.
 
 ## Getting Started
-
-When creating a bot user on the Discord developer portal, you will need to enable
-- Bot permissions: Send Messages, View Channels, Read Message History
-- Server members intent: required so that the bot can get information about users in your server
-- Application commands to register slash commands on your server
 
 You will need 
 - Python 3.11+
@@ -17,12 +12,12 @@ To run the bot
 - `git clone` this repository
 - `poetry install`
 - Copy `.env.template` to `.env` and place your database credentials in it.
-- `poetry run python -m dingomata`
+- `poetry run python -m snoozybot`
 
 On first start with a fresh database, the bot will create the necessary tables and fail to start (since it's not yet 
 configured with the necessary tokens). You will need to manually place discord tokens in the database under the 
 `config` table. This is also a good time to add any other config values. You can see the full list of configuration
-keys in [the code](dingomata/config/values.py).
+keys in [the code](snoozybot/config/values.py).
 
 Running the bot in production
 
@@ -37,4 +32,4 @@ type a `/` into discord's chat box after the bot has joined your server.
 
 ## Developing commands
 
-Commands are added to the bot as hikari extensions under [the commands directory](dingomata/discord_bot/commands).
+Commands are added to the bot as hikari extensions under [the commands directory](snoozybot/discord_bot/commands).

@@ -9,11 +9,11 @@ import lightbulb
 import pytz
 import tortoise.transactions
 
-from dingomata.config import values
-from dingomata.database.fields import Random
-from dingomata.database.models import GuildMember, User
-from dingomata.exceptions import UserError
-from dingomata.utils import LightbulbPlugin
+from snoozybot.config import values
+from snoozybot.database.fields import Random
+from snoozybot.database.models import GuildMember, User
+from snoozybot.exceptions import UserError
+from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('profile')
 logger = logging.getLogger(__name__)

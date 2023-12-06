@@ -4,8 +4,8 @@ import string
 import hikari
 import lightbulb
 
-from dingomata.config import values
-from dingomata.utils import CooldownManager, LightbulbPlugin, mention_if_needed
+from snoozybot.config import values
+from snoozybot.utils import CooldownManager, LightbulbPlugin, mention_if_needed
 
 plugin = LightbulbPlugin('text')
 

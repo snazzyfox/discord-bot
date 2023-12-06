@@ -6,8 +6,8 @@ from prettytable import PrettyTable
 from tortoise import connections
 from tortoise.functions import Sum
 
-from dingomata.database.models import Tuch
-from dingomata.utils import LightbulbPlugin
+from snoozybot.database.models import Tuch
+from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('tuch')
 

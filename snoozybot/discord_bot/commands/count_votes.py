@@ -5,8 +5,8 @@ from collections import defaultdict
 import hikari
 import lightbulb
 
-from dingomata.exceptions import UserError
-from dingomata.utils import LightbulbPlugin
+from snoozybot.exceptions import UserError
+from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('count_votes')
 logger = logging.getLogger(__name__)

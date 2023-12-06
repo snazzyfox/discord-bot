@@ -2,8 +2,8 @@ import logging
 
 import hikari
 
-from dingomata.config import values
-from dingomata.utils import LightbulbPlugin
+from snoozybot.config import values
+from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('auto_unarchive')
 logger = logging.getLogger(__name__)

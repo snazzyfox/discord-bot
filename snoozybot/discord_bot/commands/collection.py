@@ -3,8 +3,8 @@ import lightbulb
 import tortoise.transactions
 from tortoise.functions import Count
 
-from dingomata.database.models import Collect
-from dingomata.utils import LightbulbPlugin, mention_if_needed
+from snoozybot.database.models import Collect
+from snoozybot.utils import LightbulbPlugin, mention_if_needed
 
 plugin = LightbulbPlugin('collection')
 
