@@ -18,6 +18,6 @@ jobs:
           HOST: ${{ secrets.DEPLOY_HOST }}
           USER: ${{ secrets.DEPLOY_USERNAME }}
           KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          TARGET: discord-dingomata/
+          TARGET: discord-bot/
           ARGS_MORE: --exclude='/.env.*' --exclude '/.env'
           POST_SCRIPT: scripts/restart-discord-bot.sh

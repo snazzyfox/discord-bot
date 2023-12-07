@@ -6,10 +6,10 @@ from collections import defaultdict, deque
 import hikari
 from async_lru import alru_cache
 
-from dingomata.chat import chat_client
-from dingomata.config import values
-from dingomata.config.provider import cached_config
-from dingomata.utils import LightbulbPlugin
+from snoozybot.chat import chat_client
+from snoozybot.config import values
+from snoozybot.config.provider import cached_config
+from snoozybot.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
 plugin = LightbulbPlugin('chat')

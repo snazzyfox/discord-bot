@@ -9,9 +9,9 @@ import hikari
 import lightbulb
 import twitchio
 
-from dingomata.config import values
-from dingomata.config.provider import get_secret_configs
-from dingomata.utils import LightbulbPlugin, get_client_session
+from snoozybot.config import values
+from snoozybot.config.provider import get_secret_configs
+from snoozybot.utils import LightbulbPlugin, get_client_session
 
 plugin = LightbulbPlugin('twitch')
 twitch: twitchio.Client = None  # type: ignore

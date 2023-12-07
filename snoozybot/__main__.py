@@ -2,11 +2,11 @@ import asyncio
 import logging
 import sys
 
-import dingomata.chat as chat
-import dingomata.database.lifecycle as database
-import dingomata.discord_bot.lifecycle as discord_bot
-from dingomata.config.env import envConfig
-from dingomata.utils import get_client_session
+import snoozybot.chat as chat
+import snoozybot.database.lifecycle as database
+import snoozybot.discord_bot.lifecycle as discord_bot
+from snoozybot.config.env import envConfig
+from snoozybot.utils import get_client_session
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

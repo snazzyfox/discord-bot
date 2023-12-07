@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from tortoise import Model, fields
 
-from dingomata.database.fields import DatetimeField, TimeField
+from snoozybot.database.fields import DatetimeField, TimeField
 
 
 class Config(Model):

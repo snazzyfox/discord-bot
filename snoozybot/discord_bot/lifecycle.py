@@ -6,9 +6,9 @@ import hikari
 import lightbulb
 from pydantic import SecretStr
 
-from dingomata.config.env import envConfig
-from dingomata.config.provider import get_secret_configs
-from dingomata.exceptions import UserError
+from snoozybot.config.env import envConfig
+from snoozybot.config.provider import get_secret_configs
+from snoozybot.exceptions import UserError
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ bot_intents = (
 def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
     bot = lightbulb.BotApp(token=token.get_secret_value(), logs=envConfig.log_level, banner=None, intents=bot_intents)
     bot.default_enabled_guilds = guilds
-    bot.load_extensions_from('dingomata/discord_bot/commands')
+    bot.load_extensions_from('snoozybot/discord_bot/commands')
 
     @bot.listen()
     async def on_error(event: lightbulb.CommandErrorEvent) -> None:

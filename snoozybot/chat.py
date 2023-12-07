@@ -1,6 +1,6 @@
 from openai import AsyncOpenAI
 
-from dingomata.config.provider import get_secret_configs
+from snoozybot.config.provider import get_secret_configs
 
 chat_client: AsyncOpenAI = None
 
@@ -8,7 +8,8 @@ chat_client: AsyncOpenAI = None
 async def start():
     global chat_client
     openai_config = await get_secret_configs('secret.openai.apikey')
-    chat_client = AsyncOpenAI(api_key=next(iter(openai_config.values())).get_secret_value())
+    api_key_secret = next(iter(openai_config.values()), None)
+    chat_client = AsyncOpenAI(api_key=api_key_secret.get_secret_value() if api_key_secret else '')
 
 
 async def stop():

@@ -9,11 +9,11 @@ import tortoise.transactions
 from async_lru import alru_cache
 from hikari import undefined
 
-from dingomata.config import values
-from dingomata.config.provider import cached_config
-from dingomata.database.models import MessageMetric, ScheduledTask, TaskType
-from dingomata.exceptions import UserError
-from dingomata.utils import LightbulbPlugin
+from snoozybot.config import values
+from snoozybot.config.provider import cached_config
+from snoozybot.database.models import MessageMetric, ScheduledTask, TaskType
+from snoozybot.exceptions import UserError
+from snoozybot.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
 plugin = LightbulbPlugin('roles')

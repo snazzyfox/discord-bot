@@ -10,7 +10,7 @@ import hikari
 import lightbulb
 import lightbulb.ext.tasks
 
-from dingomata.config import values
+from snoozybot.config import values
 
 log = logging.getLogger(__name__)
 _LightbulbExtensionHook = typing.Callable[[lightbulb.BotApp], None]

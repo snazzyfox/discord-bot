@@ -7,9 +7,9 @@ import lightbulb
 import pytz
 from parsedatetime import parsedatetime
 
-from dingomata.database.models import User
-from dingomata.exceptions import UserError
-from dingomata.utils import LightbulbPlugin
+from snoozybot.database.models import User
+from snoozybot.exceptions import UserError
+from snoozybot.utils import LightbulbPlugin
 
 logger = logging.getLogger(__name__)
 plugin = LightbulbPlugin('timezone')

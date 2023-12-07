@@ -1,9 +1,9 @@
 import hikari
 import lightbulb
 
-from dingomata.config.values import report_channel_id, report_message
-from dingomata.exceptions import UserError
-from dingomata.utils import LightbulbPlugin
+from snoozybot.config.values import report_channel_id, report_message
+from snoozybot.exceptions import UserError
+from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('modmail')
 
