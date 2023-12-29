@@ -70,7 +70,7 @@ async def profile_add_birthday(ctx: lightbulb.SlashContext) -> None:
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def profile_remove_birthday(ctx: lightbulb.SlashContext) -> None:
     """Remove your birthday."""
-    with tortoise.transactions.in_transaction() as tx:
+    async with tortoise.transactions.in_transaction() as tx:
         member = await GuildMember.select_for_update().using_db(tx).get_or_none(
             guild_id=ctx.guild_id, user_id=ctx.user.id)
         if member:
@@ -96,16 +96,18 @@ async def next_birthdays(ctx: lightbulb.SlashContext) -> None:
     else:
         embed = hikari.Embed()
         for member in members:
-            days_till_next = (member.next_birthday_utc - today).days
-            if 0 <= days_till_next < 1:
-                relative_time = '**Today!**'
-            else:
-                relative_time = f'in {days_till_next} days'
-            embed.add_field(
-                name=ctx.get_guild().get_member(member.user_id).display_name,
-                value=f"{calendar.month_name[member.birthday_month]} {member.birthday_day} ({relative_time})",
-                inline=False,
-            )
+            discord_member = ctx.get_guild().get_member(member.user_id)
+            if discord_member:  # this will be None if user is no longer in server
+                days_till_next = (member.next_birthday_utc - today).days
+                if 0 <= days_till_next < 1:
+                    relative_time = '**Today!**'
+                else:
+                    relative_time = f'in {days_till_next} days'
+                embed.add_field(
+                    name=discord_member.display_name,
+                    value=f"{calendar.month_name[member.birthday_month]} {member.birthday_day} ({relative_time})",
+                    inline=False,
+                )
         await ctx.respond("Upcoming birthdays in this server: ", embed=embed)
 
 
