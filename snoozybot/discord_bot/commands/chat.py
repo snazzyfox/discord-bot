@@ -2,6 +2,7 @@ import logging
 import random
 import re
 from collections import defaultdict, deque
+from datetime import datetime
 
 import hikari
 from async_lru import alru_cache
@@ -46,6 +47,7 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
     prompts = [
         f'Your name is {bot_member.display_name}.',
         f'The chat is in {event.get_guild().name}.',
+        f'The current UTC time is {datetime.now().isoformat()}.',
     ]
     if any(role.permissions & hikari.Permissions.MANAGE_MESSAGES for role in event.member.get_roles()):
         prompts.append('User is moderator.')
