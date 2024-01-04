@@ -33,7 +33,7 @@ async def reminder_group(ctx: lightbulb.SlashContext) -> None:
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def reminder_set(ctx: lightbulb.SlashContext) -> None:
     time, parse_status = _calendar.parseDT(ctx.options.time)
-    if time is None:
+    if time is None or parse_status == 0:
         raise UserError(f'"{ctx.options.time!r} is not a valid relative time. '
                         f'Try something like "3 minutes" or "2 days"')
     if time <= datetime.now():
