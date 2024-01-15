@@ -87,12 +87,13 @@ async def check_and_send_reminder(app: lightbulb.BotApp):
         for task in db_records:
             member = app.cache.get_member(task.guild_id, task.payload['user'])
             channel = app.cache.get_guild_channel(task.payload['channel'])
-            try:
-                await channel.send(f"Hey {member.mention}! Here's your reminder for "
-                                   f"{task.payload['reason']}.", user_mentions=True, role_mentions=True,
-                                   mentions_everyone=True)
-            except hikari.ClientHTTPResponseError as e:
-                logger.exception(f'Scheduled Task: Failed to send reminder message {task}; {e}')
+            if member and channel:
+                try:
+                    await channel.send(f"Hey {member.mention}! Here's your reminder for "
+                                       f"{task.payload['reason']}.", user_mentions=True, role_mentions=True,
+                                       mentions_everyone=True)
+                except hikari.ClientHTTPResponseError as e:
+                    logger.exception(f'Scheduled Task: Failed to send reminder message {task}; {e}')
             await task.delete(using_db=tx)
 
 
