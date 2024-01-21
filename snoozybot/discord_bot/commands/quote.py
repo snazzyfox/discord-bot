@@ -8,7 +8,7 @@ import tortoise
 from snoozybot.database.fields import Random
 from snoozybot.database.models import Quote
 from snoozybot.exceptions import UserError
-from snoozybot.utils import CooldownManager, LightbulbPlugin, UserGuildBucket
+from snoozybot.utils import CooldownManager, LightbulbPlugin
 
 plugin = LightbulbPlugin('quote')
 _NON_ALPHANUM = re.compile(r"\W")
@@ -107,7 +107,7 @@ async def delete(ctx: lightbulb.SlashContext) -> None:
 
 
 @plugin.command
-@lightbulb.add_cooldown(10, 2, UserGuildBucket, cls=CooldownManager)
+@lightbulb.add_cooldown(10, 2, lightbulb.GuildBucket, cls=CooldownManager)
 @lightbulb.option("user", description="User to get quotes for", type=hikari.Member)
 @lightbulb.command("quote", description="Get a random quote for someone.")
 @lightbulb.implements(lightbulb.SlashCommand)
@@ -119,7 +119,7 @@ async def quote(ctx: lightbulb.SlashContext) -> None:
 
 # ### Shortcut commands for specific servers
 @plugin.command
-@lightbulb.add_cooldown(10, 2, UserGuildBucket, cls=CooldownManager)
+@lightbulb.add_cooldown(10, 2, lightbulb.GuildBucket, cls=CooldownManager)
 @lightbulb.command("whiskey", description="What does the dingo say?", guilds=(178042794386915328,))
 @lightbulb.implements(lightbulb.SlashCommand)
 async def quote_whiskey(ctx: lightbulb.SlashContext) -> None:
@@ -128,7 +128,7 @@ async def quote_whiskey(ctx: lightbulb.SlashContext) -> None:
 
 
 @plugin.command
-@lightbulb.add_cooldown(10, 2, UserGuildBucket, cls=CooldownManager)
+@lightbulb.add_cooldown(10, 2, lightbulb.GuildBucket, cls=CooldownManager)
 @lightbulb.command("corgi", description="What does the corgi say?", guilds=(768208778780475447,))
 @lightbulb.implements(lightbulb.SlashCommand)
 async def quote_corgi(ctx: lightbulb.SlashContext) -> None:
