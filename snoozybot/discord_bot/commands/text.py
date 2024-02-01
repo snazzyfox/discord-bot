@@ -77,7 +77,7 @@ tuck = text_command_with_target("tuck", "Tuck someone in for the night.", "who t
 
 
 @plugin.command
-@lightbulb.add_cooldown(5, 2, lightbulb.GuildBucket, cls=CooldownManager)
+@lightbulb.add_cooldown(5.0, 2, lightbulb.GuildBucket, cls=CooldownManager)
 @lightbulb.command("awoo", description="HOWL!")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def awoo(ctx: lightbulb.SlashContext) -> None:

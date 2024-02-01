@@ -11,9 +11,10 @@ from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('logs')
 
-_AUDIT_DELAY = 2.0
+_AUDIT_DELAY = 3.0
 DeleteAuditKey = namedtuple('DeleteAuditKey', ('guild', 'channel', 'author'))
 BannedAuditKey = namedtuple('BannedAuditKey', ('guild', 'user'))
+KickedAuditKey = namedtuple('KickedAuditKey', ('guild', 'user'))
 TimeoutAuditKey = namedtuple('TimeoutAuditKey', ('guild', 'user'))
 _recent_audits: TTLCache = TTLCache(maxsize=256, ttl=180)
 
@@ -75,6 +76,28 @@ async def log_ban_create(event: hikari.BanCreateEvent) -> None:
     await log_channel.send(embed=embed)
 
 
+@plugin.listener(hikari.MemberDeleteEvent)
+async def log_member_delete(event: hikari.MemberDeleteEvent) -> None:
+    log_channel_id = await _get_log_channel(event.guild_id)
+    if not log_channel_id:
+        return
+    await asyncio.sleep(_AUDIT_DELAY)  # let audit catch up first
+    log_channel = event.get_guild().get_channel(log_channel_id)
+    left = event.user
+    audit_key = KickedAuditKey(guild=event.guild_id, user=event.user_id)
+    audit = _recent_audits.get(audit_key)
+    if audit:
+        embed = hikari.Embed(title='User Kicked', color=hikari.Color(0xfff666))
+        embed.add_field(name='User', value=left.username, inline=True)
+        embed.add_field(name='Kicked by', value=event.get_guild().get_member(audit.user_id).mention, inline=True)
+        embed.add_field(name='Reason', value=audit.reason or '(Not provided)')
+    else:
+        embed = hikari.Embed(title='User Left')
+        embed.add_field(name='User', value=left.username, inline=True)
+    embed.set_thumbnail(left.display_avatar_url.url)
+    await log_channel.send(embed=embed)
+
+
 @plugin.listener(hikari.MemberUpdateEvent)
 async def log_timeout(event: hikari.MemberUpdateEvent) -> None:
     if (
@@ -108,6 +131,8 @@ async def on_audit_log_entry_create(event: hikari.AuditLogEntryCreateEvent) -> N
         await _handle_ban_audit_log(event)
     elif event.entry.action_type == hikari.AuditLogEventType.MEMBER_UPDATE:
         await _handle_timeout_audit_log(event)
+    elif event.entry.action_type == hikari.AuditLogEventType.MEMBER_KICK:
+        await _handle_kick_audit_log(event)
 
 
 async def _handle_delete_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
@@ -125,6 +150,11 @@ async def _handle_ban_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
 
 async def _handle_timeout_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
     audit_key = TimeoutAuditKey(guild=event.guild_id, user=event.entry.target_id)
+    _recent_audits[audit_key] = event.entry
+
+
+async def _handle_kick_audit_log(event: hikari.AuditLogEntryCreateEvent) -> None:
+    audit_key = KickedAuditKey(guild=event.guild_id, user=event.entry.target_id)
     _recent_audits[audit_key] = event.entry
 
 
