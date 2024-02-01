@@ -5,6 +5,7 @@ from collections import defaultdict, deque
 from datetime import datetime
 
 import hikari
+import openai
 from async_lru import alru_cache
 
 from snoozybot.chat import chat_client
@@ -26,11 +27,15 @@ async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None
         should_reply = ai_roles is None or (
             event.member
             and bool(set(event.member.role_ids) & set(ai_roles))
-            and event.is_human and event.get_guild().get_my_member().id in event.message.user_mentions_ids
+            and event.is_human
+            and event.get_guild().get_my_member().id in event.message.user_mentions_ids
         )
         if should_reply:
             # Member has AI enabled role. Respond with AI.
-            await _chat_guild_respond_ai(event)
+            try:
+                await _chat_guild_respond_ai(event)
+            except openai.InternalServerError:
+                await _chat_guild_respond_text(event)
         # Always add message to AI message buffer in case it's needed later
         if event.message.content:
             _ai_message_buffer[event.channel_id].append(event.message)
