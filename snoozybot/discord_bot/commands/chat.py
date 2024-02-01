@@ -8,7 +8,7 @@ import hikari
 import openai
 from async_lru import alru_cache
 
-from snoozybot.chat import chat_client
+from snoozybot.chat import get_openai
 from snoozybot.config import values
 from snoozybot.config.provider import cached_config
 from snoozybot.utils import LightbulbPlugin
@@ -115,7 +115,7 @@ async def _chat_respond_ai(message: hikari.Message, prompts: list[str], history:
          "name": _non_alphanum.sub('_', _get_author_name(message)),
          "content": message.content}
     ]
-    response = await chat_client.chat.completions.create(
+    response = await get_openai(message.guild_id).chat.completions.create(
         model='gpt-3.5-turbo-0613',
         messages=messages,
         temperature=random.betavariate(2, 3) * 1.2 + 0.3,

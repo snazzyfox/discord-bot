@@ -16,9 +16,9 @@ if envConfig.short_logs:
 
 
 async def run():
-    await database.start()
-    await chat.start()
     try:
+        await database.start()
+        await chat.start()
         await discord_bot.start()
     finally:
         await discord_bot.stop()

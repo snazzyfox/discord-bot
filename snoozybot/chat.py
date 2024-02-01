@@ -2,15 +2,20 @@ from openai import AsyncOpenAI
 
 from snoozybot.config.provider import get_secret_configs
 
-chat_client: AsyncOpenAI = None
+_chat_clients: dict[int, AsyncOpenAI] = {}
 
 
 async def start():
-    global chat_client
-    openai_config = await get_secret_configs('secret.openai.apikey')
-    api_key_secret = next(iter(openai_config.values()), None)
-    chat_client = AsyncOpenAI(api_key=api_key_secret.get_secret_value() if api_key_secret else '')
+    api_keys = await get_secret_configs('secret.openai.apikey')
+    for guild, api_key in api_keys.items():
+        chat_client = AsyncOpenAI(api_key=api_key.get_secret_value())
+        _chat_clients[guild] = chat_client
 
 
 async def stop():
-    await chat_client.close()
+    for chat_client in _chat_clients.values():
+        await chat_client.close()
+
+
+def get_openai(guild_id: int) -> AsyncOpenAI:
+    return _chat_clients[guild_id]
