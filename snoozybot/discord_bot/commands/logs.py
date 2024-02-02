@@ -84,6 +84,9 @@ async def log_member_delete(event: hikari.MemberDeleteEvent) -> None:
     await asyncio.sleep(_AUDIT_DELAY)  # let audit catch up first
     log_channel = event.get_guild().get_channel(log_channel_id)
     left = event.user
+    ban_audit_key = BannedAuditKey(guild=event.guild_id, user=event.user_id)
+    if ban_audit_key in _recent_audits:
+        return  # user was banned; dont also send one for kick/leave
     audit_key = KickedAuditKey(guild=event.guild_id, user=event.user_id)
     audit = _recent_audits.get(audit_key)
     if audit:
