@@ -19,11 +19,10 @@ logger = logging.getLogger(__name__)
 plugin = LightbulbPlugin('roles')
 _MOD_DROPDOWN_PREFIX = 'roles:mod_assign:'
 _SELF_DROPDOWN_PREFIX = 'roles:self_assign:'
-_enabled_guilds = (768208778780475447, 970811039635628072, 840467720695971840)
 
 
 @plugin.command
-@lightbulb.command("roles", description="Manage roles", guilds=_enabled_guilds)
+@lightbulb.command("roles", description="Manage roles")
 @lightbulb.implements(lightbulb.SlashCommandGroup)
 async def roles_group(ctx: lightbulb.SlashContext) -> None:
     pass
@@ -37,7 +36,7 @@ async def roles_dropdown_group(ctx: lightbulb.SlashContext) -> None:
 
 
 @plugin.command
-@lightbulb.command("Assign Role", description="Add a role for a user.", guilds=_enabled_guilds, ephemeral=True)
+@lightbulb.command("Assign Role", description="Add a role for a user.", ephemeral=True)
 @lightbulb.implements(lightbulb.UserCommand)
 async def assign_role(ctx: lightbulb.UserContext) -> None:
     component = ctx.app.rest.build_message_action_row()
@@ -228,7 +227,7 @@ async def _get_managed_tracked_roles(guild_id: int) -> set[int]:
 @plugin.listener(hikari.GuildMessageCreateEvent)
 async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
     """If the user is missing any roles that require metrics, log those metrics."""
-    if event.guild_id not in _enabled_guilds:
+    if event.guild_id not in (await values.roles_mod_add.get_value(event.guild_id) or []):
         return
     tracked = await _get_managed_tracked_roles(event.guild_id)
     if (
