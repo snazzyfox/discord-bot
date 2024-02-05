@@ -1,5 +1,6 @@
 from random import betavariate, choice, random
 
+import hikari
 import lightbulb
 import tortoise.transactions
 from prettytable import PrettyTable
@@ -70,6 +71,12 @@ async def tuchboard(ctx: lightbulb.SlashContext) -> None:
         table.add_row((row["rank"], username, row["max_butts"], row["total_butts"]))
     message += "```\n" + table.get_string() + "\n```"
     await ctx.respond(message)
+
+
+@plugin.listener(hikari.MemberDeleteEvent)
+async def on_member_leave(event: hikari.MemberDeleteEvent) -> None:
+    """Remove history about the member if they leave."""
+    await Tuch.filter(guild_id=event.guild_id, user_id=event.user_id).delete()
 
 
 load, unload = plugin.export_extension()

@@ -253,6 +253,12 @@ last_distinct_day_boundary = CASE
 """, [event.guild_id, event.member.id])
 
 
+@plugin.listener(hikari.MemberDeleteEvent)
+async def on_member_leave(event: hikari.MemberDeleteEvent) -> None:
+    """Remove history about the member if they leave."""
+    await MessageMetric.filter(guild_id=event.guild_id, user_id=event.user_id).delete()
+
+
 @plugin.listener(hikari.InteractionCreateEvent)
 async def on_component_interaction(event: hikari.InteractionCreateEvent) -> None:
     # Handle dropdown

@@ -72,4 +72,10 @@ async def collection_show(ctx: lightbulb.SlashContext) -> None:
             f"{ctx.member.display_name} doesn't have a collection of cutie(s). Better late than never!"
         )
 
+
+@plugin.listener(hikari.MemberDeleteEvent)
+async def on_member_leave(event: hikari.MemberDeleteEvent) -> None:
+    """Remove history about the member if they leave."""
+    await Collect.filter(guild_id=event.guild_id, user_id=event.user_id).delete()
+
 load, unload = plugin.export_extension()

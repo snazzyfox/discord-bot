@@ -225,6 +225,12 @@ async def profile_post(ctx: lightbulb.SlashContext) -> None:
         raise UserError(f'{user.display_name} does not have any profile information.')
 
 
+@plugin.listener(hikari.MemberDeleteEvent)
+async def on_member_leave(event: hikari.MemberDeleteEvent) -> None:
+    """Remove info about the member if they leave."""
+    await GuildMember.filter(guild_id=event.guild_id, user_id=event.user_id).delete()
+
+
 def _generate_profile_embed(guild: hikari.Guild, prof: GuildMember) -> hikari.Embed | None:
     user = guild.get_member(prof.user_id)
     if not user:

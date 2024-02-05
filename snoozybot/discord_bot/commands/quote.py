@@ -136,6 +136,12 @@ async def quote_corgi(ctx: lightbulb.SlashContext) -> None:
     await ctx.respond(quote)
 
 
+@plugin.listener(hikari.MemberDeleteEvent)
+async def on_member_leave(event: hikari.MemberDeleteEvent) -> None:
+    """Remove history about the member if they leave."""
+    await Quote.filter(guild_id=event.guild_id, user_id=event.user_id).delete()
+
+
 async def _get_quote(guild_id: int, user_id: int) -> str:
     quote = await Quote.filter(guild_id=guild_id, user_id=user_id).annotate(
         random=Random("id")).order_by("random").only("content").first()
