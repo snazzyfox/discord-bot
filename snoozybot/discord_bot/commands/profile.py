@@ -132,17 +132,17 @@ async def profile_remove_friend_code(ctx: lightbulb.SlashContext) -> None:
 
 
 @profile_add_group.child
-@lightbulb.option("url", description="An image URL posted on Discord of the ref sheet")
+@lightbulb.option("image", description="An image URL posted on Discord of the ref sheet", type=hikari.Attachment)
 @lightbulb.option("name", description="Name for the ref sheet. If this name already exists, "
                                       "it will replace the existing one.")
 @lightbulb.command(name="refsheet", description="Add a new ref sheet", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashSubCommand)
 async def profile_add_refsheet(ctx: lightbulb.SlashContext) -> None:
-    if not _DISCORD_IMAGE_URL.match(ctx.options.url):
-        raise UserError(
-            "The URL does not look like a Discord image attachment. Please make sure it's an image uploaded to "
-            "Discord, not a link to a message, or an image from an outside source.")
-    await _set_profile_field(ctx.get_guild(), ctx.user, ('refsheet', ctx.options.name.strip()), ctx.options.url)
+    image: hikari.Attachment = ctx.options.image
+    if not image.media_type.startswith('image/'):
+        raise UserError('The screenshot you uploaded does not appear to be a valid image. Please try again and make '
+                        'sure to attach an image.')
+    await _set_profile_field(ctx.get_guild(), ctx.user, ('refsheet', ctx.options.name.strip()), image.url)
     await ctx.respond("Your ref sheet is saved.")
 
 
