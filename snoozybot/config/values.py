@@ -52,7 +52,13 @@ bsky_post_notif_enabled = ConfigValue('bsky.post_notif.enabled', False)
 bsky_post_notif_channel_id = ConfigValue[int]('bsky.post_notif.channel_id')
 bsky_post_notif_users = ConfigValue[list[str]]('bsky.post_notif.users')
 bsky_post_notif_title_template = ConfigValue[str]('bsky.post_notif.title_template',
-                                                  '$display just [posted on bluesky]($url) !')
+                                                  '$display just [posted on bluesky!]($url)')
+
+youtube_notif_enabled = ConfigValue('youtube.notif.enabled', False)
+youtube_notif_channel_id = ConfigValue[int]('youtube.notif.channel_id')
+youtube_notif_playlist_ids = ConfigValue[list[str]]('youtube.notif.playlist_ids')
+youtube_notif_title_template = ConfigValue[str]('youtube.notif.title_template',
+                                                '$channel just [uploaded a new YouTube video!]($url)')
 
 report_channel_id = ConfigValue[int]('report.channel_id')
 report_message = ConfigValue[str]('report.message', '')

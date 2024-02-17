@@ -14,7 +14,7 @@ from snoozybot.utils import LightbulbPlugin
 
 plugin = LightbulbPlugin('bluesky')
 client = AsyncClient()
-_LAST_KNOWN_POST_TIME: dict[str, int] = {}
+_LAST_KNOWN_POST_TIME: dict[str, str] = {}
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +61,7 @@ async def _check_and_notify_bsky_posts(user: str, guilds: set[int], app: lightbu
         break  # dont look at more posts
 
 
-@plugin.periodic_task(timedelta(seconds=30))
+@plugin.periodic_task(timedelta(minutes=10))
 async def bsky_post_notif(app: lightbulb.BotApp):
     # Get the channels to check for each guild
     if client.me:
@@ -72,10 +72,14 @@ async def bsky_post_notif(app: lightbulb.BotApp):
                 for user in users:
                     user_guilds[user].add(guild)
 
-        # Check which accounts had a new post
-        await asyncio.gather(*(
-            _check_and_notify_bsky_posts(did, guilds, app=app) for did, guilds in user_guilds.items()
-        ))
+        try:
+            # Check which accounts had a new post
+            await asyncio.gather(*(
+                _check_and_notify_bsky_posts(did, guilds, app=app) for did, guilds in user_guilds.items()
+            ))
+        except Exception:
+            # Consume the exception so that the periodic task continues.
+            logger.exception('Failed to process bluesky notifications.')
 
 
 load, unload = plugin.export_extension()

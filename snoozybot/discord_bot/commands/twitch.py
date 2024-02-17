@@ -126,20 +126,24 @@ async def twitch_online_notif(app: lightbulb.BotApp):
             for login in logins or []:
                 login_guilds[login.lower()].add(guild)
 
-    # Check which streams went from offline to online on twitch
-    started_streams = await _check_twitch_stream_live(list(login_guilds.keys()))
-    if not started_streams:
-        return
-    # Generate embeds and send
-    logger.info('Found newly started twitch streams: %s, sending notifications...', started_streams)
-    users: list[twitchio.User] = await twitch.fetch_users(ids=[stream.user.id for stream in started_streams])
-    await asyncio.gather(*(
-        _process_stream_notif(
-            stream=stream,
-            user=next(u for u in users if u.id == stream.user.id),
-            guild=guild,
-            app=app,
-        ) for stream in started_streams for guild in login_guilds[stream.user.name.lower()]))
+    try:
+        # Check which streams went from offline to online on twitch
+        started_streams = await _check_twitch_stream_live(list(login_guilds.keys()))
+        if not started_streams:
+            return
+        # Generate embeds and send
+        logger.info('Found newly started twitch streams: %s, sending notifications...', started_streams)
+        users: list[twitchio.User] = await twitch.fetch_users(ids=[stream.user.id for stream in started_streams])
+        await asyncio.gather(*(
+            _process_stream_notif(
+                stream=stream,
+                user=next(u for u in users if u.id == stream.user.id),
+                guild=guild,
+                app=app,
+            ) for stream in started_streams for guild in login_guilds[stream.user.name.lower()]))
+    except Exception:
+        # Consume the exception so that the periodic task continues.
+        logger.exception('Failed to process twitch online notifications.')
 
 
 load, unload = plugin.export_extension()
