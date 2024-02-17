@@ -41,7 +41,11 @@ async def _check_twitch_stream_live(logins: list[str]) -> list[twitchio.Stream]:
     # Does not return streamers whose status went from unknown to online.
     if not logins:
         return []
-    streams = await twitch.fetch_streams(user_logins=logins, type='live')
+    batches = await asyncio.gather(*(
+        twitch.fetch_streams(user_logins=logins[i:i + 100], type='live')
+        for i in range(0, len(logins), 100)
+    ))
+    streams = [s for b in batches for s in b]
     results = []
     for stream in streams:
         user = stream.user.name.lower()
