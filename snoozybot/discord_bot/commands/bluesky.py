@@ -28,37 +28,33 @@ async def on_started(event: hikari.StartedEvent):
 
 
 async def _check_and_notify_bsky_posts(user: str, guilds: set[int], app: lightbulb.BotApp):
-    resp = await client.get_author_feed(user, filter="posts_no_replies", limit=10)
-    # pull 10 messages because author threads are always returned even replies
-    for post in resp.feed:
-        if post.reply:
-            continue
-        # This is the latest non-reply post
-        post_time = post.post.record.created_at
-        if user not in _LAST_KNOWN_POST_TIME:
-            # Dont know what the previous post was. Store the current but dont notify.
-            _LAST_KNOWN_POST_TIME[user] = post_time
-            logger.info('Found initial bsky post from %s', user)
-        elif _LAST_KNOWN_POST_TIME[user] < post_time:
-            _, post_id = post.post.uri.rsplit('/', 1)
-            # This is a new post
-            logger.info('Found new bsky post: %s, sending notifications...', post_id)
-            _LAST_KNOWN_POST_TIME[user] = post_time
-            for guild in guilds:
-                channel_id = await values.bsky_post_notif_channel_id.get_value(guild)
-                channel = app.cache.get_guild_channel(channel_id)
-                if isinstance(channel, hikari.TextableChannel):
-                    content_template = await values.bsky_post_notif_title_template.get_value(guild) or ''
-                    post_url = f'https://bsky.app/profile/{post.post.author.handle}/post/{post_id}'
-                    content = string.Template(content_template).safe_substitute({
-                        'handle': post.post.author.handle, 'display': post.post.author.display_name, 'url': post_url,
-                    })
-                    await channel.send(content=content, user_mentions=True, role_mentions=True, mentions_everyone=True)
-                    logger.info('Sent bsky notification to guild %s channel %s', guild, channel_id)
-                else:
-                    logger.error('Did not send a bsky notification for guild %s channel %s: invalid channel ID',
-                                 guild, channel)
-        break  # dont look at more posts
+    resp = await client.get_author_feed(user, filter="posts_no_replies", limit=1)
+    post = resp.feed[0]
+    # This is the latest non-reply post
+    post_time = post.post.record.created_at
+    if user not in _LAST_KNOWN_POST_TIME:
+        # Dont know what the previous post was. Store the current but dont notify.
+        _LAST_KNOWN_POST_TIME[user] = post_time
+        logger.info('Found initial bsky post from %s', user)
+    elif _LAST_KNOWN_POST_TIME[user] < post_time:
+        _, post_id = post.post.uri.rsplit('/', 1)
+        # This is a new post
+        logger.info('Found new bsky post: %s, sending notifications...', post_id)
+        _LAST_KNOWN_POST_TIME[user] = post_time
+        for guild in guilds:
+            channel_id = await values.bsky_post_notif_channel_id.get_value(guild)
+            channel = app.cache.get_guild_channel(channel_id)
+            if isinstance(channel, hikari.TextableChannel):
+                content_template = await values.bsky_post_notif_title_template.get_value(guild) or ''
+                post_url = f'https://bsky.app/profile/{post.post.author.handle}/post/{post_id}'
+                content = string.Template(content_template).safe_substitute({
+                    'handle': post.post.author.handle, 'display': post.post.author.display_name, 'url': post_url,
+                })
+                await channel.send(content=content, user_mentions=True, role_mentions=True, mentions_everyone=True)
+                logger.info('Sent bsky notification to guild %s channel %s', guild, channel_id)
+            else:
+                logger.error('Did not send a bsky notification for guild %s channel %s: invalid channel ID',
+                             guild, channel)
 
 
 @plugin.periodic_task(timedelta(minutes=10))
