@@ -3,9 +3,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class EnvironmentConfig(BaseSettings):
-    database_url: SecretStr = Field(..., env="database_url")
-    short_logs: bool = Field(False, env="short_logs")
-    log_level: str | int = Field("INFO", env="log_level")
+    database_url: SecretStr = Field(...)
+    short_logs: bool = Field(False)
+    log_level: str | int = Field("INFO")
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from random import choice
 
 import hikari
@@ -82,7 +82,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
     message = event.message
     # Grab the user's bedtime
     db_record = await _get_bedtime(message.author.id)
-    utcnow = datetime.utcnow()
+    utcnow = datetime.now(UTC).replace(tzinfo=None)
     # Do nothing if the user don't have a bedtime set or if they're in cooldown
     if not db_record or not db_record.bedtime:
         logger.debug(f"User {message.author.id} does not have a bedtime set.")

@@ -61,15 +61,6 @@ class Collect(Model):
     target_user_id = fields.BigIntField(null=False)
 
 
-class BotMessage(Model):
-    class Meta:
-        table = "bot_messages"
-
-    id = fields.TextField(pk=True)
-    channel_id = fields.BigIntField(null=False)
-    message_id = fields.BigIntField(null=False)
-
-
 class GuildMember(Model):
     class Meta:
         table = "guild_members"

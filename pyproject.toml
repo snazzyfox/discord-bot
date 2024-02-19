@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "~3.11"
+python = ">=3.11,<3.13"
 pytz = "^2024.1"
 prettytable = "^3.9.0"
 parsedatetime = "^2.6"
