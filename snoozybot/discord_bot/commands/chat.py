@@ -59,12 +59,13 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
     history: list[dict] = []
     previous_message = event.message.referenced_message
     while previous_message and len(history) < _HISTORY_SIZE:
-        role = 'assistant' if previous_message.author.id == bot_member.id else 'user'
-        history.insert(0, {
-            "role": role,
-            "content": previous_message.content,
-            "name": _non_alphanum.sub('_', _get_author_name(previous_message))
-        })
+        if previous_message.content:
+            role = 'assistant' if previous_message.author.id == bot_member.id else 'user'
+            history.insert(0, {
+                "role": role,
+                "content": previous_message.content,
+                "name": _non_alphanum.sub('_', _get_author_name(previous_message))
+            })
         previous_message = previous_message.referenced_message
     else:
         # There's nothing to reply to. Use previous message history in chat instead
