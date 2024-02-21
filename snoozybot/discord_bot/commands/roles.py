@@ -227,8 +227,6 @@ async def _get_managed_tracked_roles(guild_id: int) -> set[int]:
 @plugin.listener(hikari.GuildMessageCreateEvent)
 async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
     """If the user is missing any roles that require metrics, log those metrics."""
-    if event.guild_id not in (await values.roles_mod_add.get_value(event.guild_id) or []):
-        return
     tracked = await _get_managed_tracked_roles(event.guild_id)
     if (
         tracked
