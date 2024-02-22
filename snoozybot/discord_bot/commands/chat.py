@@ -150,7 +150,7 @@ async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], hist
     prompt = [
         "Context and instructions: ",
         "You are a discord bot responding to a message in a chat with many users. ",
-        "Limit your response to 3 sentences.",
+        "Respond with no more than 3 sentences. Avoid using line breaks. You may use emojis.",
         "Do not give context or offer information unasked. Do not try changing topic.",
         "Make up a something funny if you don't know the answer.",
         f"User's name is {message.member.display_name}.",
@@ -165,7 +165,7 @@ async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], hist
         generation_config=gemini.types.GenerationConfig(
             candidate_count=1,
             max_output_tokens=120,
-            temperature=0.9,
+            temperature=0.95,
         ),
         safety_settings={
             'HARASSMENT': 'block_none',  # these are way too sensitive for twitch standards
