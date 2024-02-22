@@ -38,6 +38,7 @@ text_fragment = ConfigValue[list[str | RandomOption]]('text.fragment', None,
 chat_rb_enabled = ConfigValue('chat.rb.enabled', True)
 chat_rb_prompts = ConfigValue[list[RuleBasedPrompt]]('chat.rb.prompts', [])
 chat_ai_enabled = ConfigValue('chat.ai.enabled', True)
+chat_ai_model = ConfigValue[typing.Literal['gpt', 'gemini']]('chat.ai.model', 'gpt')
 chat_ai_roles = ConfigValue[list[int]]('chat.ai.roles', [])
 chat_ai_prompts = ConfigValue[list[str]]('chat.ai.prompts', [])
 
