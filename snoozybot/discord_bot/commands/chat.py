@@ -43,7 +43,7 @@ async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None
             # Member has AI enabled role. Respond with AI.
             try:
                 await _chat_guild_respond_ai(event)
-            except openai.InternalServerError:
+            except (openai.InternalServerError. google.api_core.exceptions.InternalServerError):
                 await _chat_guild_respond_text(event)
         # Always add message to AI message buffer in case it's needed later
         if event.message.content:
@@ -147,32 +147,36 @@ async def _chat_respond_openai(message: hikari.Message, prompts: list[str], hist
 
 async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], history: list[ChatHistoryItem]) -> None:
     guild_prompts = await values.chat_ai_prompts.get_value(message.guild_id) or []
-    prompt = [
+    prompt = '\n'.join([
         "Context and instructions: ",
         "You are a discord bot responding to a message in a chat with many users. ",
-        "Respond with no more than 3 sentences. Avoid using line breaks. You may use emojis.",
+        "Respond with just a few sentences. Avoid using line breaks. You may use emojis.",
         "Do not give context or offer information unasked. Do not try changing topic.",
         "Make up a something funny if you don't know the answer.",
         f"User's name is {message.member.display_name}.",
         *guild_prompts,
         *prompts,
-        "Following messages are conversation history for your context. Respond to the last message.\n---\n",
-    ]
-    prompt.extend(f"{h.author} said: {h.content}" for h in history)
-    prompt.append(f"{message.member.display_name} said: {message.content}")
+    ])
+    chat_history = '\n'.join([
+        "The following messages are conversation history for your context. Respond only to the last message.",
+        *(f"{h.author} said: {h.content}" for h in history),
+        f"{message.member.display_name} said: {message.content}",
+    ])
     response = await gemini.GenerativeModel("gemini-pro").generate_content_async(
-        prompt,
+        [prompt, chat_history],
         generation_config=gemini.types.GenerationConfig(
             candidate_count=1,
-            max_output_tokens=120,
+            max_output_tokens=180,
             temperature=0.95,
+            top_k=12,
+            top_p=0.85,
         ),
         safety_settings={
             'HARASSMENT': 'block_none',  # these are way too sensitive for twitch standards
         }
     )
-    response_text: str = response.text
-    logger.info("Gemini chat message: prompt: %s, response: %s", prompt, response_text)
+    response_text: str = response.parts[0].text
+    logger.info("Gemini chat message: response: %s", response_text)
     await message.respond(response_text, reply=True)
 
 
