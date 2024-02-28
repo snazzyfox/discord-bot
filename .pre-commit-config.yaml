@@ -22,7 +22,7 @@ repos:
           - flake8-eradicate
           - flake8-noqa
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.8.0
     hooks:
       - id: mypy
         additional_dependencies:
