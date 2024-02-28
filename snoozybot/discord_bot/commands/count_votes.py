@@ -34,6 +34,7 @@ async def vote_count(ctx: lightbulb.SlashContext) -> None:
         raise UserError('The channel you selected is not a forum channel. Only forum channels can have votes tallied.')
 
     # Pull all posts and reactions
+    all_active_threads: list[hikari.GuildPublicThread]
     archived_threads: list[hikari.GuildPublicThread]
     all_active_threads, archived_threads = await asyncio.gather(
         ctx.app.rest.fetch_active_threads(guild),
