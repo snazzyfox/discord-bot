@@ -1023,19 +1023,20 @@ requests = ["requests (>=2.20.0,<3.0.0.dev0)"]
 
 [[package]]
 name = "google-generativeai"
-version = "0.3.2"
+version = "0.4.0"
 description = "Google Generative AI High level API client library and tools."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "google_generativeai-0.3.2-py3-none-any.whl", hash = "sha256:8761147e6e167141932dc14a7b7af08f2310dd56668a78d206c19bb8bd85bcd7"},
+    {file = "google_generativeai-0.4.0-py3-none-any.whl", hash = "sha256:cf53a51f7c22f0193685e39708e015119b2500626bb2e74ad8c2bf8d8568ef1e"},
 ]
 
 [package.dependencies]
 google-ai-generativelanguage = "0.4.0"
 google-api-core = "*"
-google-auth = "*"
+google-auth = ">=2.15.0"
 protobuf = "*"
+pydantic = "*"
 tqdm = "*"
 typing-extensions = "*"
 
@@ -2536,4 +2537,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "2f408fca338d4d8d3d8d99f28c0ba3cdf7b417feac1c6cec08e6e1fc84780e28"
+content-hash = "df5587d220c1205e398b0bb408e092b6cd39245793d1caae0f283614e40d4a0e"
