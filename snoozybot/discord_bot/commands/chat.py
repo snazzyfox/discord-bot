@@ -44,7 +44,7 @@ async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None
             # Member has AI enabled role. Respond with AI.
             try:
                 await _chat_guild_respond_ai(event)
-            except (openai.InternalServerError, google.api_core.exceptions.InternalServerError):
+            except (openai.InternalServerError, google.api_core.exceptions.InternalServerError, ValueError):
                 await _chat_guild_respond_text(event)
         # Always add message to AI message buffer in case it's needed later
         if event.message.content:
