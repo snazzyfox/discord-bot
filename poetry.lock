@@ -263,13 +263,13 @@ test = ["flake8 (>=6.1,<7.0)", "uvloop (>=0.15.3)"]
 
 [[package]]
 name = "atproto"
-version = "0.0.42"
+version = "0.0.44"
 description = "The AT Protocol SDK"
 optional = false
 python-versions = ">=3.7.1,<3.13"
 files = [
-    {file = "atproto-0.0.42-py3-none-any.whl", hash = "sha256:e0c0f581d5f15785f4d40d0ac86ee673271600f9669d93b76a89933490adfb62"},
-    {file = "atproto-0.0.42.tar.gz", hash = "sha256:781374eaa67e70502c6b12ccd6dc1e20df7dfeb6053ef7c132ff9d78d34ff163"},
+    {file = "atproto-0.0.44-py3-none-any.whl", hash = "sha256:0d62ef85cdf46e1d05839eb7031620da404e81620a6c464d91c0f7055f4e1269"},
+    {file = "atproto-0.0.44.tar.gz", hash = "sha256:09081971cf8a0ed60bf50a8d24f4721a3d8ff5b73b7eb2363ea77f1d735b7392"},
 ]
 
 [package.dependencies]
@@ -2536,4 +2536,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "2f408fca338d4d8d3d8d99f28c0ba3cdf7b417feac1c6cec08e6e1fc84780e28"
+content-hash = "b1f9bbd150bfdb8ea5cfb9726ca9117b96045f6b75b66aa7cd0eb47d8c415ed8"
