@@ -149,15 +149,18 @@ async def _chat_respond_openai(message: hikari.Message, prompts: list[str], hist
 async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], history: list[ChatHistoryItem]) -> None:
     guild_prompts = await values.chat_ai_prompts.get_value(message.guild_id) or []
     system_prompt = '\n'.join([
-        "Context and instructions: ",
+        "--- General Information ---",
         "You are a discord bot responding to a message in a chat with many users. ",
         "Respond with just a few sentences. Avoid using line breaks. You may use emojis.",
         "Do not give context or offer information unasked. Do not try changing topic.",
         "Make up a something funny if you don't know the answer.",
-        f"User's name is {message.member.display_name}.",
+        f"The user's name is {message.member.display_name}.",
+        '\n --- Information about the current chat you are in ---',
         *guild_prompts,
         *prompts,
-        "You will be given the conversation history in the next message. Respond to the last message in that message."
+        "\n --- Instruction ---",
+        "You will be given the conversation history in the next message. ",
+        "Respond ONLY to the last message; use the rest as additional conversational context.",
     ])
     chat_history = '\n'.join([
         *(f"{h.author} said: {h.content}" for h in history),
@@ -172,7 +175,7 @@ async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], hist
         prompt,
         generation_config=gemini.types.GenerationConfig(
             candidate_count=1,
-            max_output_tokens=180,
+            max_output_tokens=300,
             temperature=0.95,
             top_k=12,
             top_p=0.85,
