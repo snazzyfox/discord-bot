@@ -2177,13 +2177,13 @@ telegram = ["requests"]
 
 [[package]]
 name = "twitchio"
-version = "2.8.2"
+version = "2.9.1"
 description = "An asynchronous Python IRC and API wrapper for Twitch."
 optional = false
 python-versions = "*"
 files = [
-    {file = "twitchio-2.8.2-py3-none-any.whl", hash = "sha256:cec7fa5054d7613a54b3bfc4f3103a691148bc737f3778d9e58968a91fab0583"},
-    {file = "twitchio-2.8.2.tar.gz", hash = "sha256:ffb059c761c3aaca238356ec26c4829b81d05a0e93acb42ef9a66c7685051f10"},
+    {file = "twitchio-2.9.1-py3-none-any.whl", hash = "sha256:5820f6690d8cca1d709cca741119c3c079e8cb4866e64e553dd0e1721b4ff16f"},
+    {file = "twitchio-2.9.1.tar.gz", hash = "sha256:c46a2a0528601f69b6d71355e86f7302a16a415a25aed5bce90c8aeacce407d3"},
 ]
 
 [package.dependencies]
@@ -2537,4 +2537,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "0f72c64110eb1c9f20b1c9ea6847e32a3e3e2db227e1c31157e9534cc684913e"
+content-hash = "9fbbca5041d40ae3c57f6db958a13787230c31196ec2209aa770fda2c19e804d"
