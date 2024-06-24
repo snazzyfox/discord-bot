@@ -1586,13 +1586,13 @@ setuptools = "*"
 
 [[package]]
 name = "openai"
-version = "1.24.1"
+version = "1.35.3"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-1.24.1-py3-none-any.whl", hash = "sha256:52fe59418bec5f6ec80dd8c523a5cce82ce6237b1712f1399eeaa8503f925ed7"},
-    {file = "openai-1.24.1.tar.gz", hash = "sha256:0b790ce01e6a51daac866d85f76a59ca7a17b2c4c35991542e24a0b40356fb63"},
+    {file = "openai-1.35.3-py3-none-any.whl", hash = "sha256:7b26544cef80f125431c073ffab3811d2421fbb9e30d3bd5c2436aba00b042d5"},
+    {file = "openai-1.35.3.tar.gz", hash = "sha256:d6177087f150b381d49499be782d764213fdf638d391b29ca692b84dd675a389"},
 ]
 
 [package.dependencies]
@@ -2613,4 +2613,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "caa62b2c2e6b610f8ecdf72c3f00cceb2440845fbe15456fa3865abdfaa66c1a"
+content-hash = "784a98da5637f1a215d1c039035c6ffbc3d3111064fe554d6393df0c162a2fe2"
