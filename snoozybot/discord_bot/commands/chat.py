@@ -8,13 +8,14 @@ from datetime import datetime
 import google.api_core.exceptions
 import google.generativeai as gemini
 import hikari
+import lightbulb
 import openai
 from async_lru import alru_cache
 
 from snoozybot.chat import get_openai
 from snoozybot.config import values
 from snoozybot.config.provider import cached_config
-from snoozybot.utils import LightbulbPlugin
+from snoozybot.utils import CooldownManager, LightbulbPlugin
 
 logger = logging.getLogger(__name__)
 plugin = LightbulbPlugin('chat')
@@ -32,29 +33,34 @@ class ChatHistoryItem:
 
 @plugin.listener(hikari.GuildMessageCreateEvent)
 async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None:
-    if await values.chat_ai_enabled.get_value(event.guild_id):
-        ai_roles = await values.chat_ai_roles.get_value(event.guild_id) or []
-        should_reply = (
-            event.member
-            and (bool(set(event.member.role_ids) & set(ai_roles)) or not ai_roles)
-            and event.is_human
-            and event.get_guild().get_my_member().id in event.message.user_mentions_ids
-        )
-        if should_reply:
-            # Member has AI enabled role. Respond with AI.
-            try:
-                await _chat_guild_respond_ai(event)
-            except (openai.InternalServerError, google.api_core.exceptions.InternalServerError, ValueError):
+    try:
+        if await values.chat_ai_enabled.get_value(event.guild_id):
+            ai_roles = await values.chat_ai_roles.get_value(event.guild_id) or []
+            should_reply = (
+                event.member
+                and (bool(set(event.member.role_ids) & set(ai_roles)) or not ai_roles)
+                and event.is_human
+                and event.get_guild().get_my_member().id in event.message.user_mentions_ids
+            )
+            if should_reply:
+                await _check_cooldown(event)
+                # Member has AI enabled role. Respond with AI.
+                try:
+                    await _chat_guild_respond_ai(event)
+                except (openai.InternalServerError, google.api_core.exceptions.InternalServerError, ValueError):
+                    await _chat_guild_respond_text(event)
+            # Always add message to AI message buffer in case it's needed later
+            if event.message.content:
+                _ai_message_buffer[event.channel_id].append(event.message)
+            if should_reply:
+                return
+        if await values.chat_rb_enabled.get_value(event.guild_id):
+            # Messages in AI-enabled guilds but not AI enabled roles also fall thru here
+            if event.is_human and event.get_guild().get_my_member().id in event.message.user_mentions_ids:
+                await _check_cooldown(event)
                 await _chat_guild_respond_text(event)
-        # Always add message to AI message buffer in case it's needed later
-        if event.message.content:
-            _ai_message_buffer[event.channel_id].append(event.message)
-        if should_reply:
-            return
-    if await values.chat_rb_enabled.get_value(event.guild_id):
-        # Messages in AI-enabled guilds but not AI enabled roles also fall thru here
-        if event.is_human and event.get_guild().get_my_member().id in event.message.user_mentions_ids:
-            await _chat_guild_respond_text(event)
+    except lightbulb.errors.CommandIsOnCooldown:
+        await event.message.respond("That's a lot of chatting over here. Let's move over to the bot spam channel!")
 
 
 async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
@@ -195,5 +201,12 @@ def _get_author_name(message: hikari.PartialMessage) -> str:
     else:
         return message.author.global_name or message.author.username
 
+
+bucket = lightbulb.ChannelBucket(length=300, max_usages=3)
+_cooldown_manager = CooldownManager(lambda ctx: bucket)
+
+
+async def _check_cooldown(event: hikari.GuildMessageCreateEvent):
+    await _cooldown_manager.add_cooldown(event)
 
 load, unload = plugin.export_extension()

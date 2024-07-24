@@ -33,7 +33,7 @@ class UserGuildBucket(lightbulb.Bucket):
 class CooldownManager(lightbulb.CooldownManager):
     """An extension of lightbulb's cooldown manager that accouns for cooldown-exempt channels."""
 
-    async def add_cooldown(self, context: lightbulb.context.base.Context) -> None:
+    async def add_cooldown(self, context: lightbulb.context.base.Context | hikari.Event) -> None:
         cooldown_channels = await values.cooldown_exempt_channels.get_value(context.guild_id)
         if cooldown_channels and context.channel_id in cooldown_channels:
             return None
