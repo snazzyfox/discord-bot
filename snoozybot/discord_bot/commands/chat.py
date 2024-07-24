@@ -134,7 +134,7 @@ async def _chat_respond_openai(message: hikari.Message, prompts: list[str], hist
          "content": message.content}
     ]
     response = await get_openai(message.guild_id).chat.completions.create(
-        model='gpt-3.5-turbo-0125',
+        model='gpt-4o-mini',
         messages=messages,
         temperature=random.betavariate(2, 3) * 1.2 + 0.3,
         max_tokens=120,
