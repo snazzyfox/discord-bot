@@ -52,6 +52,9 @@ async def log_message_update(event: hikari.GuildMessageUpdateEvent) -> None:
         log_channel_id = await _get_log_channel(event.guild_id)
         if not log_channel_id:
             return
+        if event.old_message.content == event.message.content:
+            # embed and attachment being added/deleted
+            return
         embed = _generate_message_embed(event, None)
         log_channel = event.get_guild().get_channel(log_channel_id)
         await log_channel.send(embed=embed)
