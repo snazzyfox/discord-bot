@@ -41,6 +41,8 @@ chat_ai_enabled = ConfigValue('chat.ai.enabled', True)
 chat_ai_model = ConfigValue[typing.Literal['gpt', 'gemini']]('chat.ai.model', 'gpt')
 chat_ai_roles = ConfigValue[list[int]]('chat.ai.roles', [])
 chat_ai_prompts = ConfigValue[list[str]]('chat.ai.prompts', [])
+chat_cooldown_message = ConfigValue[str](
+    'chat.cooldown.message', "That's a lot of chatting over here. Let's move over to the bot spam channel!")
 
 twitch_online_notif_enabled = ConfigValue('twitch.online_notif.enabled', False)
 twitch_online_notif_channel_id = ConfigValue[int]('twitch.online_notif.channel_id')

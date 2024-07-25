@@ -60,7 +60,8 @@ async def on_guild_message_create(event: hikari.GuildMessageCreateEvent) -> None
                 await _check_cooldown(event)
                 await _chat_guild_respond_text(event)
     except lightbulb.errors.CommandIsOnCooldown:
-        await event.message.respond("That's a lot of chatting over here. Let's move over to the bot spam channel!")
+        message = await values.chat_cooldown_message.get_value(event.guild_id)
+        await event.message.respond(message)
 
 
 async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
@@ -202,7 +203,7 @@ def _get_author_name(message: hikari.PartialMessage) -> str:
         return message.author.global_name or message.author.username
 
 
-bucket = lightbulb.ChannelBucket(length=300, max_usages=3)
+bucket = lightbulb.ChannelBucket(length=300, max_usages=5)
 _cooldown_manager = CooldownManager(lambda ctx: bucket)
 
 
