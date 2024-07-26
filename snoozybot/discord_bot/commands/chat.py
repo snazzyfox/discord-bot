@@ -124,7 +124,8 @@ async def _chat_respond_openai(message: hikari.Message, prompts: list[str], hist
         'Limit response to 2 sentences, 80 words. Refuse if user asks for long-form content.'
         'Do not give context. Do not ask for information. Do not try changing topic.',
         "Do not say you don't know. Make up a funny answer instead.",
-        f"User's name is {message.member.display_name}.",
+        "Respond with what you would say without prefixing your name.",
+        f"User you're responding to is: {message.member.display_name}.",
         *guild_prompts,
         *prompts
     ]
@@ -161,7 +162,7 @@ async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], hist
         "Respond with just a few sentences. Avoid using line breaks. You may use emojis.",
         "Do not give context or offer information unasked. Do not try changing topic.",
         "Make up a something funny if you don't know the answer.",
-        f"The user's name is {message.member.display_name}.",
+        f"You are responding to the user named: {message.member.display_name}.",
         '\n --- Information about the current chat you are in ---',
         *guild_prompts,
         *prompts,
