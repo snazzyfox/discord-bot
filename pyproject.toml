@@ -27,7 +27,7 @@ atproto = "^0.0.46"
 google-generativeai = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.7.0"
+pre-commit = "^3.8.0"
 jurigged = "^0.5.7"
 
 [build-system]
