@@ -204,7 +204,7 @@ def _get_author_name(message: hikari.PartialMessage) -> str:
         return message.author.global_name or message.author.username
 
 
-bucket = lightbulb.ChannelBucket(length=300, max_usages=5)
+bucket = lightbulb.ChannelBucket(length=300, max_usages=3)
 _cooldown_manager = CooldownManager(lambda ctx: bucket)
 
 
