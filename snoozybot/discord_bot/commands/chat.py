@@ -124,7 +124,7 @@ async def _chat_respond_openai(message: hikari.Message, prompts: list[str], hist
         'Limit response to 2 sentences, 80 words. Refuse if user asks for long-form content.'
         'Do not give context. Do not ask for information. Do not try changing topic.',
         "Do not say you don't know. Make up a funny answer instead.",
-        "Respond with what you would say without prefixing your name.",
+        "Respond with ONLY what you would say.",
         f"User you're responding to is: {message.member.display_name}.",
         *guild_prompts,
         *prompts
