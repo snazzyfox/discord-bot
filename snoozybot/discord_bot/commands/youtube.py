@@ -37,14 +37,15 @@ class Youtube:
         page_token: str | None = ''
         while page_token is not None:
             data = await self._get_youtube_api('playlistItems', {
-                'part': 'id', 'playlistId': playlist_id, 'maxResults': 50})
+                'part': 'id', 'playlistId': playlist_id, 'maxResults': 50, 'pageToken': page_token
+            })
             ids.extend(item['id'] for item in data['items'])
             page_token = data.get('nextPageToken')
         return ids
 
     async def get_playlist_video_details(self, playlist_item_ids: list[str]) -> list[tuple[str, str]]:
         data = await self._get_youtube_api('playlistItems', {
-            'part': 'snippet', 'id': ','.join(playlist_item_ids), 'maxResults': 50})
+            'part': 'snippet,status', 'id': ','.join(playlist_item_ids), 'maxResults': 50})
         return [(item['snippet']['channelTitle'], item['snippet']['resourceId']['videoId']) for item in data['items']]
 
     async def close(self):
