@@ -37,9 +37,9 @@ class Youtube:
         page_token: str | None = ''
         while page_token is not None:
             data = await self._get_youtube_api('playlistItems', {
-                'part': 'id', 'playlistId': playlist_id, 'maxResults': 50, 'pageToken': page_token
+                'part': 'id,status', 'playlistId': playlist_id, 'maxResults': 50, 'pageToken': page_token
             })
-            ids.extend(item['id'] for item in data['items'])
+            ids.extend(item['id'] for item in data['items'] if item['status']['privacyStatus'] == 'public')
             page_token = data.get('nextPageToken')
         return ids
 
