@@ -4,6 +4,7 @@ import math
 
 import hikari
 import lightbulb
+from hikari.impl.config import CacheSettings
 from pydantic import SecretStr
 
 from snoozybot.config.env import envConfig
@@ -21,10 +22,17 @@ bot_intents = (
     | hikari.Intents.GUILD_MEMBERS
     | hikari.Intents.GUILD_MODERATION
 )
+cache_settings = CacheSettings(max_messages=3000)
 
 
 def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
-    bot = lightbulb.BotApp(token=token.get_secret_value(), logs=envConfig.log_level, banner=None, intents=bot_intents)
+    bot = lightbulb.BotApp(
+        token=token.get_secret_value(),
+        logs=envConfig.log_level,
+        banner=None,
+        intents=bot_intents,
+        cache_settings=cache_settings,
+    )
     bot.default_enabled_guilds = guilds
     bot.load_extensions_from('snoozybot/discord_bot/commands')
 

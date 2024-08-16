@@ -35,15 +35,14 @@ async def log_message_delete(event: hikari.GuildMessageDeleteEvent | hikari.Guil
     if isinstance(event, hikari.GuildMessageDeleteEvent):
         messages = [event.old_message]
     else:
-        messages = event.old_messages
+        messages = [m for m in event.old_messages.values() if m]
     for message in messages:
-        if message:
+        if message and not message.author.is_bot:
             audit_key = DeleteAuditKey(guild=event.guild_id, channel=event.channel_id, author=message.author.id)
             audit: hikari.AuditLogEntry | None = _recent_audits.get(audit_key)
             embed = _generate_message_embed(event, audit)
-            if not message.author.is_bot:
-                log_channel = event.get_guild().get_channel(log_channel_id)
-                await log_channel.send(embed=embed)
+            log_channel = event.get_guild().get_channel(log_channel_id)
+            await log_channel.send(embed=embed)
 
 
 @plugin.listener(hikari.GuildMessageUpdateEvent)
