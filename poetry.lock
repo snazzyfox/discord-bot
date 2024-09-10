@@ -275,13 +275,13 @@ test = ["flake8 (>=6.1,<7.0)", "uvloop (>=0.15.3)"]
 
 [[package]]
 name = "atproto"
-version = "0.0.49"
+version = "0.0.52"
 description = "The AT Protocol SDK"
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "atproto-0.0.49-py3-none-any.whl", hash = "sha256:f3c5b0c11e9b0e260683ab1f133803a6edcb598a6230f503b4f1b1c0735afd5c"},
-    {file = "atproto-0.0.49.tar.gz", hash = "sha256:82ab41695b5c52c77ba4119eaa52d3c8b7bf4f503518ddc274eb30567b777d18"},
+    {file = "atproto-0.0.52-py3-none-any.whl", hash = "sha256:61a01f38b06109a94eff9c84552deb7b0b97a9dc114acb4f3d8c7afc87fe59a1"},
+    {file = "atproto-0.0.52.tar.gz", hash = "sha256:e5f19fc3f6fe369dfe8179695fca7978d6864492985e60a52d6243dd5fb5d5e5"},
 ]
 
 [package.dependencies]
@@ -292,7 +292,7 @@ httpx = ">=0.25.0,<0.27.0"
 libipld = ">=1.1.0,<2"
 pydantic = ">=2.7,<3"
 typing-extensions = ">=4.8.0,<5"
-websockets = ">=12,<13"
+websockets = ">=12,<14"
 
 [[package]]
 name = "attrs"
@@ -2686,4 +2686,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "c2402794ce53de138de111a8a45d6c1bc5dd27143d2de79cf71dadcf7073ede6"
+content-hash = "0a2c4ba3dfcadd65d7357e693d0266697c4e54aa1b8bcacfa5288e0f91586b21"
