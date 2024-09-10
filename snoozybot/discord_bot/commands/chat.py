@@ -167,19 +167,17 @@ async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], hist
         *guild_prompts,
         *prompts,
         "\n --- Instruction ---",
-        "You will be given the conversation history in the next message. ",
-        "Respond ONLY to the last message; use the rest as additional conversational context.",
+        "You will be given the entire conversation history in the first message. ",
+        "Each message starts with a user's name, then what they said.",
+        "Respond ONLY to the last message. The others are for additional conversational context.",
     ])
     chat_history = '\n'.join([
-        *(f"{h.author} said: {h.content}" for h in history),
+        *(f"{h.author}: {h.content}" for h in history),
         f"{message.member.display_name} said: {message.content}",
     ])
-    prompt = [
-        {"role": "user", "parts": system_prompt},
-        {"role": "model", "parts": ["Got it. Please provide the conversation history next."]},
-        {"role": "user", "parts": chat_history},
-    ]
-    response = await gemini.GenerativeModel("gemini-pro").generate_content_async(
+    prompt = [{"role": "user", "parts": chat_history}]
+    model = gemini.GenerativeModel("gemini-1.5-flash", system_instruction=system_prompt)
+    response = await model.generate_content_async(
         prompt,
         generation_config=gemini.types.GenerationConfig(
             candidate_count=1,
@@ -189,7 +187,10 @@ async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], hist
             top_p=0.85,
         ),
         safety_settings={
-            'HARASSMENT': 'block_none',  # these are way too sensitive for twitch standards
+            'HARASSMENT': 'BLOCK_NONE',  # these are way too sensitive for twitch standards
+            'HATE_SPEECH': 'BLOCK_ONLY_HIGH',
+            'SEXUALLY_EXPLICIT': 'BLOCK_ONLY_HIGH',
+            'DANGEROUS': 'BLOCK_ONLY_HIGH',
         }
     )
     response_text: str = response.parts[0].text
