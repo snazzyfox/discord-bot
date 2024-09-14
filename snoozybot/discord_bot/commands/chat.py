@@ -121,10 +121,10 @@ async def _chat_get_prompts_text(guild_id: int) -> list[tuple[re.Pattern, list[s
 async def _chat_respond_openai(message: hikari.Message, prompts: list[str], history: list[ChatHistoryItem]) -> None:
     guild_prompts = await values.chat_ai_prompts.get_value(message.guild_id) or []
     system_prompts = [
-        'Limit response to 2 sentences, 80 words. Refuse if user asks for long-form content.'
-        'Do not give context. Do not ask for information. Do not try changing topic.',
-        "Do not say you don't know. Make up a funny answer instead.",
-        "Respond with ONLY what you would say.",
+        'Limit response to 2 sentences.'
+        'Do not give context. Do not ask for information. Do not change the topic.',
+        "Avoid saying you don't know. Make up a funny answer instead.",
+        "Respond with only what you would say. Do not prepend with your name or any other info.",
         f"User you're responding to is: {message.member.display_name}.",
         *guild_prompts,
         *prompts
@@ -169,7 +169,7 @@ async def _chat_respond_gemini(message: hikari.Message, prompts: list[str], hist
         "\n --- Instruction ---",
         "You will be given the entire conversation history in the first message. ",
         "Each message starts with a user's name, then what they said.",
-        "Respond ONLY to the last message. The others are for additional conversational context.",
+        "Respond ONLY to the last message. All others are for additional conversational context.",
     ])
     chat_history = '\n'.join([
         *(f"{h.author}: {h.content}" for h in history),
