@@ -1221,17 +1221,17 @@ speedups = ["aiohttp[speedups] (>=3.10,<4.0)", "ciso8601 (>=2.3,<3.0)", "orjson 
 
 [[package]]
 name = "hikari-lightbulb"
-version = "2.3.5"
+version = "2.3.5.post0"
 description = "A simple to use command handler for Hikari"
 optional = false
-python-versions = ">=3.8.0,<3.13"
+python-versions = "<3.13,>=3.8.0"
 files = [
-    {file = "hikari-lightbulb-2.3.5.tar.gz", hash = "sha256:7ae9e75f35f3f91f84455d068e42855e27c8588ace087a4ab3fbae9eb28ad8aa"},
-    {file = "hikari_lightbulb-2.3.5-py3-none-any.whl", hash = "sha256:8c2bcb9246b66eae670c914ea1ec7a821da15d4981ec6902e7c7148d05907a78"},
+    {file = "hikari-lightbulb-2.3.5.post0.tar.gz", hash = "sha256:388b5c995494e6d576fde7db98c093f0aaa1f8e5db87807c20e753aa1689877f"},
+    {file = "hikari_lightbulb-2.3.5.post0-py3-none-any.whl", hash = "sha256:2aa307da50e7e0647c0278c5e23a8e98d01585d22f97f87e535e55b512a41d5f"},
 ]
 
 [package.dependencies]
-hikari = ">=2.0.0.dev122,<2.1.0"
+hikari = ">=2.0.0,<2.1.0"
 
 [package.extras]
 crontrigger = ["croniter (>=2.0.1,<2.1.0)", "types-croniter (>=2.0.0,<2.1.0)"]
