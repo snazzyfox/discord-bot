@@ -24,7 +24,7 @@ cachetools = "^5.5.0"
 # TwitchIO for twitch bot - waiting on twitchio 3.0 which will not be incompatible with hikari
 twitchio = "^2.9.1"
 atproto = "^0.0.54"
-google-generativeai = "^0.8.1"
+google-generativeai = "^0.8.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
