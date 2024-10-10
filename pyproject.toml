@@ -25,6 +25,7 @@ cachetools = "^5.5.0"
 twitchio = "^2.9.1"
 atproto = "^0.0.54"
 google-generativeai = "^0.8.2"
+pet-pet-gif = "^1.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
