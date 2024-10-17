@@ -21,6 +21,7 @@ bot_intents = (
     | hikari.Intents.MESSAGE_CONTENT
     | hikari.Intents.GUILD_MEMBERS
     | hikari.Intents.GUILD_MODERATION
+    | hikari.Intents.GUILD_PRESENCES
 )
 cache_settings = CacheSettings(max_messages=3000)
 

@@ -63,5 +63,9 @@ youtube_notif_playlist_ids = ConfigValue[list[str]]('youtube.notif.playlist_ids'
 youtube_notif_title_template = ConfigValue[str]('youtube.notif.title_template',
                                                 '$channel just [uploaded a new YouTube video!]($url)')
 
+presence_streaming_role = ConfigValue[int]('presence.streaming.role_id')  # REQUIRED for notifs to work!
+presence_streaming_notif_channel_id = ConfigValue[int]('presence.streaming.notif.channel_id')
+presence_streaming_notif_title_template = ConfigValue[str]('presence.streaming.notif.title_template', '$user is live!')
+
 report_channel_id = ConfigValue[int]('report.channel_id')
 report_message = ConfigValue[str]('report.message', '')

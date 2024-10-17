@@ -19,8 +19,8 @@ _LAST_KNOWN_STREAM_ID: dict[str, int] = {}
 logger = logging.getLogger(__name__)
 
 
-@plugin.listener(hikari.StartedEvent)
-async def on_started(event: hikari.StartedEvent):
+@plugin.listener(hikari.StartingEvent)
+async def on_started(event: hikari.StartingEvent):
     global twitch
     _twitch_client_id_secret = await get_secret_configs('secret.twitch.client_id_secret')
     _twitch_client_id, _twitch_client_secret = next(iter(_twitch_client_id_secret.values())).get_secret_value().split()
