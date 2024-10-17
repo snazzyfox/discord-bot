@@ -78,6 +78,14 @@ def create_bot(token: SecretStr, guilds: set[int]) -> lightbulb.BotApp:
     return bot
 
 
+async def _start_bot(b: lightbulb.BotApp):
+    try:
+        return await b.start(check_for_updates=False)
+    except RuntimeError:
+        logger.exception(f'FAILED TO START BOT FOR GUILDS {b.default_enabled_guilds}')
+        raise
+
+
 async def start() -> None:
     global _bots
     logger.info('Starting discord bots...')
@@ -96,7 +104,7 @@ async def start() -> None:
         bot = create_bot(token, guilds)
         _bots.append(bot)
 
-    await asyncio.gather(*(bot.start(check_for_updates=False) for bot in _bots))
+    await asyncio.gather(*(_start_bot(bot) for bot in _bots))
     await asyncio.gather(*(bot.join() for bot in _bots))
 
 
