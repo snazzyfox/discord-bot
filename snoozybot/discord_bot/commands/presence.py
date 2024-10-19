@@ -47,7 +47,7 @@ async def _process_presence(presence: hikari.MemberPresence, member: hikari.Memb
             channel: hikari.TextableGuildChannel = member.get_guild().get_channel(channel_id)
             await channel.send(content=text + '\n' + text_content, embeds=embeds)
             logger.info(f'Sent going live message for user {member} to guild {member.guild_id}, channel {channel_id}.')
-    elif presence.activities and streaming_role in member.role_ids:
+    elif presence.activities is not None and streaming_role in member.role_ids:
         # remove role
         await member.remove_role(streaming_role)
         logger.info(f'Removed streaming role for user {member} in guild {member.guild_id}')
