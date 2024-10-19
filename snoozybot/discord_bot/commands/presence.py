@@ -22,8 +22,7 @@ async def on_guild_available(event: hikari.GuildAvailableEvent):
 
 @plugin.listener(hikari.PresenceUpdateEvent)
 async def on_presence_update(event: hikari.PresenceUpdateEvent):
-    if event.presence.activities is not None:
-        await _process_presence(event.presence, None)
+    await _process_presence(event.presence, None)
 
 
 async def _process_presence(presence: hikari.MemberPresence, member: hikari.Member | None):
