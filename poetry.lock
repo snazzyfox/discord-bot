@@ -1417,13 +1417,13 @@ all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2
 
 [[package]]
 name = "iso8601"
-version = "1.1.0"
+version = "2.1.0"
 description = "Simple module to parse ISO 8601 dates"
 optional = false
-python-versions = ">=3.6.2,<4.0"
+python-versions = ">=3.7,<4.0"
 files = [
-    {file = "iso8601-1.1.0-py3-none-any.whl", hash = "sha256:8400e90141bf792bce2634df533dc57e3bee19ea120a87bebcd3da89a58ad73f"},
-    {file = "iso8601-1.1.0.tar.gz", hash = "sha256:32811e7b81deee2063ea6d2e94f8819a86d1f3811e49d23623a41fa832bef03f"},
+    {file = "iso8601-2.1.0-py3-none-any.whl", hash = "sha256:aac4145c4dcb66ad8b648a02830f5e2ff6c24af20f4f482689be402db2429242"},
+    {file = "iso8601-2.1.0.tar.gz", hash = "sha256:6b1d3829ee8921c4301998c909f7829fa9ed3cbdac0d3b16af2d743aed1ba8df"},
 ]
 
 [[package]]
@@ -2441,13 +2441,13 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pypika-tortoise"
-version = "0.1.6"
+version = "0.3.2"
 description = "Forked from pypika and streamline just for tortoise-orm"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = "<4.0,>=3.8"
 files = [
-    {file = "pypika-tortoise-0.1.6.tar.gz", hash = "sha256:d802868f479a708e3263724c7b5719a26ad79399b2a70cea065f4a4cadbebf36"},
-    {file = "pypika_tortoise-0.1.6-py3-none-any.whl", hash = "sha256:2d68bbb7e377673743cff42aa1059f3a80228d411fbcae591e4465e173109fd8"},
+    {file = "pypika_tortoise-0.3.2-py3-none-any.whl", hash = "sha256:c5c52bc4473fe6f3db36cf659340750246ec5dd0f980d04ae7811430e299c3a2"},
+    {file = "pypika_tortoise-0.3.2.tar.gz", hash = "sha256:f5d508e2ef00255e52ec6ac79ef889e10dbab328f218c55cd134c4d02ff9f6f4"},
 ]
 
 [[package]]
@@ -2616,23 +2616,23 @@ files = [
 
 [[package]]
 name = "tortoise-orm"
-version = "0.21.6"
+version = "0.22.2"
 description = "Easy async ORM for python, built with relations in mind"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "tortoise_orm-0.21.6-py3-none-any.whl", hash = "sha256:98fcf07dce3396075eac36b0d2b14d2267ff875d32455e03ee15e38de2f138df"},
-    {file = "tortoise_orm-0.21.6.tar.gz", hash = "sha256:0fbc718001647bf282c01eaaa360f94f1432c9281701244180703d48d58a88ec"},
+    {file = "tortoise_orm-0.22.2-py3-none-any.whl", hash = "sha256:1369f3286b33b509e36953c4147a6f5e6c9cd40b95c58dc7054ef463ab69971a"},
+    {file = "tortoise_orm-0.22.2.tar.gz", hash = "sha256:f1e808bc27265b3e4682dae89b725a66d8311cc20c206d512c57dd8a1c78096b"},
 ]
 
 [package.dependencies]
-aiosqlite = ">=0.16.0,<0.18.0"
+aiosqlite = ">=0.16.0,<0.21.0"
 asyncpg = {version = "*", optional = true, markers = "extra == \"asyncpg\""}
 ciso8601 = {version = "*", optional = true, markers = "sys_platform != \"win32\" and implementation_name == \"cpython\" and extra == \"accel\""}
-iso8601 = ">=1.0.2,<2.0.0"
+iso8601 = ">=2.1.0,<3.0.0"
 orjson = {version = "*", optional = true, markers = "extra == \"accel\""}
 pydantic = ">=2.0,<2.7.0 || >2.7.0,<3.0"
-pypika-tortoise = ">=0.1.6,<0.2.0"
+pypika-tortoise = ">=0.3.2,<0.4.0"
 pytz = "*"
 uvloop = {version = "*", optional = true, markers = "sys_platform != \"win32\" and implementation_name == \"cpython\" and extra == \"accel\""}
 
@@ -3055,4 +3055,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "eb868db6957054cd5ad11f039a5cccfd23d06862415a765eebd14eb44a7f5087"
+content-hash = "7f8f2510e22f31a8d3aa296001be5a13da3e638a1559f5c737de69d46cc52124"
