@@ -132,7 +132,7 @@ async def _chat_respond_openai(message: hikari.Message, prompts: list[str], hist
     history_data = ({
         "role": "assistant" if h.is_bot else "user",
         "content": h.content,
-        "name": h.author,
+        "name": h.author if not h.is_bot else None,
     } for h in history)
     messages = [
         {"role": "system", "content": '\n'.join(system_prompts)},
@@ -150,6 +150,7 @@ async def _chat_respond_openai(message: hikari.Message, prompts: list[str], hist
         frequency_penalty=0.10,
     )
     response_text: str = response.choices[0].message.content
+    # strip off the bot's name from the beginning
     logger.info("OpenAI chat message: prompt: %s, response: %s", messages, response_text)
     await message.respond(response_text, reply=True)
 
