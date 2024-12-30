@@ -2616,13 +2616,13 @@ files = [
 
 [[package]]
 name = "tortoise-orm"
-version = "0.22.2"
+version = "0.23.0"
 description = "Easy async ORM for python, built with relations in mind"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "tortoise_orm-0.22.2-py3-none-any.whl", hash = "sha256:1369f3286b33b509e36953c4147a6f5e6c9cd40b95c58dc7054ef463ab69971a"},
-    {file = "tortoise_orm-0.22.2.tar.gz", hash = "sha256:f1e808bc27265b3e4682dae89b725a66d8311cc20c206d512c57dd8a1c78096b"},
+    {file = "tortoise_orm-0.23.0-py3-none-any.whl", hash = "sha256:deaabed1619ea8aab6213508dff025571a701b7f34ee534473d7bb7661aa9f4f"},
+    {file = "tortoise_orm-0.23.0.tar.gz", hash = "sha256:f25d431ef4fb521a84edad582f4b9c53dccc5abf6cfbc6f228cbece5a13952fa"},
 ]
 
 [package.dependencies]
@@ -2631,7 +2631,6 @@ asyncpg = {version = "*", optional = true, markers = "extra == \"asyncpg\""}
 ciso8601 = {version = "*", optional = true, markers = "sys_platform != \"win32\" and implementation_name == \"cpython\" and extra == \"accel\""}
 iso8601 = ">=2.1.0,<3.0.0"
 orjson = {version = "*", optional = true, markers = "extra == \"accel\""}
-pydantic = ">=2.0,<2.7.0 || >2.7.0,<3.0"
 pypika-tortoise = ">=0.3.2,<0.4.0"
 pytz = "*"
 uvloop = {version = "*", optional = true, markers = "sys_platform != \"win32\" and implementation_name == \"cpython\" and extra == \"accel\""}
@@ -3055,4 +3054,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "ebd1f86050f127ac3bce28c6aaa54fdfc2b9558be4c30cd70e5a69f52a9bc947"
+content-hash = "028bda519c3844a1a9a852cfd676f87d1cc02e564db42c25073856b01907d369"
