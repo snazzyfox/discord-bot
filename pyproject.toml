@@ -28,7 +28,7 @@ google-generativeai = "^0.8.2"
 pet-pet-gif = "^1.0.2"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^4.0.1"
+pre-commit = "^4.1.0"
 jurigged = "^0.6.0"
 
 [build-system]
