@@ -86,7 +86,7 @@ async def _chat_guild_respond_ai(event: hikari.GuildMessageCreateEvent) -> None:
     else:
         # There's nothing to reply to. Use previous message history in chat instead
         for msg in _ai_message_buffer[event.channel_id]:
-            if msg.content:
+            if msg.content and msg.member:  # skip empty messages and deleted/banned stuff
                 history.insert(0, ChatHistoryItem(
                     is_bot=msg.member.id == bot_member.id,
                     content=msg.content,
