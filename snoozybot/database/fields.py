@@ -1,7 +1,7 @@
 import datetime
 from typing import Any
 
-from pypika import CustomFunction
+from pypika_tortoise import CustomFunction
 from tortoise import Model
 from tortoise.expressions import Function
 from tortoise.fields import Field
