@@ -302,13 +302,13 @@ websockets = ">=12,<14"
 
 [[package]]
 name = "attrs"
-version = "24.3.0"
+version = "25.1.0"
 description = "Classes Without Boilerplate"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "attrs-24.3.0-py3-none-any.whl", hash = "sha256:ac96cd038792094f438ad1f6ff80837353805ac950cd2aa0e0625ef19850c308"},
-    {file = "attrs-24.3.0.tar.gz", hash = "sha256:8f5c07333d543103541ba7be0e2ce16eeee8130cb0b3f9238ab904ce1e85baff"},
+    {file = "attrs-25.1.0-py3-none-any.whl", hash = "sha256:c75a69e28a550a7e93789579c22aa26b0f5b83b75dc4e08fe092980051e1090a"},
+    {file = "attrs-25.1.0.tar.gz", hash = "sha256:1c97078a80c814273a76b2a298a932eb681c87415c11dee0a6921de7f1b02c3e"},
 ]
 
 [package.extras]
@@ -1274,29 +1274,29 @@ files = [
 
 [[package]]
 name = "hikari"
-version = "2.1.0"
+version = "2.1.1"
 description = "A sane Discord API for Python 3 built on asyncio and good intentions"
 optional = false
 python-versions = "<3.14,>=3.9.0"
 files = [
-    {file = "hikari-2.1.0-py3-none-any.whl", hash = "sha256:36d2629f5f1df39d3edc7bb8f64996e82f6926f297e18ababcf753120f7f404b"},
-    {file = "hikari-2.1.0.tar.gz", hash = "sha256:498bc39d2777eb5ceeec63e3b08362dda39d966a0f2197867f94e8293bb4a277"},
+    {file = "hikari-2.1.1-py3-none-any.whl", hash = "sha256:9633babb36e7be42db386112ca87a8ef2e1f63ce79a352dcc874147801d29a05"},
+    {file = "hikari-2.1.1.tar.gz", hash = "sha256:70c3987d87a5eb29db9ab448989ae8e2c65d3f2e44a392bc5c6e1d77db8e146c"},
 ]
 
 [package.dependencies]
 aiohttp = [
-    {version = ">=3.10,<4.0"},
-    {version = ">=3.10,<4.0", extras = ["speedups"], optional = true, markers = "extra == \"speedups\""},
+    {version = ">=3.11,<4.0"},
+    {version = ">=3.11,<4.0", extras = ["speedups"], optional = true, markers = "extra == \"speedups\""},
 ]
-attrs = ">=24.2,<25.0"
+attrs = ">=25.1,<26.0"
 ciso8601 = {version = ">=2.3,<3.0", optional = true, markers = "extra == \"speedups\""}
-colorlog = ">=6.8,<7.0"
+colorlog = ">=6.9,<7.0"
 multidict = ">=6.1,<7.0"
 orjson = {version = ">=3.10,<4.0", optional = true, markers = "extra == \"speedups\""}
 
 [package.extras]
 server = ["pynacl (>=1.5,<2.0)"]
-speedups = ["aiohttp[speedups] (>=3.10,<4.0)", "ciso8601 (>=2.3,<3.0)", "orjson (>=3.10,<4.0)"]
+speedups = ["aiohttp[speedups] (>=3.11,<4.0)", "ciso8601 (>=2.3,<3.0)", "orjson (>=3.10,<4.0)"]
 
 [[package]]
 name = "hikari-lightbulb"
